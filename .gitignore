@@ -1,0 +1,50 @@
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+*.xcworkspace/xcshareddata/swiftpm/
+DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Build
+build/
+Products/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# CocoaPods (not used, but just in case)
+Pods/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# XcodeGen — keep project.yml, ignore generated project
+# (comment out the next line if you prefer to commit the xcodeproj)
+# HostFlow/HostFlow.xcodeproj
+
+# Secrets / env
+.env
+*.p12
+*.mobileprovision
+*.provisionprofile
+
+# Editor
+.idea/
+*.swp
+*.swo

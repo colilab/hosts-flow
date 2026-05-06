@@ -1,0 +1,81 @@
+import SwiftUI
+import SwiftData
+
+struct SidebarView: View {
+
+    @Binding var selectedProfile: Profile?
+    @Environment(\.modelContext) private var context
+    @Environment(ProfileStore.self) private var store
+    @Query(sort: \Profile.order) private var profiles: [Profile]
+
+    @State private var isAddingProfile = false
+    @State private var newProfileName = ""
+
+    var body: some View {
+        VStack(spacing: 0) {
+            List(profiles, selection: $selectedProfile) { profile in
+                ProfileRowView(profile: profile)
+                    .tag(profile)
+            }
+            .listStyle(.sidebar)
+
+            Divider()
+
+            HStack {
+                Button {
+                    isAddingProfile = true
+                } label: {
+                    Label("Nuovo profilo", systemImage: "plus")
+                        .font(.callout)
+                }
+                .buttonStyle(.plain)
+                .padding(.leading, 12)
+
+                Spacer()
+
+                SettingsLink {
+                    Image(systemName: "gear")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, 12)
+            }
+            .frame(height: 36)
+        }
+        .alert("Nuovo profilo", isPresented: $isAddingProfile) {
+            TextField("Nome profilo", text: $newProfileName)
+            Button("Crea") {
+                guard !newProfileName.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+                store.addProfile(name: newProfileName, context: context)
+                newProfileName = ""
+            }
+            Button("Annulla", role: .cancel) { newProfileName = "" }
+        }
+    }
+}
+
+private struct ProfileRowView: View {
+
+    @Bindable var profile: Profile
+    @Environment(\.modelContext) private var context
+    @Environment(ProfileStore.self) private var store
+
+    var body: some View {
+        HStack {
+            Toggle(isOn: $profile.isActive) {
+                EmptyView()
+            }
+            .toggleStyle(.switch)
+            .controlSize(.mini)
+            .onChange(of: profile.isActive) {
+                store.writeHosts(context: context)
+            }
+
+            Text(profile.name)
+                .lineLimit(1)
+
+            Spacer()
+        }
+        .padding(.vertical, 2)
+    }
+}

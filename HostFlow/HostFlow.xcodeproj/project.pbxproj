@@ -1,0 +1,402 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		011531F94A0E8FF1C43452FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C29C2D40583440968D3491 /* ContentView.swift */; };
+		025DD7DE5AF0996A4186CDFF /* HostFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962A106CD4B2C27A4DF88FFF /* HostFlowApp.swift */; };
+		08FEA26EBEB616BCF241CC26 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9182BD4A56DA00D9A72D4B /* SidebarView.swift */; };
+		2537EB46E582B496AD7B725A /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C66693F262DF5ADCA6DCF5 /* MenuBarView.swift */; };
+		479B6063135C464B7D203590 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD252067315F25E616C42BE /* AppSettings.swift */; };
+		4D4C93E446F4EE312826180A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34443BF3B959DBF01127C21 /* Profile.swift */; };
+		50D02D0EEF71A99E5BEA88B0 /* ProfileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9651F263872E4319C64419 /* ProfileDetailView.swift */; };
+		542843400A13634AD3054B15 /* AddRecordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E86FDF092AA4237434BEAA5 /* AddRecordSheet.swift */; };
+		76EBC2C36532CD939DED0AD9 /* HostsFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3FA13ADDEE68A07887AF53 /* HostsFileManager.swift */; };
+		9699FE669F81DD002CBC9087 /* HostRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3634CC7C88A085F4F0A8FE66 /* HostRecord.swift */; };
+		C7C2A9D2A704CDE0DB0E0E38 /* EditRecordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8767DE637961AB296C4C0EF6 /* EditRecordSheet.swift */; };
+		D58038BF77784408ACC40ABF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4640EBB32848C5F94462A4D /* SettingsView.swift */; };
+		E405CDB2502B0EFE5AC4CCDC /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B83AC8610860D04F54BEE4AA /* ProfileStore.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		18C29C2D40583440968D3491 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		24C66693F262DF5ADCA6DCF5 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		2A3FA13ADDEE68A07887AF53 /* HostsFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileManager.swift; sourceTree = "<group>"; };
+		2E86FDF092AA4237434BEAA5 /* AddRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecordSheet.swift; sourceTree = "<group>"; };
+		3634CC7C88A085F4F0A8FE66 /* HostRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostRecord.swift; sourceTree = "<group>"; };
+		4C9651F263872E4319C64419 /* ProfileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDetailView.swift; sourceTree = "<group>"; };
+		5D9182BD4A56DA00D9A72D4B /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		5FD252067315F25E616C42BE /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		8767DE637961AB296C4C0EF6 /* EditRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecordSheet.swift; sourceTree = "<group>"; };
+		962A106CD4B2C27A4DF88FFF /* HostFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostFlowApp.swift; sourceTree = "<group>"; };
+		B83AC8610860D04F54BEE4AA /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
+		C4640EBB32848C5F94462A4D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		D34443BF3B959DBF01127C21 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		E995FE21FEBA892E881B6AFC /* HostFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HostFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		087536D29A9359A49EAB7632 /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				24C66693F262DF5ADCA6DCF5 /* MenuBarView.swift */,
+			);
+			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		35549D202592120D17EB64B7 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				2A3FA13ADDEE68A07887AF53 /* HostsFileManager.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		39DCAFEF35A7EB909345C907 /* ProfileDetail */ = {
+			isa = PBXGroup;
+			children = (
+				2E86FDF092AA4237434BEAA5 /* AddRecordSheet.swift */,
+				8767DE637961AB296C4C0EF6 /* EditRecordSheet.swift */,
+				4C9651F263872E4319C64419 /* ProfileDetailView.swift */,
+			);
+			path = ProfileDetail;
+			sourceTree = "<group>";
+		};
+		3C4A7684180FDACE7670934A /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				5FD252067315F25E616C42BE /* AppSettings.swift */,
+				B83AC8610860D04F54BEE4AA /* ProfileStore.swift */,
+			);
+			path = Stores;
+			sourceTree = "<group>";
+		};
+		4E66467D896F504706146B4C = {
+			isa = PBXGroup;
+			children = (
+				FF48CD5E9BF5730166978BE0 /* App */,
+				35549D202592120D17EB64B7 /* Helpers */,
+				F5B2DCD2CFADB7309577E7EB /* Models */,
+				3C4A7684180FDACE7670934A /* Stores */,
+				9D0C81A03F11C499812C293D /* Views */,
+				DD80962C39B485EA35191D2C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		67F7F50A4440548858A71B11 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				C4640EBB32848C5F94462A4D /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		9D0C81A03F11C499812C293D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				087536D29A9359A49EAB7632 /* MenuBar */,
+				39DCAFEF35A7EB909345C907 /* ProfileDetail */,
+				67F7F50A4440548858A71B11 /* Settings */,
+				C2A87E8DE5DD648BA48999FC /* Sidebar */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C2A87E8DE5DD648BA48999FC /* Sidebar */ = {
+			isa = PBXGroup;
+			children = (
+				5D9182BD4A56DA00D9A72D4B /* SidebarView.swift */,
+			);
+			path = Sidebar;
+			sourceTree = "<group>";
+		};
+		DD80962C39B485EA35191D2C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E995FE21FEBA892E881B6AFC /* HostFlow.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F5B2DCD2CFADB7309577E7EB /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3634CC7C88A085F4F0A8FE66 /* HostRecord.swift */,
+				D34443BF3B959DBF01127C21 /* Profile.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		FF48CD5E9BF5730166978BE0 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				18C29C2D40583440968D3491 /* ContentView.swift */,
+				962A106CD4B2C27A4DF88FFF /* HostFlowApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3115DB6E4F9DC89857F1EF7A /* HostFlow */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1F610781744FB72CF6154A44 /* Build configuration list for PBXNativeTarget "HostFlow" */;
+			buildPhases = (
+				DA2276C0EC7B766A252905F5 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HostFlow;
+			packageProductDependencies = (
+			);
+			productName = HostFlow;
+			productReference = E995FE21FEBA892E881B6AFC /* HostFlow.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0AA101F2493010D84926EE08 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					3115DB6E4F9DC89857F1EF7A = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = FACFA49536AD45B437C8E78B /* Build configuration list for PBXProject "HostFlow" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 4E66467D896F504706146B4C;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = DD80962C39B485EA35191D2C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3115DB6E4F9DC89857F1EF7A /* HostFlow */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DA2276C0EC7B766A252905F5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				542843400A13634AD3054B15 /* AddRecordSheet.swift in Sources */,
+				479B6063135C464B7D203590 /* AppSettings.swift in Sources */,
+				011531F94A0E8FF1C43452FB /* ContentView.swift in Sources */,
+				C7C2A9D2A704CDE0DB0E0E38 /* EditRecordSheet.swift in Sources */,
+				025DD7DE5AF0996A4186CDFF /* HostFlowApp.swift in Sources */,
+				9699FE669F81DD002CBC9087 /* HostRecord.swift in Sources */,
+				76EBC2C36532CD939DED0AD9 /* HostsFileManager.swift in Sources */,
+				2537EB46E582B496AD7B725A /* MenuBarView.swift in Sources */,
+				4D4C93E446F4EE312826180A /* Profile.swift in Sources */,
+				50D02D0EEF71A99E5BEA88B0 /* ProfileDetailView.swift in Sources */,
+				E405CDB2502B0EFE5AC4CCDC /* ProfileStore.swift in Sources */,
+				D58038BF77784408ACC40ABF /* SettingsView.swift in Sources */,
+				08FEA26EBEB616BCF241CC26 /* SidebarView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		23B60E5CDE91735D18DEC25D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = HostFlow;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		B680A416F07283D9D124D8FB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = HostFlow;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		D8FD4B83A18B2451A25D309E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Resources/HostFlow.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.colilab.hostflow;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		F42B225F51D3D4347FC82C96 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Resources/HostFlow.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.colilab.hostflow;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1F610781744FB72CF6154A44 /* Build configuration list for PBXNativeTarget "HostFlow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8FD4B83A18B2451A25D309E /* Debug */,
+				F42B225F51D3D4347FC82C96 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		FACFA49536AD45B437C8E78B /* Build configuration list for PBXProject "HostFlow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B680A416F07283D9D124D8FB /* Debug */,
+				23B60E5CDE91735D18DEC25D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0AA101F2493010D84926EE08 /* Project object */;
+}

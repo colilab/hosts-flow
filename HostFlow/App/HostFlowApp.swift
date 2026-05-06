@@ -1,0 +1,44 @@
+import SwiftUI
+import SwiftData
+
+@main
+struct HostFlowApp: App {
+
+    private let container: ModelContainer = {
+        let schema = Schema([Profile.self, HostRecord.self])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        do {
+            return try ModelContainer(for: schema, configurations: [config])
+        } catch {
+            fatalError("Failed to create ModelContainer: \(error)")
+        }
+    }()
+
+    @State private var profileStore = ProfileStore()
+    @State private var appSettings = AppSettings()
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .modelContainer(container)
+                .environment(profileStore)
+                .environment(appSettings)
+        }
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentMinSize)
+        .defaultSize(width: 860, height: 560)
+
+        MenuBarExtra("Host Flow", systemImage: "network") {
+            MenuBarView()
+                .modelContainer(container)
+                .environment(profileStore)
+                .environment(appSettings)
+        }
+        .menuBarExtraStyle(.window)
+
+        Settings {
+            SettingsView()
+                .environment(appSettings)
+        }
+    }
+}
