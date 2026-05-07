@@ -10,6 +10,10 @@ struct AddRecordSheet: View {
     @State private var ip = ""
     @State private var hostname = ""
 
+    private var validationError: ValidationError? {
+        HostValidator.validateRecord(ip: ip, hostname: hostname)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Nuovo record")
@@ -23,18 +27,26 @@ struct AddRecordSheet: View {
             }
             .formStyle(.grouped)
 
+            if let error = validationError, !ip.isEmpty || !hostname.isEmpty {
+                Text(error.errorDescription ?? "")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
+
             HStack {
                 Spacer()
                 Button("Annulla", role: .cancel) { dismiss() }
                 Button("Aggiungi") {
-                    let record = HostRecord(ip: ip, hostname: hostname, profile: profile)
+                    let trimmedIP = ip.trimmingCharacters(in: .whitespaces)
+                    let trimmedHost = hostname.trimmingCharacters(in: .whitespaces)
+                    let record = HostRecord(ip: trimmedIP, hostname: trimmedHost, profile: profile)
                     context.insert(record)
                     try? context.save()
                     store.writeHosts(context: context)
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(ip.isEmpty || hostname.isEmpty)
+                .disabled(validationError != nil)
             }
         }
         .padding(20)

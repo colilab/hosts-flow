@@ -27,3 +27,9 @@ Validare i campi `ip` e `hostname` di `HostRecord` prima di persistere, sia su c
 - IPv4: usa `inet_pton(AF_INET, ...)` per robustezza
 - IPv6: usa `inet_pton(AF_INET6, ...)`
 - Hostname regex: `^(?=.{1,253}$)([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$`
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** Helper `HostValidator` con validazione IPv4/IPv6 (via `inet_pton`) e hostname RFC 1123, enum `ValidationError: LocalizedError` con messaggi italiani, integrato in `AddRecordSheet` e `EditRecordSheet` con disable bottone su invalid e messaggio inline. Trim whitespace su salvataggio.

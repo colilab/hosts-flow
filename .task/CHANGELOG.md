@@ -1,5 +1,23 @@
 # Changelog
 
+## [2026-05-07] — IP + hostname validation
+
+**Type:** feature
+
+### Changes
+- Added `HostValidator` helper with static IPv4/IPv6 validation (via `inet_pton`) and RFC 1123 hostname regex (single-label allowed)
+- Added `ValidationError: LocalizedError` enum (`emptyIP`, `invalidIP`, `emptyHostname`, `invalidHostname`) with Italian user-facing messages
+- `validateRecord(ip:hostname:)` convenience that trims whitespace and returns the first failure
+- Integrated validation in `AddRecordSheet`: "Aggiungi" disabled while invalid, inline red error message; saves trimmed values
+- Integrated validation in `EditRecordSheet`: "Chiudi" disabled while invalid, inline red error message; trims on save
+- Regenerated Xcode project to include new helper file
+
+### Files modified
+- `HostFlow/Helpers/HostValidator.swift` — new file: validators + error enum
+- `HostFlow/Views/ProfileDetail/AddRecordSheet.swift` — validation integration + trim on save
+- `HostFlow/Views/ProfileDetail/EditRecordSheet.swift` — validation integration + trim on save
+- `HostFlow/HostFlow.xcodeproj` — regenerated
+
 ## [2026-05-07] — Profile read-only flag
 
 **Type:** chore

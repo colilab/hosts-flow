@@ -10,6 +10,7 @@
 		011531F94A0E8FF1C43452FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C29C2D40583440968D3491 /* ContentView.swift */; };
 		025DD7DE5AF0996A4186CDFF /* HostFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962A106CD4B2C27A4DF88FFF /* HostFlowApp.swift */; };
 		08FEA26EBEB616BCF241CC26 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9182BD4A56DA00D9A72D4B /* SidebarView.swift */; };
+		092DA13347E91AF07C139367 /* HostValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08B92A29E532CD6A45BE845 /* HostValidator.swift */; };
 		2537EB46E582B496AD7B725A /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C66693F262DF5ADCA6DCF5 /* MenuBarView.swift */; };
 		479B6063135C464B7D203590 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD252067315F25E616C42BE /* AppSettings.swift */; };
 		4D4C93E446F4EE312826180A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34443BF3B959DBF01127C21 /* Profile.swift */; };
@@ -37,6 +38,7 @@
 		C4640EBB32848C5F94462A4D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		D34443BF3B959DBF01127C21 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		E995FE21FEBA892E881B6AFC /* HostFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HostFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F08B92A29E532CD6A45BE845 /* HostValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostValidator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -52,6 +54,7 @@
 			isa = PBXGroup;
 			children = (
 				2A3FA13ADDEE68A07887AF53 /* HostsFileManager.swift */,
+				F08B92A29E532CD6A45BE845 /* HostValidator.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -205,6 +208,7 @@
 				C7C2A9D2A704CDE0DB0E0E38 /* EditRecordSheet.swift in Sources */,
 				025DD7DE5AF0996A4186CDFF /* HostFlowApp.swift in Sources */,
 				9699FE669F81DD002CBC9087 /* HostRecord.swift in Sources */,
+				092DA13347E91AF07C139367 /* HostValidator.swift in Sources */,
 				76EBC2C36532CD939DED0AD9 /* HostsFileManager.swift in Sources */,
 				2537EB46E582B496AD7B725A /* MenuBarView.swift in Sources */,
 				4D4C93E446F4EE312826180A /* Profile.swift in Sources */,
