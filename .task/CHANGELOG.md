@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026-05-07] — Record toggle visual feedback
+
+**Type:** feature
+
+### Changes
+
+- Enhanced visual feedback for disabled host records by adding reduced opacity (0.5) in addition to the existing secondary color
+- Disabled records now display with both secondary foreground color and 50% opacity for clearer visual distinction following macOS conventions
+- Visual feedback applies to both IP and hostname columns in the records table
+
+### Files modified
+
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — added `.opacity(record.isEnabled ? 1.0 : 0.5)` modifier to text cells
+
 ## [2026-05-07] — Record — Inline record rename
 
 **Type:** feature

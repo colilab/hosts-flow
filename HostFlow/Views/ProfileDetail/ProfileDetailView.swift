@@ -188,6 +188,7 @@ struct ProfileDetailView: View {
             Text(value)
                 .font(.system(.body, design: .monospaced))
                 .foregroundStyle(record.isEnabled ? .primary : .secondary)
+                .opacity(record.isEnabled ? 1.0 : 0.5)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 .onTapGesture(count: 2) {
