@@ -1,5 +1,31 @@
 # Changelog
 
+## [2026-05-07] — Sidebar row — Tight name truncation
+
+**Type:** bugfix
+
+### Changes
+- Profile name in sidebar rows was truncating with ellipsis well before reaching the toggle, leaving a noticeable empty gap
+- Root cause: `Toggle` with an `EmptyView()` label still reserved horizontal space for the invisible label slot; combined with a missing outer width constraint, the row never offered the full available width to the name `Text`
+- Added `.labelsHidden()` on the profile `Toggle` so it occupies only the actual switch width
+- Replaced the inner-HStack-with-frame trick with a flat HStack: `Text/TextField` → `Lock?` (adjacent to the name) → `Spacer(minLength: 0)` → `Toggle`
+- Outer HStack now `.frame(maxWidth: .infinity)` so the row claims full sidebar width and the `Spacer(minLength: 0)` only takes up actual leftover space — name truncates only when the row is genuinely too narrow
+
+### Files modified
+- `HostFlow/Views/Sidebar/SidebarView.swift` — `ProfileRowView` layout: `.labelsHidden()` on Toggle, flat HStack with `Spacer(minLength: 0)`, outer `.frame(maxWidth: .infinity)`
+
+## [2026-05-07] — Sidebar — Remove double-click inline rename trigger
+
+**Type:** bugfix
+
+### Changes
+- Removed the double-click `TapGesture` from the profile name `Text` in `ProfileRowView` — it was preventing single-click row selection from reaching the List
+- Inline rename UI (Text ↔ TextField transition driven by `editingProfileID`) is preserved; the rename flow is now triggered exclusively from the "Rinomina" context-menu item (introduced in task 11)
+- Single click on the row now selects normally on macOS
+
+### Files modified
+- `HostFlow/Views/Sidebar/SidebarView.swift` — removed `.simultaneousGesture(TapGesture(count: 2))` on profile name
+
 ## [2026-05-07] — Sidebar — Drag & drop reorder
 
 **Type:** feature

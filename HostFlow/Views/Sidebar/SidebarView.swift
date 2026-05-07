@@ -151,11 +151,6 @@ private struct ProfileRowView: View {
                 Text(profile.name)
                     .lineLimit(1)
                     .truncationMode(.tail)
-                    .onTapGesture(count: 2) {
-                        guard !profile.isReadOnly else { return }
-                        draftName = profile.name
-                        onBeginEdit()
-                    }
             }
 
             if profile.isReadOnly {
@@ -164,18 +159,20 @@ private struct ProfileRowView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 0)
 
             Toggle(isOn: $profile.isActive) {
                 EmptyView()
             }
             .toggleStyle(.switch)
             .controlSize(.mini)
+            .labelsHidden()
             .disabled(profile.isReadOnly)
             .onChange(of: profile.isActive) {
                 store.writeHosts(context: context)
             }
         }
+        .frame(maxWidth: .infinity)
         .padding(.vertical, 2)
         .help(profile.isReadOnly ? "Profilo di sistema — duplica per modificare" : "")
         .onChange(of: isEditing) { _, editing in
