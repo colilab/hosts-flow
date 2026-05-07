@@ -19,6 +19,7 @@ struct ProfileDetailView: View {
     @State private var editingCell: CellAddress?
     @State private var draftValue = ""
     @State private var validationFailed = false
+    @State private var selectedRecordIDs: Set<UUID> = []
     @FocusState private var focusedCell: CellAddress?
 
     private var filteredRecords: [HostRecord] {
@@ -111,7 +112,7 @@ struct ProfileDetailView: View {
     }
 
     private var recordsList: some View {
-        Table(filteredRecords) {
+        Table(filteredRecords, selection: $selectedRecordIDs) {
             TableColumn("") { record in
                 Toggle("", isOn: Binding(
                     get: { record.isEnabled },
@@ -132,35 +133,33 @@ struct ProfileDetailView: View {
             TableColumn("Hostname") { record in
                 editableCell(record: record, field: .hostname, value: record.hostname)
             }
-
-            TableColumn("") { record in
-                HStack(spacing: 4) {
-                    Button {
-                        editingRecord = record
-                    } label: {
-                        Image(systemName: "pencil")
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.secondary)
-                    .disabled(profile.isReadOnly)
-
-                    Button(role: .destructive) {
-                        context.delete(record)
-                        try? context.save()
-                        store.writeHosts(context: context)
-                    } label: {
-                        Image(systemName: "trash")
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.secondary)
-                    .disabled(profile.isReadOnly)
+        }
+        .contextMenu(forSelectionType: HostRecord.ID.self) { items in
+            if !items.isEmpty {
+                Button("Elimina", role: .destructive) {
+                    deleteRecords(ids: items)
                 }
+                .disabled(profile.isReadOnly)
             }
-            .width(56)
+        }
+        .onDeleteCommand {
+            guard !profile.isReadOnly, !selectedRecordIDs.isEmpty else { return }
+            deleteRecords(ids: selectedRecordIDs)
         }
         .sheet(item: $editingRecord) { record in
             EditRecordSheet(record: record)
         }
+    }
+
+    private func deleteRecords(ids: Set<UUID>) {
+        for id in ids {
+            if let record = profile.records.first(where: { $0.id == id }) {
+                context.delete(record)
+            }
+        }
+        try? context.save()
+        store.writeHosts(context: context)
+        selectedRecordIDs.removeAll()
     }
 
     @ViewBuilder
