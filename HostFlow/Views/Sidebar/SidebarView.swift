@@ -112,26 +112,18 @@ private struct ProfileRowView: View {
     @FocusState private var isFieldFocused: Bool
 
     var body: some View {
-        HStack {
-            Toggle(isOn: $profile.isActive) {
-                EmptyView()
-            }
-            .toggleStyle(.switch)
-            .controlSize(.mini)
-            .disabled(profile.isReadOnly)
-            .onChange(of: profile.isActive) {
-                store.writeHosts(context: context)
-            }
-
+        HStack(spacing: 6) {
             if isEditing {
                 TextField("", text: $draftName)
                     .textFieldStyle(.plain)
+                    .lineLimit(1)
                     .focused($isFieldFocused)
                     .onSubmit { commit() }
                     .onExitCommand { onEndEdit() }
             } else {
                 Text(profile.name)
                     .lineLimit(1)
+                    .truncationMode(.tail)
                     .onTapGesture(count: 2) {
                         guard !profile.isReadOnly else { return }
                         draftName = profile.name
@@ -145,7 +137,17 @@ private struct ProfileRowView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Spacer()
+            Spacer(minLength: 8)
+
+            Toggle(isOn: $profile.isActive) {
+                EmptyView()
+            }
+            .toggleStyle(.switch)
+            .controlSize(.mini)
+            .disabled(profile.isReadOnly)
+            .onChange(of: profile.isActive) {
+                store.writeHosts(context: context)
+            }
         }
         .padding(.vertical, 2)
         .help(profile.isReadOnly ? "Profilo di sistema — duplica per modificare" : "")

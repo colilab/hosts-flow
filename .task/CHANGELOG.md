@@ -1,5 +1,16 @@
 # Changelog
 
+## [2026-05-07] — Sidebar row layout — name left, toggle right
+
+**Type:** refactor
+
+### Changes
+- `ProfileRowView` reordered: profile name (with lock icon when read-only) on the left, switch toggle pinned to the right via `Spacer(minLength: 8)`
+- Name truncates with ellipsis (`.lineLimit(1)` + `.truncationMode(.tail)`) when sidebar is narrow, lock icon and toggle remain visible
+
+### Files modified
+- `HostFlow/Views/Sidebar/SidebarView.swift` — `ProfileRowView` layout reorder
+
 ## [2026-05-07] — Sidebar — Delete profile
 
 **Type:** feature
