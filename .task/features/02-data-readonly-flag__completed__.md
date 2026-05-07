@@ -31,3 +31,9 @@ Aggiungere a `Profile` un flag `isReadOnly: Bool` che marca i profili "di sistem
 - I check di guard (`guard profile.isEditable else { return }`) sono distribuiti nei task sidebar/record affetti — questo task introduce solo il modello + UI marker
 - Considerare `@Transient` no — deve persistere
 - Duplica di un profilo readonly produce un profilo NON readonly (copia editabile)
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** Aggiunto `isReadOnly: Bool` al model `Profile` con default `false`, computed `isEditable`, helper `ProfileStore.canEdit`, e marker UI (icona `lock.fill` + tooltip) nella ProfileRowView della sidebar. Build verificato con successo.

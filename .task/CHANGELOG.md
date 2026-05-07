@@ -1,5 +1,22 @@
 # Changelog
 
+## [2026-05-07] — Profile read-only flag
+
+**Type:** chore
+
+### Changes
+- Added `isReadOnly: Bool` field to `Profile` model (default `false`, lightweight SwiftData migration)
+- Added computed `isEditable` on `Profile` for use in views
+- Added `canEdit(_:)` helper to `ProfileStore`
+- `SidebarView.ProfileRowView` shows `lock.fill` SF Symbol next to the profile name when read-only
+- Added tooltip "Profilo di sistema — duplica per modificare" on read-only rows
+- Build verified: app compiles cleanly with the schema change
+
+### Files modified
+- `HostFlow/Models/Profile.swift` — added `isReadOnly` field, init parameter, `isEditable` computed
+- `HostFlow/Stores/ProfileStore.swift` — added `canEdit(_:)` helper
+- `HostFlow/Views/Sidebar/SidebarView.swift` — lock icon + tooltip on read-only rows
+
 ## [2026-05-06] — Xcode Project Scaffolding + MVVM Base Architecture
 
 **Type:** chore

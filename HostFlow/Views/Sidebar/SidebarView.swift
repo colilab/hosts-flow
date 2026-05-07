@@ -74,8 +74,15 @@ private struct ProfileRowView: View {
             Text(profile.name)
                 .lineLimit(1)
 
+            if profile.isReadOnly {
+                Image(systemName: "lock.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
             Spacer()
         }
         .padding(.vertical, 2)
+        .help(profile.isReadOnly ? "Profilo di sistema — duplica per modificare" : "")
     }
 }

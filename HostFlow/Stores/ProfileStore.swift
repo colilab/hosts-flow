@@ -27,6 +27,10 @@ final class ProfileStore {
         writeHosts(context: context)
     }
 
+    func canEdit(_ profile: Profile) -> Bool {
+        profile.isEditable
+    }
+
     func writeHosts(context: ModelContext) {
         let descriptor = FetchDescriptor<Profile>()
         guard let profiles = try? context.fetch(descriptor) else { return }
