@@ -2,24 +2,29 @@
 
 ## Obiettivo
 
-Campo di ricerca in toolbar che filtra i record visibili per IP o hostname (case-insensitive, contains).
+Search bar nel pane destro che filtra i record visibili per IP o hostname (case-insensitive, contains), con empty state dedicato quando la query non produce match.
 
-## Requisiti
+## Stato attuale (pre-task)
 
-- `.searchable` nativo SwiftUI
-- Match su IP O hostname
-- Highlight dei termini matchati (opzionale ma consigliato)
-- Reset filtro su clear
+Durante l'iterazione UI (cambio a `HSplitView`) il `.searchable` nativo SwiftUI è stato sostituito con un **TextField manuale** dentro `ProfileDetailView` (`searchBar`). Già presenti:
+- `@State searchText`
+- `searchBar` (icona lupa + TextField + bottone clear `xmark.circle.fill`)
+- `filteredRecords` computed con match case-insensitive su `ip` + `hostname`
 
-## Checklist
+## Cosa resta da fare
 
-- [ ] `.searchable(text: $searchQuery)` su `ProfileDetailView`
-- [ ] Computed `filteredRecords`: se `searchQuery.isEmpty` → all, else filter
-- [ ] Match case-insensitive: `record.ip.localizedCaseInsensitiveContains(q) || record.hostname.localizedCaseInsensitiveContains(q)`
-- [ ] Empty state: "Nessun record trovato per '\(query)'" se filtro non matcha
-- [ ] Test: 10 record → query "local" → solo matching visibili
+- [ ] Empty state quando `!searchText.isEmpty && filteredRecords.isEmpty`:
+  - `ContentUnavailableView` con messaggio "Nessun record trovato per '\(searchText)'"
+  - icona `magnifyingglass`
+  - mostrato al posto della Table dei record
+- [ ] Test manuale: profilo con N record → query "local" → solo matching visibili → query inesistente → empty state
+
+## Out of scope
+
+- `.searchable` nativo — abbandonato per problemi di overlap con `HSplitView` (vedi changelog)
+- Highlight dei termini matchati — non richiesto, complessità Table custom
 
 ## Note tecniche
 
-- `.searchable` posiziona automaticamente il search field nella toolbar su macOS
+- L'empty state va dentro `recordsList`'s parent — sostituisce la Table quando il filtro è attivo e vuoto
 - Performance OK fino a ~10k record senza ottimizzazioni
