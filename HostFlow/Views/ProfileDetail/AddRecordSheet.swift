@@ -2,6 +2,11 @@ import SwiftUI
 
 struct AddRecordSheet: View {
 
+    private enum Field: Hashable {
+        case ip
+        case hostname
+    }
+
     let profile: Profile
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -9,6 +14,7 @@ struct AddRecordSheet: View {
 
     @State private var ip = ""
     @State private var hostname = ""
+    @FocusState private var focusedField: Field?
 
     private var validationError: ValidationError? {
         HostValidator.validateRecord(ip: ip, hostname: hostname)
@@ -20,10 +26,12 @@ struct AddRecordSheet: View {
                 .font(.headline)
 
             Form {
-                TextField("IP Address", text: $ip)
+                TextField("Indirizzo IP", text: $ip, prompt: Text("127.0.0.1"))
                     .fontDesign(.monospaced)
-                TextField("Hostname", text: $hostname)
+                    .focused($focusedField, equals: .ip)
+                TextField("Hostname", text: $hostname, prompt: Text("example.local"))
                     .fontDesign(.monospaced)
+                    .focused($focusedField, equals: .hostname)
             }
             .formStyle(.grouped)
 
@@ -51,5 +59,6 @@ struct AddRecordSheet: View {
         }
         .padding(20)
         .frame(width: 360)
+        .onAppear { focusedField = .ip }
     }
 }

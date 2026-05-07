@@ -29,3 +29,9 @@ Bottone toolbar nel `ProfileDetailView` che apre `AddRecordSheet` per inserire I
 
 - `Form { Section { ... } }.formStyle(.grouped)` per look macOS nativo
 - Sheet width: 380pt, height adattiva
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** La maggior parte già implementata da scaffolding + readonly + validation. Aggiunti placeholder via `prompt:` ("127.0.0.1", "example.local") e autofocus sul campo IP via `@FocusState`.

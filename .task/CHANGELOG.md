@@ -1,5 +1,17 @@
 # Changelog
 
+## [2026-05-07] — Record — Add record polish
+
+**Type:** feature
+
+### Changes
+- `AddRecordSheet`: switched the IP/hostname field labels to Italian (`"Indirizzo IP"`, `"Hostname"`) and added inline placeholders via `prompt:` (`"127.0.0.1"` and `"example.local"`)
+- Added `@FocusState`-driven autofocus on the IP field when the sheet opens
+- Most other checklist items for this task were already in place from earlier work (toolbar `+`, sheet wiring, validation + disable, append + writeHosts, readonly guard) — this task just polished the input UX
+
+### Files modified
+- `HostFlow/Views/ProfileDetail/AddRecordSheet.swift` — `Field` focus enum, prompts, autofocus
+
 ## [2026-05-07] — Sidebar row — Tight name truncation
 
 **Type:** bugfix
