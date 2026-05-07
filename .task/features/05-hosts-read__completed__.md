@@ -24,3 +24,9 @@ Leggere `/etc/hosts` e identificare il blocco gestito da Host Flow (delimitato d
 
 - Lettura `/etc/hosts` è world-readable, non richiede privilegi
 - Errori file: `HostsFileError.notReadable`, `.malformedBlock`, `.encodingFailed`
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** `HostsFileManager.read()` ora restituisce `HostsFileContent` strutturato (preBlock + block? + postBlock). Aggiunto enum `HostsFileError` (notReadable / malformedBlock / encodingFailed) con messaggi IT. Parser tollerante per marker assenti, throw su marker orfano.

@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026-05-07] — Structured /etc/hosts read
+
+**Type:** feature
+
+### Changes
+- Added `HostsFileContent` struct with `preBlock`, `block` (optional), `postBlock` segments
+- Added `HostsFileError: LocalizedError` enum (`notReadable`, `malformedBlock`, `encodingFailed`) with Italian messages
+- Replaced `HostsFileManager.read() throws -> String` with `read() throws -> HostsFileContent` — parses the managed Host Flow block and returns segmented content
+- Tolerant parser: both markers absent → `block = nil`, all content in `preBlock`; one marker present without the other → throws `.malformedBlock`
+- Added private `readRaw()` helper used by the existing `write()` path — `write()` will be reworked under task 21
+
+### Files modified
+- `HostFlow/Helpers/HostsFileManager.swift` — structured read + content type + error enum
+
 ## [2026-05-07] — Profile ordering hardening
 
 **Type:** chore
