@@ -1,5 +1,40 @@
 # Changelog
 
+## [2026-05-07] — Enforce read-only on system profile UI
+
+**Type:** bugfix
+
+### Changes
+- Extended task `02-data-readonly-flag`: read-only flag now actively disables UI controls instead of being a visual marker only
+- `SidebarView.ProfileRowView` — profile `isActive` toggle disabled when `profile.isReadOnly`
+- `MenuBarView.MenuBarProfileRow` — profile toggle disabled + lock icon shown next to the name
+- `ProfileDetailView` toolbar — profile toggle and "Aggiungi record" button disabled when read-only (with help tooltip)
+- `ProfileDetailView` records list — per-record `isEnabled` toggle, edit (pencil), and delete (trash) buttons all disabled when the parent profile is read-only
+- Anticipates guards from upcoming tasks 13/15/16 — those tasks now find their checks already implemented
+
+### Files modified
+- `HostFlow/Views/Sidebar/SidebarView.swift` — `.disabled` on isActive toggle
+- `HostFlow/Views/MenuBar/MenuBarView.swift` — `.disabled` on isActive toggle + lock badge
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — `.disabled` on toolbar toggle, add button, record toggle, edit/delete buttons
+
+## [2026-05-07] — Default profile seed from /etc/hosts
+
+**Type:** feature
+
+### Changes
+- Added `HostsFileParser` helper with `ParsedHostRecord` struct, `parseSystemHosts()` (reads `/etc/hosts` excluding the Host Flow managed block), and `parse(_:)` for arbitrary content
+- Parser handles commented records (`# 127.0.0.1 localhost` → disabled record), strips trailing inline comments, splits multi-hostname lines into separate records, validates IP and hostname via `HostValidator`
+- Added `ProfileStore.seedIfNeeded(context:)` — idempotent, creates the "Default" profile (`isActive=true`, `isReadOnly=true`, `order=0`) populated from `/etc/hosts` on first launch
+- Fail-safe: if `/etc/hosts` cannot be read, an empty Default profile is created and a warning is logged — no crash
+- Wired `seedIfNeeded` into `ContentView.task` plus an `onChange(of: profiles.count)` that auto-selects the first profile after seeding completes
+- Regenerated Xcode project to include the new parser file
+
+### Files modified
+- `HostFlow/Helpers/HostsFileParser.swift` — new file: parser + `ParsedHostRecord`
+- `HostFlow/Stores/ProfileStore.swift` — `seedIfNeeded(context:)` helper
+- `HostFlow/App/ContentView.swift` — seed on appear + reactive selection
+- `HostFlow/HostFlow.xcodeproj` — regenerated
+
 ## [2026-05-07] — Structured /etc/hosts read
 
 **Type:** feature

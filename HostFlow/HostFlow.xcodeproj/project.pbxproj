@@ -17,6 +17,7 @@
 		50D02D0EEF71A99E5BEA88B0 /* ProfileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9651F263872E4319C64419 /* ProfileDetailView.swift */; };
 		542843400A13634AD3054B15 /* AddRecordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E86FDF092AA4237434BEAA5 /* AddRecordSheet.swift */; };
 		76EBC2C36532CD939DED0AD9 /* HostsFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3FA13ADDEE68A07887AF53 /* HostsFileManager.swift */; };
+		9215CB5F1A241ADE13E5DF0F /* HostsFileParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4CA3366C69090D8D8AEEFE /* HostsFileParser.swift */; };
 		9699FE669F81DD002CBC9087 /* HostRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3634CC7C88A085F4F0A8FE66 /* HostRecord.swift */; };
 		C7C2A9D2A704CDE0DB0E0E38 /* EditRecordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8767DE637961AB296C4C0EF6 /* EditRecordSheet.swift */; };
 		D58038BF77784408ACC40ABF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4640EBB32848C5F94462A4D /* SettingsView.swift */; };
@@ -29,6 +30,7 @@
 		2A3FA13ADDEE68A07887AF53 /* HostsFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileManager.swift; sourceTree = "<group>"; };
 		2E86FDF092AA4237434BEAA5 /* AddRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecordSheet.swift; sourceTree = "<group>"; };
 		3634CC7C88A085F4F0A8FE66 /* HostRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostRecord.swift; sourceTree = "<group>"; };
+		3A4CA3366C69090D8D8AEEFE /* HostsFileParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileParser.swift; sourceTree = "<group>"; };
 		4C9651F263872E4319C64419 /* ProfileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDetailView.swift; sourceTree = "<group>"; };
 		5D9182BD4A56DA00D9A72D4B /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		5FD252067315F25E616C42BE /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
@@ -54,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				2A3FA13ADDEE68A07887AF53 /* HostsFileManager.swift */,
+				3A4CA3366C69090D8D8AEEFE /* HostsFileParser.swift */,
 				F08B92A29E532CD6A45BE845 /* HostValidator.swift */,
 			);
 			path = Helpers;
@@ -210,6 +213,7 @@
 				9699FE669F81DD002CBC9087 /* HostRecord.swift in Sources */,
 				092DA13347E91AF07C139367 /* HostValidator.swift in Sources */,
 				76EBC2C36532CD939DED0AD9 /* HostsFileManager.swift in Sources */,
+				9215CB5F1A241ADE13E5DF0F /* HostsFileParser.swift in Sources */,
 				2537EB46E582B496AD7B725A /* MenuBarView.swift in Sources */,
 				4D4C93E446F4EE312826180A /* Profile.swift in Sources */,
 				50D02D0EEF71A99E5BEA88B0 /* ProfileDetailView.swift in Sources */,

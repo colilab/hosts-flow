@@ -39,6 +39,31 @@ final class ProfileStore {
         profile.isEditable
     }
 
+    func seedIfNeeded(context: ModelContext) {
+        let count = (try? context.fetchCount(FetchDescriptor<Profile>())) ?? 0
+        guard count == 0 else { return }
+
+        let profile = Profile(name: "Default", order: 0, isReadOnly: true)
+        profile.isActive = true
+        context.insert(profile)
+
+        let parsed: [ParsedHostRecord]
+        do {
+            parsed = try HostsFileParser.parseSystemHosts()
+        } catch {
+            print("HostFlow: seed could not read /etc/hosts — \(error.localizedDescription). Creating empty Default.")
+            parsed = []
+        }
+
+        for entry in parsed {
+            let record = HostRecord(ip: entry.ip, hostname: entry.hostname, profile: profile)
+            record.isEnabled = entry.isEnabled
+            context.insert(record)
+        }
+
+        try? context.save()
+    }
+
     func writeHosts(context: ModelContext) {
         let descriptor = FetchDescriptor<Profile>()
         guard let profiles = try? context.fetch(descriptor) else { return }

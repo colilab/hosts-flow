@@ -70,11 +70,19 @@ private struct MenuBarProfileRow: View {
 
     var body: some View {
         Toggle(isOn: $profile.isActive) {
-            Text(profile.name)
-                .font(.callout)
+            HStack(spacing: 4) {
+                Text(profile.name)
+                    .font(.callout)
+                if profile.isReadOnly {
+                    Image(systemName: "lock.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
         .toggleStyle(.switch)
         .controlSize(.mini)
+        .disabled(profile.isReadOnly)
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .onChange(of: profile.isActive) {

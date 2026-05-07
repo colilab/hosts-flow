@@ -40,3 +40,9 @@ Al primo avvio, se nessun profilo esiste, creare un profilo "Default" attivo pop
 - Dopo il seed, al primo `writeHosts` il blocco Host Flow rimpiazzerà le entry originali nel file (le record originali sono ora in SwiftData → riscritte dentro al blocco gestito)
 - **Importante**: il Default `isActive = true` garantisce che lo stato visibile in `/etc/hosts` non cambi dopo il seed (i record vengono spostati dal contenuto raw al blocco Host Flow ma sono gli stessi)
 - `isReadOnly = true` impedisce modifiche accidentali alle entry di sistema; l'utente che vuole modificare deve duplicare (vedi task duplicate / context-menu)
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** Aggiunto `HostsFileParser` riusabile e `ProfileStore.seedIfNeeded(context:)` idempotente. Cablato in `ContentView.task` con `onChange(profiles.count)` per auto-select. Default creato `isActive=true, isReadOnly=true` con i record reali di `/etc/hosts` (esclusi marker block). Edge case fail-safe: read fallita ⇒ Default vuoto + log.

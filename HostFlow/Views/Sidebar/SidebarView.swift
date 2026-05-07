@@ -67,6 +67,7 @@ private struct ProfileRowView: View {
             }
             .toggleStyle(.switch)
             .controlSize(.mini)
+            .disabled(profile.isReadOnly)
             .onChange(of: profile.isActive) {
                 store.writeHosts(context: context)
             }

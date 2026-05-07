@@ -50,6 +50,7 @@ struct ProfileDetailView: View {
                     .font(.callout)
             }
             .toggleStyle(.switch)
+            .disabled(profile.isReadOnly)
             .onChange(of: profile.isActive) {
                 store.writeHosts(context: context)
             }
@@ -63,6 +64,8 @@ struct ProfileDetailView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
+            .disabled(profile.isReadOnly)
+            .help(profile.isReadOnly ? "Profilo di sistema — duplica per modificare" : "")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -78,6 +81,7 @@ struct ProfileDetailView: View {
                 .toggleStyle(.switch)
                 .controlSize(.mini)
                 .labelsHidden()
+                .disabled(profile.isReadOnly)
             }
             .width(40)
 
@@ -103,6 +107,7 @@ struct ProfileDetailView: View {
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(.secondary)
+                    .disabled(profile.isReadOnly)
 
                     Button(role: .destructive) {
                         context.delete(record)
@@ -113,6 +118,7 @@ struct ProfileDetailView: View {
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(.secondary)
+                    .disabled(profile.isReadOnly)
                 }
             }
             .width(56)

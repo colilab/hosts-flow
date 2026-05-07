@@ -5,6 +5,8 @@ struct ContentView: View {
 
     @Query(sort: \Profile.order) private var profiles: [Profile]
     @State private var selectedProfile: Profile?
+    @Environment(\.modelContext) private var context
+    @Environment(ProfileStore.self) private var store
 
     var body: some View {
         NavigationSplitView {
@@ -21,7 +23,15 @@ struct ContentView: View {
             }
         }
         .navigationSplitViewStyle(.balanced)
+        .task {
+            store.seedIfNeeded(context: context)
+        }
         .onAppear {
+            if selectedProfile == nil {
+                selectedProfile = profiles.first
+            }
+        }
+        .onChange(of: profiles.count) { _, _ in
             if selectedProfile == nil {
                 selectedProfile = profiles.first
             }
