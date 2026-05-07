@@ -32,3 +32,9 @@ Generare il testo del blocco `/etc/hosts` da una lista di `Profile` attivi, incl
 
 - Allineamento IP-hostname: tab o spazio singolo (preferire spazio per compatibilità tool)
 - Linebreak: `\n` (Unix)
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** `buildBlock` ora emette warning header (2 righe) dopo lo start marker, ogni profilo attivo preceduto da `# --- <Name> ---`, ordinamento deterministico per `order`, separatore IP/hostname spazio singolo (era tab).

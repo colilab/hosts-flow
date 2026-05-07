@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026-05-07] — Hosts block builder with warning and per-profile headers
+
+**Type:** feature
+
+### Changes
+- `HostsFileManager.buildBlock` now emits a "DO NOT EDIT MANUALLY" warning (2 lines) immediately after the start marker
+- Each active profile is preceded by a `# --- <Profile Name> ---` sub-header, separated by a blank line
+- Profiles sorted by `order` before serialization for deterministic output
+- Record formatting uses single space between IP and hostname (was tab) for broader tool compatibility
+- Disabled records still serialized as `# <ip> <hostname>`; inactive profiles fully omitted
+
+### Files modified
+- `HostFlow/Helpers/HostsFileManager.swift` — `buildBlock` rewrite + warning constants
+
 ## [2026-05-07] — Enforce read-only on system profile UI
 
 **Type:** bugfix

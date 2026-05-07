@@ -28,6 +28,8 @@ final class HostsFileManager {
     private let hostsPath = "/etc/hosts"
     private let blockStart = "# --- Host Flow Start ---"
     private let blockEnd   = "# --- Host Flow End ---"
+    private let warningLine1 = "# DO NOT EDIT MANUALLY — managed by Host Flow.app"
+    private let warningLine2 = "# Changes inside this block will be overwritten on the next sync."
 
     func read() throws -> HostsFileContent {
         let raw = try readRaw()
@@ -77,13 +79,16 @@ final class HostsFileManager {
     }
 
     private func buildBlock(from profiles: [Profile]) -> String {
-        var lines = [blockStart]
-        for profile in profiles where profile.isActive {
+        var lines = [blockStart, warningLine1, warningLine2]
+        let activeProfiles = profiles.filter(\.isActive).sorted { $0.order < $1.order }
+        for profile in activeProfiles {
+            lines.append("")
+            lines.append("# --- \(profile.name) ---")
             for record in profile.records {
                 if record.isEnabled {
-                    lines.append("\(record.ip)\t\(record.hostname)")
+                    lines.append("\(record.ip) \(record.hostname)")
                 } else {
-                    lines.append("# \(record.ip)\t\(record.hostname)")
+                    lines.append("# \(record.ip) \(record.hostname)")
                 }
             }
         }
