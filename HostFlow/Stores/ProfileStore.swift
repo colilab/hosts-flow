@@ -29,6 +29,7 @@ final class ProfileStore {
             profile.order = index
         }
         try? context.save()
+        writeHosts(context: context)
     }
 
     func deleteProfile(_ profile: Profile, context: ModelContext) {

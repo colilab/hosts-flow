@@ -14,38 +14,47 @@ struct SidebarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            List(profiles, selection: $selectedProfile) { profile in
-                ProfileRowView(
-                    profile: profile,
-                    isEditing: editingProfileID == profile.id,
-                    existingNames: profiles.map(\.name),
-                    onBeginEdit: { editingProfileID = profile.id },
-                    onEndEdit: { editingProfileID = nil }
-                )
-                .tag(profile)
-                .contextMenu {
-                    Button("Rinomina") {
-                        editingProfileID = profile.id
-                    }
-                    .disabled(profile.isReadOnly)
+            List(selection: $selectedProfile) {
+                ForEach(profiles, id: \.id) { profile in
+                    ProfileRowView(
+                        profile: profile,
+                        isEditing: editingProfileID == profile.id,
+                        existingNames: profiles.map(\.name),
+                        onBeginEdit: { editingProfileID = profile.id },
+                        onEndEdit: { editingProfileID = nil }
+                    )
+                    .tag(profile)
+                    .moveDisabled(profile.isReadOnly)
+                    .contextMenu {
+                        Button("Rinomina") {
+                            editingProfileID = profile.id
+                        }
+                        .disabled(profile.isReadOnly)
 
-                    Button("Duplica") {
-                        let copy = store.duplicate(profile, context: context)
-                        selectedProfile = copy
-                    }
+                        Button("Duplica") {
+                            let copy = store.duplicate(profile, context: context)
+                            selectedProfile = copy
+                        }
 
-                    Button("Elimina", role: .destructive) {
-                        profileToDelete = profile
-                    }
-                    .disabled(profile.isReadOnly)
+                        Button("Elimina", role: .destructive) {
+                            profileToDelete = profile
+                        }
+                        .disabled(profile.isReadOnly)
 
-                    Divider()
+                        Divider()
 
-                    Button(profile.isActive ? "Disattiva" : "Attiva") {
-                        profile.isActive.toggle()
-                        store.writeHosts(context: context)
+                        Button(profile.isActive ? "Disattiva" : "Attiva") {
+                            profile.isActive.toggle()
+                            store.writeHosts(context: context)
+                        }
+                        .disabled(profile.isReadOnly)
                     }
-                    .disabled(profile.isReadOnly)
+                }
+                .onMove { source, destination in
+                    guard destination > 0 else { return }
+                    var copy = Array(profiles)
+                    copy.move(fromOffsets: source, toOffset: destination)
+                    store.reorder(copy, context: context)
                 }
             }
             .listStyle(.sidebar)

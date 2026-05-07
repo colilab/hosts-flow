@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026-05-07] — Sidebar — Drag & drop reorder
+
+**Type:** feature
+
+### Changes
+- Sidebar `List` converted to `List(selection:) { ForEach(profiles).onMove { ... } }` to enable native drag & drop reordering of profiles
+- `.moveDisabled(profile.isReadOnly)` on each row prevents the Default profile from being dragged
+- `onMove` rejects any drop with `destination == 0` so no profile can take the Default's first-position slot
+- Reordering persists via the existing `ProfileStore.reorder(_:context:)`, which now also triggers `writeHosts(context:)` because per-profile sub-headers in `/etc/hosts` are sorted by `order`
+
+### Files modified
+- `HostFlow/Views/Sidebar/SidebarView.swift` — List → ForEach + onMove + moveDisabled
+- `HostFlow/Stores/ProfileStore.swift` — `reorder` now triggers `writeHosts`
+
 ## [2026-05-07] — Sidebar — Full context menu (Rinomina / Duplica / Elimina / Toggle)
 
 **Type:** feature
