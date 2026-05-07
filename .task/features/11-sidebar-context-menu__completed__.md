@@ -26,3 +26,9 @@ Context menu sulla row profilo con: Rinomina, Duplica, Elimina, separatore, Atti
 
 - Naming duplicato: se "Sviluppo" esiste già, prova "Sviluppo (copia)", poi "Sviluppo (copia 2)" ...
 - I record duplicati devono avere nuovi `id` UUID
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** Context menu esteso con Rinomina / Duplica / Elimina / divider / Attiva-Disattiva. Aggiunto `ProfileStore.duplicate(_:context:)` con naming unico "(copia)/(copia N)" e deep copy dei record. Guard readonly su Rinomina, Elimina, Toggle (Duplica sempre disponibile).

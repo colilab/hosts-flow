@@ -1,5 +1,21 @@
 # Changelog
 
+## [2026-05-07] — Sidebar — Full context menu (Rinomina / Duplica / Elimina / Toggle)
+
+**Type:** feature
+
+### Changes
+- Sidebar context menu extended: "Rinomina", "Duplica", "Elimina" (destructive), divider, "Attiva"/"Disattiva" (dynamic label)
+- "Rinomina" sets `editingProfileID` and reuses the inline-rename flow built in task 09
+- "Duplica" calls `ProfileStore.duplicate(_:context:)` and auto-selects the copy
+- "Attiva"/"Disattiva" toggles `isActive` and triggers `writeHosts`
+- Read-only guard applied to Rinomina, Elimina and Toggle (consistent with the global "Default profile is fully locked" decision); Duplica is always available since it produces an editable copy
+- Added `ProfileStore.duplicate(_:context:)` — generates a unique name via `uniqueDuplicateName(base:among:)` (`<name> (copia)`, `<name> (copia 2)`, ... case-insensitive), copies all records with fresh UUIDs preserving each record's `isEnabled`, sets `isActive = false`, `isReadOnly = false`, `order = max + 1`
+
+### Files modified
+- `HostFlow/Stores/ProfileStore.swift` — `duplicate(_:context:)` + `uniqueDuplicateName` helper
+- `HostFlow/Views/Sidebar/SidebarView.swift` — extended `.contextMenu` with all items
+
 ## [2026-05-07] — Sidebar row layout — name left, toggle right
 
 **Type:** refactor

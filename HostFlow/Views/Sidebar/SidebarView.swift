@@ -24,8 +24,26 @@ struct SidebarView: View {
                 )
                 .tag(profile)
                 .contextMenu {
+                    Button("Rinomina") {
+                        editingProfileID = profile.id
+                    }
+                    .disabled(profile.isReadOnly)
+
+                    Button("Duplica") {
+                        let copy = store.duplicate(profile, context: context)
+                        selectedProfile = copy
+                    }
+
                     Button("Elimina", role: .destructive) {
                         profileToDelete = profile
+                    }
+                    .disabled(profile.isReadOnly)
+
+                    Divider()
+
+                    Button(profile.isActive ? "Disattiva" : "Attiva") {
+                        profile.isActive.toggle()
+                        store.writeHosts(context: context)
                     }
                     .disabled(profile.isReadOnly)
                 }

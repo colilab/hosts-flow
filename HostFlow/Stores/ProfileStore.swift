@@ -37,6 +37,34 @@ final class ProfileStore {
         writeHosts(context: context)
     }
 
+    @discardableResult
+    func duplicate(_ profile: Profile, context: ModelContext) -> Profile {
+        let existing = (try? context.fetch(FetchDescriptor<Profile>())) ?? []
+        let nextOrder = (existing.map(\.order).max() ?? -1) + 1
+        let name = uniqueDuplicateName(base: profile.name, among: existing.map(\.name))
+        let copy = Profile(name: name, order: nextOrder, isReadOnly: false)
+        context.insert(copy)
+        for source in profile.records {
+            let record = HostRecord(ip: source.ip, hostname: source.hostname, profile: copy)
+            record.isEnabled = source.isEnabled
+            context.insert(record)
+        }
+        try? context.save()
+        return copy
+    }
+
+    private func uniqueDuplicateName(base: String, among existing: [String]) -> String {
+        let lowered = Set(existing.map { $0.lowercased() })
+        var candidate = "\(base) (copia)"
+        if !lowered.contains(candidate.lowercased()) { return candidate }
+        var i = 2
+        while true {
+            candidate = "\(base) (copia \(i))"
+            if !lowered.contains(candidate.lowercased()) { return candidate }
+            i += 1
+        }
+    }
+
     func canEdit(_ profile: Profile) -> Bool {
         profile.isEditable
     }
