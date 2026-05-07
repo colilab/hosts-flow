@@ -1,5 +1,34 @@
 # Changelog
 
+## [2026-05-07] — Fill panes vertically in HSplitView
+
+**Type:** bugfix
+
+### Changes
+- Selecting a profile with no records caused the whole window content (both panes) to collapse to its intrinsic height and center vertically — `HSplitView` was not being asked to fill its host
+- Added `.frame(maxHeight: .infinity)` to `SidebarView`'s root VStack and to `ProfileDetailView`'s root VStack
+- The empty-state `ContentUnavailableView` instances (in `ProfileDetailView` and the no-selection branch in `ContentView`) now claim `maxWidth/maxHeight: .infinity` so they fill the pane
+
+### Files modified
+- `HostFlow/Views/Sidebar/SidebarView.swift` — `.frame(maxHeight: .infinity)` on root
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — fills + ContentUnavailableView fill
+- `HostFlow/App/ContentView.swift` — right pane Group fills
+
+## [2026-05-07] — Sidebar — Inline profile rename
+
+**Type:** feature
+
+### Changes
+- Double-clicking a sidebar profile name now switches it to a `TextField` with autofocus, blending into the row via `.textFieldStyle(.plain)`
+- Enter commits, Esc reverts, click-outside (blur) commits as well
+- Empty draft or unchanged name → silent revert
+- Duplicate name (case-insensitive, excluding self) → silent revert (the brief red-flash warning was removed because it was nearly invisible on the selected-row blue background)
+- Read-only profiles: double-click is a no-op (no editing mode)
+- Editing state lives at `SidebarView` level (`editingProfileID: UUID?`) so only one row is editable at a time; rows receive `isEditing`/`existingNames`/`onBeginEdit`/`onEndEdit` props
+
+### Files modified
+- `HostFlow/Views/Sidebar/SidebarView.swift` — added inline rename in `ProfileRowView` + parent editing state
+
 ## [2026-05-07] — Fixed two-pane layout via HSplitView
 
 **Type:** refactor

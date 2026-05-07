@@ -26,3 +26,9 @@ Permettere rinomina inline di un profilo via double-click sulla row sidebar: il 
 
 - `@FocusState` per gestione focus + autofocus
 - Bordo TextField: `.textFieldStyle(.plain)` per blend con la row
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** Rinomina inline via double-click su Text → TextField con `@FocusState` autofocus. Submit, Esc, blur gestiti. Duplicate case-insensitive (escludendo self) → flash rosso 1s + revert. Profilo readonly: double-click no-op.

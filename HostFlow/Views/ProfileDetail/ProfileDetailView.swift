@@ -33,10 +33,12 @@ struct ProfileDetailView: View {
                     systemImage: "server.rack",
                     description: Text("Aggiungi un record host per questo profilo.")
                 )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 recordsList
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .sheet(isPresented: $isAddingRecord) {
             AddRecordSheet(profile: profile)
         }
