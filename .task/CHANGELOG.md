@@ -1,5 +1,17 @@
 # Changelog
 
+## [2026-05-07] — Profile ordering hardening
+
+**Type:** chore
+
+### Changes
+- Fixed `ProfileStore.addProfile` — replaced fragile `count`-based order assignment (which produced duplicates after deletions) with `max(order) + 1`
+- Added `ProfileStore.reorder(_:context:)` — accepts an already-ordered profile list and reassigns `order = index`, ready for the upcoming drag-reorder UI
+- Verified `@Query(sort: \Profile.order)` already in place in `SidebarView` and `MenuBarView`
+
+### Files modified
+- `HostFlow/Stores/ProfileStore.swift` — `addProfile` fix + `reorder` helper
+
 ## [2026-05-07] — IP + hostname validation
 
 **Type:** feature

@@ -15,9 +15,17 @@ final class ProfileStore {
     }
 
     func addProfile(name: String, context: ModelContext) {
-        let count = (try? context.fetchCount(FetchDescriptor<Profile>())) ?? 0
-        let profile = Profile(name: name, order: count)
+        let existing = (try? context.fetch(FetchDescriptor<Profile>())) ?? []
+        let nextOrder = (existing.map(\.order).max() ?? -1) + 1
+        let profile = Profile(name: name, order: nextOrder)
         context.insert(profile)
+        try? context.save()
+    }
+
+    func reorder(_ profiles: [Profile], context: ModelContext) {
+        for (index, profile) in profiles.enumerated() {
+            profile.order = index
+        }
         try? context.save()
     }
 

@@ -21,3 +21,9 @@ Garantire che ogni `Profile` abbia un `order` coerente: assegnato automaticament
 
 - SwiftData: usare `FetchDescriptor` con `sortBy: [SortDescriptor(\Profile.order)]` per query manuali
 - No serializzazione transazionale necessaria (single-user app)
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** `addProfile` ora usa `max(order) + 1` invece di `count` (fix bug duplicati dopo delete). Aggiunto `ProfileStore.reorder(_:context:)` per il futuro drag-reorder. Query sort già OK.
