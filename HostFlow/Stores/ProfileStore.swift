@@ -14,12 +14,14 @@ final class ProfileStore {
         writeHosts(context: context)
     }
 
-    func addProfile(name: String, context: ModelContext) {
+    @discardableResult
+    func addProfile(name: String, context: ModelContext) -> Profile {
         let existing = (try? context.fetch(FetchDescriptor<Profile>())) ?? []
         let nextOrder = (existing.map(\.order).max() ?? -1) + 1
         let profile = Profile(name: name, order: nextOrder)
         context.insert(profile)
         try? context.save()
+        return profile
     }
 
     func reorder(_ profiles: [Profile], context: ModelContext) {

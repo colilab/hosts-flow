@@ -9,7 +9,6 @@ struct SidebarView: View {
     @Query(sort: \Profile.order) private var profiles: [Profile]
 
     @State private var isAddingProfile = false
-    @State private var newProfileName = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -42,14 +41,11 @@ struct SidebarView: View {
             }
             .frame(height: 36)
         }
-        .alert("Nuovo profilo", isPresented: $isAddingProfile) {
-            TextField("Nome profilo", text: $newProfileName)
-            Button("Crea") {
-                guard !newProfileName.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                store.addProfile(name: newProfileName, context: context)
-                newProfileName = ""
+        .sheet(isPresented: $isAddingProfile) {
+            AddProfileSheet(existingNames: profiles.map(\.name)) { name in
+                let newProfile = store.addProfile(name: name, context: context)
+                selectedProfile = newProfile
             }
-            Button("Annulla", role: .cancel) { newProfileName = "" }
         }
     }
 }

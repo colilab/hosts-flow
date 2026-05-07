@@ -9,20 +9,24 @@ struct ContentView: View {
     @Environment(ProfileStore.self) private var store
 
     var body: some View {
-        NavigationSplitView {
+        HSplitView {
             SidebarView(selectedProfile: $selectedProfile)
-        } detail: {
-            if let profile = selectedProfile {
-                ProfileDetailView(profile: profile)
-            } else {
-                ContentUnavailableView(
-                    "Seleziona un profilo",
-                    systemImage: "list.bullet.rectangle",
-                    description: Text("Scegli un profilo dalla sidebar o creane uno nuovo.")
-                )
+                .frame(minWidth: 180, idealWidth: 220, maxWidth: 320)
+
+            Group {
+                if let profile = selectedProfile {
+                    ProfileDetailView(profile: profile)
+                } else {
+                    ContentUnavailableView(
+                        "Seleziona un profilo",
+                        systemImage: "list.bullet.rectangle",
+                        description: Text("Scegli un profilo dalla sidebar o creane uno nuovo.")
+                    )
+                }
             }
+            .frame(minWidth: 400)
+            .ignoresSafeArea(.all, edges: .top)
         }
-        .navigationSplitViewStyle(.balanced)
         .task {
             store.seedIfNeeded(context: context)
         }

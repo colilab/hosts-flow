@@ -1,5 +1,35 @@
 # Changelog
 
+## [2026-05-07] — Fixed two-pane layout via HSplitView
+
+**Type:** refactor
+
+### Changes
+- Replaced `NavigationSplitView` with `HSplitView` in `ContentView`
+- Sidebar and detail are now both permanently visible — no collapse toggle, no show/hide animation
+- Native draggable divider preserved between the two panes for manual resize
+- Sidebar pane: `minWidth: 180, idealWidth: 220, maxWidth: 320`; detail pane: `minWidth: 400`
+
+### Files modified
+- `HostFlow/App/ContentView.swift` — NavigationSplitView → HSplitView with frame constraints
+
+## [2026-05-07] — Sidebar — Add profile sheet
+
+**Type:** feature
+
+### Changes
+- New `AddProfileSheet` with TextField + autofocus, live validation (empty + case-insensitive duplicate), inline red error, and Submit-on-Return
+- "Crea" button disabled while invalid
+- `ProfileStore.addProfile(name:context:)` now returns the created `Profile` (`@discardableResult`) so callers can auto-select it
+- `SidebarView` replaces the previous `.alert` with the new sheet, then auto-selects the freshly created profile via `selectedProfile`
+- Regenerated Xcode project to include the new sheet
+
+### Files modified
+- `HostFlow/Views/Sidebar/AddProfileSheet.swift` — new file: sheet with validation
+- `HostFlow/Views/Sidebar/SidebarView.swift` — alert → sheet, auto-select on create
+- `HostFlow/Stores/ProfileStore.swift` — `addProfile` returns the created profile
+- `HostFlow/HostFlow.xcodeproj` — regenerated
+
 ## [2026-05-07] — Hosts block builder with warning and per-profile headers
 
 **Type:** feature

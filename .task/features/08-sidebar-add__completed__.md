@@ -24,3 +24,9 @@ Bottone "+" nella sidebar che apre uno sheet/alert per inserire il nome del nuov
 
 - Per Alert con TextField: `.alert("Nuovo profilo", isPresented:)` + `TextField` nei children (macOS 12+)
 - In alternativa Sheet con Form per più controllo UX
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** Sostituito Alert con `AddProfileSheet` (Form + TextField autofocus + validation live empty/duplicate case-insensitive + errore inline). `ProfileStore.addProfile` ora ritorna il `Profile` creato per auto-select nella sidebar.
