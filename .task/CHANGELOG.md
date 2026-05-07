@@ -1,5 +1,20 @@
 # Changelog
 
+## [2026-05-07] — Sidebar — Delete profile
+
+**Type:** feature
+
+### Changes
+- Added `.contextMenu` on each sidebar row with a destructive "Elimina" item — disabled when the profile is read-only
+- Added `.onDeleteCommand` on the sidebar `List` so the Delete key on a selected non-readonly profile triggers the same flow
+- Both paths set `profileToDelete: Profile?`, which presents a `.confirmationDialog`: title "Eliminare profilo \"X\"?", message about cascade & irreversibility, destructive "Elimina" + cancel "Annulla"
+- After confirmed deletion, auto-selects the next profile by `order` (or the previous one if the deleted was the last, or `nil` if it was the only one)
+- Cascade delete of related `HostRecord`s already guaranteed by `Profile.records` `@Relationship(deleteRule: .cascade)` — no extra logic needed
+- `ProfileStore.deleteProfile` already calls `writeHosts(context:)` → no change
+
+### Files modified
+- `HostFlow/Views/Sidebar/SidebarView.swift` — context menu, Delete shortcut, confirmation dialog, deletion helper with auto-select
+
 ## [2026-05-07] — Fill panes vertically in HSplitView
 
 **Type:** bugfix

@@ -26,3 +26,9 @@ Eliminare un profilo dalla sidebar via context menu o tasto Delete, con alert di
 
 - `.onDeleteCommand` per tasto Delete a livello List
 - Alert: `.confirmationDialog` per stile più macOS-like su distruttive
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** Aggiunto context menu "Elimina" + shortcut Delete su row selezionata, entrambi protetti da `.confirmationDialog` con destructive button. Profilo readonly disabilitato. Post-delete auto-select del successivo (o precedente, o nil). Cascade record già garantito da `@Relationship(.cascade)`.

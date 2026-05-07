@@ -10,6 +10,7 @@ struct SidebarView: View {
 
     @State private var isAddingProfile = false
     @State private var editingProfileID: UUID?
+    @State private var profileToDelete: Profile?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -22,8 +23,19 @@ struct SidebarView: View {
                     onEndEdit: { editingProfileID = nil }
                 )
                 .tag(profile)
+                .contextMenu {
+                    Button("Elimina", role: .destructive) {
+                        profileToDelete = profile
+                    }
+                    .disabled(profile.isReadOnly)
+                }
             }
             .listStyle(.sidebar)
+            .onDeleteCommand {
+                if let selected = selectedProfile, !selected.isReadOnly {
+                    profileToDelete = selected
+                }
+            }
 
             Divider()
 
@@ -55,6 +67,33 @@ struct SidebarView: View {
                 selectedProfile = newProfile
             }
         }
+        .confirmationDialog(
+            profileToDelete.map { "Eliminare profilo \"\($0.name)\"?" } ?? "",
+            isPresented: Binding(
+                get: { profileToDelete != nil },
+                set: { if !$0 { profileToDelete = nil } }
+            ),
+            presenting: profileToDelete
+        ) { profile in
+            Button("Elimina", role: .destructive) {
+                deleteProfile(profile)
+            }
+            Button("Annulla", role: .cancel) { }
+        } message: { _ in
+            Text("L'azione non può essere annullata. Tutti i record associati verranno rimossi.")
+        }
+    }
+
+    private func deleteProfile(_ profile: Profile) {
+        guard !profile.isReadOnly else { return }
+        let nextSelection: Profile? = {
+            guard let idx = profiles.firstIndex(of: profile) else { return nil }
+            if idx < profiles.count - 1 { return profiles[idx + 1] }
+            if idx > 0 { return profiles[idx - 1] }
+            return nil
+        }()
+        store.deleteProfile(profile, context: context)
+        selectedProfile = nextSelection
     }
 }
 
