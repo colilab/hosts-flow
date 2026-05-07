@@ -27,3 +27,9 @@ Permettere edit inline delle celle IP e Hostname nella `Table` di `ProfileDetail
 - `Table` columns supportano view custom con accesso a `Bindable` row
 - Considerare `EditableTableCell<T>` come component riusabile
 - `submitLabel(.next)` per Tab IP→Hostname
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** Implementato il rename con doppio click sul record

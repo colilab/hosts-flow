@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026-05-07] — Record — Inline record rename
+
+**Type:** feature
+
+### Changes
+- Double-clicking a record IP or Hostname now enables the cell editing
+- Enter commits, Esc reverts, click-outside (blur) commits as well
+- Empty draft or unchanged name → silent revert
+- Invalid record → silent revert
+- Read-only profiles: double-click is a no-op (no editing mode)
+
+### Files modified
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift`
+
 ## [2026-05-07] — Record — Add record polish
 
 **Type:** feature

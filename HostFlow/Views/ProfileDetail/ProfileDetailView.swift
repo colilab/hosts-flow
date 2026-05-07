@@ -3,6 +3,12 @@ import SwiftData
 
 struct ProfileDetailView: View {
 
+    private struct CellAddress: Hashable {
+        enum FieldType { case ip, hostname }
+        let recordID: UUID
+        let field: FieldType
+    }
+
     @Bindable var profile: Profile
     @Environment(\.modelContext) private var context
     @Environment(ProfileStore.self) private var store
@@ -10,6 +16,10 @@ struct ProfileDetailView: View {
     @State private var searchText = ""
     @State private var editingRecord: HostRecord?
     @State private var isAddingRecord = false
+    @State private var editingCell: CellAddress?
+    @State private var draftValue = ""
+    @State private var validationFailed = false
+    @FocusState private var focusedCell: CellAddress?
 
     private var filteredRecords: [HostRecord] {
         guard !searchText.isEmpty else { return profile.records }
@@ -115,16 +125,12 @@ struct ProfileDetailView: View {
             .width(40)
 
             TableColumn("IP") { record in
-                Text(record.ip)
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundStyle(record.isEnabled ? .primary : .secondary)
+                editableCell(record: record, field: .ip, value: record.ip)
             }
             .width(min: 100, ideal: 140)
 
             TableColumn("Hostname") { record in
-                Text(record.hostname)
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundStyle(record.isEnabled ? .primary : .secondary)
+                editableCell(record: record, field: .hostname, value: record.hostname)
             }
 
             TableColumn("") { record in
@@ -155,5 +161,84 @@ struct ProfileDetailView: View {
         .sheet(item: $editingRecord) { record in
             EditRecordSheet(record: record)
         }
+    }
+
+    @ViewBuilder
+    private func editableCell(record: HostRecord, field: CellAddress.FieldType, value: String) -> some View {
+        let address = CellAddress(recordID: record.id, field: field)
+
+        if editingCell == address {
+            TextField("", text: $draftValue)
+                .textFieldStyle(.plain)
+                .font(.system(.body, design: .monospaced))
+                .focused($focusedCell, equals: address)
+                .submitLabel(field == .ip ? .next : .return)
+                .onSubmit { commitEdit(record: record, address: address, advance: true) }
+                .onExitCommand { cancelEdit() }
+                .onKeyPress(.tab) {
+                    commitEdit(record: record, address: address, advance: address.field == .ip)
+                    return .handled
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 4)
+                        .stroke(Color.red, lineWidth: 1)
+                        .opacity(validationFailed ? 1 : 0)
+                )
+        } else {
+            Text(value)
+                .font(.system(.body, design: .monospaced))
+                .foregroundStyle(record.isEnabled ? .primary : .secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture(count: 2) {
+                    guard !profile.isReadOnly else { return }
+                    startEdit(address: address, value: value)
+                }
+        }
+    }
+
+    private func startEdit(address: CellAddress, value: String) {
+        draftValue = value
+        validationFailed = false
+        editingCell = address
+        focusedCell = address
+    }
+
+    private func commitEdit(record: HostRecord, address: CellAddress, advance: Bool) {
+        validationFailed = false
+        let trimmed = draftValue.trimmingCharacters(in: .whitespaces)
+
+        let isValid: Bool
+        switch address.field {
+        case .ip: isValid = HostValidator.isValidIP(trimmed)
+        case .hostname: isValid = HostValidator.isValidHostname(trimmed)
+        }
+
+        guard isValid else {
+            validationFailed = true
+            return
+        }
+
+        switch address.field {
+        case .ip: record.ip = trimmed
+        case .hostname: record.hostname = trimmed
+        }
+        try? context.save()
+        store.writeHosts(context: context)
+
+        if advance && address.field == .ip {
+            let next = CellAddress(recordID: record.id, field: .hostname)
+            draftValue = record.hostname
+            editingCell = next
+            focusedCell = next
+        } else {
+            cancelEdit()
+        }
+    }
+
+    private func cancelEdit() {
+        editingCell = nil
+        focusedCell = nil
+        validationFailed = false
     }
 }
