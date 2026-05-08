@@ -28,3 +28,15 @@ Creare un helper privilegiato che esegue la scrittura di `/etc/hosts` per conto 
 - Helper deve essere root: `User: root` nel plist
 - Code signing requirements: helper deve verificare che il chiamante sia firmato col Team ID corretto
 - Documentazione Apple: "Updating your helper tool" + sample `EvenBetterAuthorizationSample`
+
+---
+
+**Status:** SPLIT — 2026-05-08
+
+Suddiviso in 4 sub-task per gestione incrementale. Vedi:
+- `19a-hosts-helper-target.md` — scaffolding helper (target XcodeGen, protocollo XPC, listener skeleton, plist template)
+- `19b-hosts-helper-signing.md` — Ed25519 manifest signing pipeline + helper-side caller verification
+- `19c-hosts-helper-installer.md` — privileged install/uninstall via `AuthorizationServices` + `launchctl bootstrap`
+- `19d-hosts-helper-client.md` — `NSXPCConnection` client lato app + replace `HostsFileManager.write` + onboarding UI
+
+**Decisione architetturale (vedi changelog):** strada B2 — daemon launchd installato con sudo iniziale + verifica caller via Ed25519-signed CDHash manifest (no Apple Developer Team ID richiesto).
