@@ -3,6 +3,8 @@
 *.xcworkspace/xcuserdata/
 *.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 *.xcworkspace/xcshareddata/swiftpm/
+*.xcuserstate
+*.xcscmblueprint
 DerivedData/
 *.pbxuser
 *.mode1v3
@@ -22,9 +24,15 @@ Products/
 # Swift Package Manager
 .build/
 .swiftpm/
+# Package.resolved is committed for app targets (not libraries)
 
-# CocoaPods (not used, but just in case)
+# CocoaPods
 Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+Carthage/Checkouts/
 
 # macOS
 .DS_Store
@@ -33,18 +41,23 @@ Pods/
 ._*
 .Spotlight-V100
 .Trashes
-
-# XcodeGen — keep project.yml, ignore generated project
-# (comment out the next line if you prefer to commit the xcodeproj)
-# HostFlow/HostFlow.xcodeproj
+.fseventsd
+.DocumentRevisions-V100
+.TemporaryItems
 
 # Secrets / env
 .env
 *.p12
 *.mobileprovision
 *.provisionprofile
+*.entitlements.dev
+
+# Logs & temp
+*.log
+*.tmp
 
 # Editor
 .idea/
 *.swp
 *.swo
+.vscode/
