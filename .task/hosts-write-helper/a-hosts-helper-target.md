@@ -35,7 +35,7 @@ Scaffolding del binario helper privilegiato: nuovo target `HostFlowHelper` (Comm
 
 ## Out of scope
 
-- Logica `/etc/hosts` write reale → 19c
-- Verifica caller via Ed25519 → 19b
-- Installazione/registrazione daemon → 19c
-- Client app-side → 19d
+- Logica `/etc/hosts` write reale → c
+- Verifica caller via Ed25519 → b
+- Installazione/registrazione daemon → c
+- Client app-side → d

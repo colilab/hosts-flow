@@ -52,4 +52,4 @@ Logica di install/uninstall del daemon su sistema (richiede prompt admin una vol
 - Rollback automatico su errore (bisognerebbe restore da backup) — semplice followup
 - File watcher esterno per detect manual edit → task `23-hosts-watch-external`
 - Trigger debounced lato app → task `22-hosts-trigger`
-- UI install/uninstall in Settings → 19d
+- UI install/uninstall in Settings → d
