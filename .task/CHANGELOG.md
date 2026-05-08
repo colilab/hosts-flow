@@ -1,5 +1,85 @@
 # Changelog
 
+## [2026-05-08] — Privileged helper — technical documentation
+
+**Type:** chore
+
+### Changes
+- New `docs/helper.md` with end-to-end documentation of the privileged helper subsystem: architecture overview, two-binary build layout, XPC protocol design, connection lifecycle on the client side, full caller-verification flow (PID → SecCode → CDHash → Ed25519 manifest), threat-model table, install/uninstall via `osascript with administrator privileges`, atomic write semantics, build & release procedure including key rotation, failure-mode table, file map, and a glossary covering CDHash / SecCode / Mach service / audit token / Ed25519 / launchctl
+- Documents the explicit security trade-offs taken by strategy B2: no Apple Developer Team ID, sandbox disabled on the GUI app, PID lookup vs `auditToken` and why the second-stage CDHash check makes the TOCTOU window irrelevant, DEBUG bypass rationale
+
+### Files modified
+- `docs/helper.md` — new
+
+## [2026-05-08] — Privileged helper — XPC client + onboarding UI (sub-task d)
+
+**Type:** feature
+
+### Changes
+- New `HostsXPCClient` (`@Observable` singleton) wraps `NSXPCConnection(machServiceName: "com.colilab.hostflow.helper", options: .privileged)`; `invalidationHandler` and `interruptionHandler` both clear the cached connection so the next call lazily reconnects. The `writeHosts(_:)` method bridges the Obj-C reply-block API to `async throws` via `withCheckedThrowingContinuation`
+- `HostsFileManager.write(profiles:)` is now `async throws` and delegates to `HostsXPCClient.shared.writeHosts(_:)` instead of writing `/etc/hosts` directly. The previous direct write path is removed
+- `ProfileStore.writeHosts(context:)` keeps its synchronous fire-and-forget signature so existing call sites (sidebar/menubar/edit sheets) don't need updating; internally it spawns a `Task { @MainActor }` that drives the async write and surfaces failures via `lastWriteError`
+- Pre-flight in `ProfileStore.writeHosts`: if `HelperInstaller().isInstalled == false`, sets a new `helperMissing: Bool` flag and skips the write entirely. ContentView observes this via `@Bindable` and presents `HelperOnboardingSheet` as a modal sheet
+- New `HelperOnboardingSheet` (Onboarding folder) explains the one-time admin prompt, calls `HelperInstaller.install()` on confirm, and re-triggers the original write on success
+- New `HelperSettingsSection` in Settings exposes "Installato / Non installato" state plus Install/Uninstall buttons with progress + inline error display
+- Both UI surfaces (onboarding + settings) drive the same `HelperInstaller`, so installing from Settings dismisses the onboarding sheet on next read
+
+### Files modified
+- `HostFlow/Helpers/HostsXPCClient.swift` — new XPC client singleton with async-await bridge
+- `HostFlow/Helpers/HostsFileManager.swift` — `write(profiles:)` now async, routes through XPC
+- `HostFlow/Stores/ProfileStore.swift` — adds `helperMissing` flag and pre-flight; write becomes Task-driven
+- `HostFlow/App/ContentView.swift` — sheet presentation for onboarding bound to `store.helperMissing`
+- `HostFlow/Views/Onboarding/HelperOnboardingSheet.swift` — new modal flow
+- `HostFlow/Views/Settings/HelperSettingsSection.swift` — new "Componente di sistema" Settings section
+- `HostFlow/Views/Settings/SettingsView.swift` — wires the new section into the Settings form
+
+## [2026-05-08] — Privileged helper — installer + atomic write (sub-task c)
+
+**Type:** feature
+
+### Changes
+- New `HelperInstaller` (`@Observable`) in `HostFlow/Helpers/`: `install()` copies the embedded helper binary to `/Library/PrivilegedHelperTools/` and the launchd plist to `/Library/LaunchDaemons/`, applies `chown root:wheel` + `chmod` (755 on the binary, 644 on the plist), then `launchctl bootout` (best-effort) followed by `launchctl bootstrap system`; `uninstall()` runs `bootout` and removes both files
+- Privileged execution uses `osascript -e 'do shell script ... with administrator privileges'` instead of the deprecated `AuthorizationExecuteWithPrivileges` — same UX (native admin prompt) but no SPI; the script is built as a single bash blob, escaped, and passed via `Process` with stdout/stderr captured for diagnostics
+- `isInstalled` now checks both the daemon plist *and* the helper binary on disk (either missing means re-install)
+- App entitlements: `com.apple.security.app-sandbox` set to `false`. `osascript with administrator privileges` cannot be spawned from a sandboxed process; this is the documented architectural trade-off of strategy B2 (no Apple Developer Team ID, install custom via launchctl)
+- `HelperService.writeHosts` now performs the real atomic write as root:
+  - copies the existing `/etc/hosts` to `/etc/hosts.hostflow.bak` (overwriting any prior backup)
+  - writes the new content to `/etc/hosts.hostflow.tmp` via `Data.write(options: .atomic)`
+  - applies `posixPermissions: 0o644`, `ownerAccountID: 0`, `groupOwnerAccountID: 0` on the tmp file so the final `/etc/hosts` ends up owned by `root:wheel`
+  - `FileManager.replaceItemAt` swaps tmp → `/etc/hosts` atomically (backed by the `rename(2)` syscall, so concurrent readers always see a complete file)
+- Logging via `os_log` with subsystem `com.colilab.hostflow.helper`, category `service` — visible in Console.app filtered by subsystem
+
+### Files modified
+- `HostFlow/Helpers/HelperInstaller.swift` — new install/uninstall flow via osascript
+- `HostFlow/Helper/HelperService.swift` — real atomic write replacing the previous no-op stub
+- `HostFlow/Resources/HostFlow.entitlements` — sandbox disabled; removed obsolete `/etc/hosts` temporary exception (writes go through the helper now)
+- `HostFlow/project.yml` — entitlements properties updated to match
+
+## [2026-05-08] — Privileged helper — Ed25519 manifest signing + caller verification (sub-task b)
+
+**Type:** feature
+
+### Changes
+- `Scripts/make-keys.sh` generates an Ed25519 keypair via `openssl genpkey -algorithm ed25519` and prints the 32-byte raw public key as hex for embedding in source; refuses to overwrite an existing private key
+- `Scripts/sign-manifest.sh` extracts the CDHash from a signed `.app` bundle via `codesign -dvvv`, writes `Contents/Resources/cdhash-manifest.json` (`{"version":1,"cdhashes":[...]}`) and an Ed25519 detached signature `cdhash-manifest.json.sig` using `openssl pkeyutl -sign -rawin`
+- `.gitignore` now excludes `*.pem` and `Scripts/keys/` so the private key cannot be committed accidentally; the user keeps the private key offline (1Password / encrypted external disk)
+- New helper sources: `AuthorizedKeys.swift` (public key as hex constant + `Data(hex:)` decoder), `HelperError.swift` (typed errors `unauthorizedCaller` / `manifestMissing` / `manifestInvalid` / `writeFailed`, conforms to `LocalizedError` and `CustomNSError` for clean propagation across XPC), `CallerVerification.swift`
+- `CallerVerification` resolves the caller's `SecCode` via `kSecGuestAttributePid` (NOT `kSecGuestAttributeAudit` — `NSXPCConnection.auditToken` is private API; PID lookup is safe here because the CDHash check downstream is content-based, not identity-based), extracts the CDHash with `SecCodeCopySigningInformation` + `kSecCodeInfoUnique`, locates the caller's bundle URL with `SecCodeCopyPath`, then verifies the manifest signature against `AuthorizedKeys.publicKeyData` using `Curve25519.Signing.PublicKey.isValidSignature`, and finally checks the caller CDHash is whitelisted in the manifest
+- `#if DEBUG` short-circuits the verification entirely (per task decision: full bypass in Debug, no dev keypair) so local builds work without a private key on disk
+- `HelperListenerDelegate.listener(_:shouldAcceptNewConnection:)` runs `CallerVerification.verify()` and refuses the connection on failure, logging via `NSLog`
+- New post-build script on the `HostFlow` target: skips signing in Debug; in Release fails the build if `HOSTFLOW_PRIVATE_KEY` env var is unset, otherwise invokes `Scripts/sign-manifest.sh`
+- Public key currently a 32-byte zero placeholder — must be replaced by the output of `Scripts/make-keys.sh` before the first Release build
+
+### Files modified
+- `Scripts/make-keys.sh` — new keypair-generation script (Ed25519 via openssl)
+- `Scripts/sign-manifest.sh` — new manifest signing script
+- `.gitignore` — added `*.pem` and `Scripts/keys/`
+- `HostFlow/Helper/AuthorizedKeys.swift` — new public-key embedding
+- `HostFlow/Helper/HelperError.swift` — new typed errors
+- `HostFlow/Helper/CallerVerification.swift` — new SecCode + Ed25519 verification flow
+- `HostFlow/Helper/HelperListenerDelegate.swift` — invokes `CallerVerification.verify()` and rejects unauthorized connections
+- `HostFlow/project.yml` — new "Sign CDHash manifest" post-build script on `HostFlow`
+
 ## [2026-05-08] — Privileged helper (XPC) — scaffolding (sub-task a)
 
 **Type:** feature

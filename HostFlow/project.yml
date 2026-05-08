@@ -39,6 +39,25 @@ targets:
           - $(SRCROOT)/Helper/Resources/com.colilab.hostflow.helper.plist
         outputFiles:
           - $(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/Contents/Library/LaunchDaemons/com.colilab.hostflow.helper.plist
+      - name: Sign CDHash manifest
+        script: |
+          set -e
+          if [ "${CONFIGURATION}" = "Debug" ]; then
+            echo "Debug build — skipping manifest signing (helper bypasses verification)"
+            : > "${SCRIPT_OUTPUT_FILE_0}"
+            : > "${SCRIPT_OUTPUT_FILE_1}"
+            exit 0
+          fi
+          if [ -z "${HOSTFLOW_PRIVATE_KEY:-}" ]; then
+            echo "error: HOSTFLOW_PRIVATE_KEY env var is required for Release builds"
+            exit 1
+          fi
+          "${SRCROOT}/../Scripts/sign-manifest.sh" \
+            "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app" \
+            "${HOSTFLOW_PRIVATE_KEY}"
+        outputFiles:
+          - $(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/Contents/Resources/cdhash-manifest.json
+          - $(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/Contents/Resources/cdhash-manifest.json.sig
     dependencies:
       - target: HostFlowHelper
         embed: true
@@ -54,10 +73,7 @@ targets:
     entitlements:
       path: Resources/HostFlow.entitlements
       properties:
-        com.apple.security.app-sandbox: true
-        com.apple.security.files.user-selected.read-write: true
-        com.apple.security.temporary-exception.files.absolute-path.read-write:
-          - /etc/hosts
+        com.apple.security.app-sandbox: false
 
   HostFlowHelper:
     type: tool

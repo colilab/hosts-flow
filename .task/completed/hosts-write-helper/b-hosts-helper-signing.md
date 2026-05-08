@@ -44,3 +44,9 @@ Schema di autenticazione caller del daemon basato su keypair Ed25519 generata lo
 - Rotation chiave (cambio private key) — task futuro se necessario
 - Multi-firma (più chiavi autorizzate) — possibile ma per ora 1 chiave
 - Network-fetched manifest (CDN) — esplicitamente rifiutato per security
+
+---
+
+**Completed:** 2026-05-08
+
+**Resolution:** `Scripts/make-keys.sh` (Ed25519 keypair via openssl) + `Scripts/sign-manifest.sh` (CDHash → JSON manifest + Ed25519 sig in Contents/Resources). `AuthorizedKeys.swift` con publicKey hex placeholder, `HelperError` con casi unauthorizedCaller/manifestMissing/manifestInvalid/writeFailed, `CallerVerification` (PID lookup via `kSecGuestAttributePid` invece di auditToken privato; estrae CDHash con `SecCodeCopySigningInformation`, verifica con `Curve25519.Signing.PublicKey`). `HelperListenerDelegate` rifiuta connessioni non autorizzate. Build phase release richiede env `HOSTFLOW_PRIVATE_KEY`; debug bypass totale. `.gitignore` esclude `*.pem` e `Scripts/keys/`.

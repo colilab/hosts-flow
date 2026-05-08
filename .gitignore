@@ -51,6 +51,8 @@ Carthage/Checkouts/
 *.mobileprovision
 *.provisionprofile
 *.entitlements.dev
+*.pem
+Scripts/keys/
 
 # Logs & temp
 *.log

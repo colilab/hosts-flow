@@ -53,3 +53,9 @@ Logica di install/uninstall del daemon su sistema (richiede prompt admin una vol
 - File watcher esterno per detect manual edit → task `23-hosts-watch-external`
 - Trigger debounced lato app → task `22-hosts-trigger`
 - UI install/uninstall in Settings → d
+
+---
+
+**Completed:** 2026-05-08
+
+**Resolution:** `HelperInstaller` lato app esegue install/uninstall via `osascript do shell script with administrator privileges` (UI nativa macOS, AuthorizationExecuteWithPrivileges deprecato). App-sandbox disabilitato in entitlements (necessario per spawnare osascript privileged). `HelperService.writeHosts` ora fa write atomico reale: backup `/etc/hosts.hostflow.bak`, write su tmp con `Data.write(.atomic)`, chmod 0644 + chown root:wheel, `FileManager.replaceItemAt` (atomic via `rename(2)`). Logging via `os_log` con subsystem `com.colilab.hostflow.helper`.

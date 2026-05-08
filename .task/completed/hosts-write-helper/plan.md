@@ -52,9 +52,9 @@ Introduce un helper privilegiato (`com.colilab.hostflow.helper`) che riceve via 
 
 ## Steps
 1. [x] **a — Scaffolding helper**: nuovo target `HostFlowHelper` (Command Line Tool) in `project.yml`, protocollo `HostFlowHelperProtocol` condiviso, `XPCListener` skeleton nel main del helper, template plist launchd con `MachServices` + `User: root` — `project.yml`, `HostFlowHelper/`, `Shared/HostFlowHelperProtocol.swift`
-2. [ ] **b — Signing pipeline (Ed25519)**: script di build che genera manifest firmato col CDHash dell'app, helper verifica al runtime che il chiamante corrisponda al manifest firmato — `Scripts/sign-manifest.sh`, `HostFlowHelper/CallerVerification.swift`
-3. [ ] **c — Installer privilegiato**: install/uninstall via `AuthorizationServices` + `launchctl bootstrap`, copia helper in `/Library/PrivilegedHelperTools/` e plist in `/Library/LaunchDaemons/` — `HostFlow/Helpers/HelperInstaller.swift`
-4. [ ] **d — Client XPC + UI**: `NSXPCConnection(machServiceName:)` lato app, sostituzione di `HostsFileManager.write` con chiamata XPC `writeHosts`, UI di onboarding che richiede installazione helper al primo avvio o quando assente, gestione errori (helper mancante / connessione fallita) — `HostFlow/Helpers/HostsFileManager.swift`, `HostFlow/Views/Onboarding/HelperInstallView.swift`
+2. [x] **b — Signing pipeline (Ed25519)**: script di build che genera manifest firmato col CDHash dell'app, helper verifica al runtime che il chiamante corrisponda al manifest firmato — `Scripts/sign-manifest.sh`, `HostFlowHelper/CallerVerification.swift`
+3. [x] **c — Installer privilegiato**: install/uninstall via `AuthorizationServices` + `launchctl bootstrap`, copia helper in `/Library/PrivilegedHelperTools/` e plist in `/Library/LaunchDaemons/` — `HostFlow/Helpers/HelperInstaller.swift`
+4. [x] **d — Client XPC + UI**: `NSXPCConnection(machServiceName:)` lato app, sostituzione di `HostsFileManager.write` con chiamata XPC `writeHosts`, UI di onboarding che richiede installazione helper al primo avvio o quando assente, gestione errori (helper mancante / connessione fallita) — `HostFlow/Helpers/HostsFileManager.swift`, `HostFlow/Views/Onboarding/HelperInstallView.swift`
 
 ## Out of scope
 - Notarization e distribuzione App Store (la strada B2 evita Team ID; la sandbox potrebbe restare disabilitata)
@@ -68,3 +68,9 @@ Introduce un helper privilegiato (`com.colilab.hostflow.helper`) che riceve via 
 - @.task/hosts-write-helper/b-hosts-helper-signing.md
 - @.task/hosts-write-helper/c-hosts-helper-installer.md
 - @.task/hosts-write-helper/d-hosts-helper-client.md
+
+---
+
+**Completed:** 2026-05-08
+
+**Resolution:** Helper privilegiato (strada B2 — daemon launchd + Ed25519 CDHash manifest, no Team ID Apple) implementato in 4 step. Scaffolding del target HostFlowHelper + protocollo XPC condiviso (a). Pipeline di firma Ed25519 con caller verification basata su PID + CDHash + signed manifest (b). Installer privilegiato via `osascript do shell script with administrator privileges` + write atomico real su `/etc/hosts` come root (c). Client `NSXPCConnection` + onboarding sheet + sezione Settings install/uninstall (d). Build pulita end-to-end. Documentazione tecnica completa in `docs/helper.md`. Sandbox dell'app disabilitata come trade-off documentato di B2.

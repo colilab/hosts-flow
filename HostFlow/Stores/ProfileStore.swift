@@ -7,6 +7,7 @@ final class ProfileStore {
 
     private(set) var isWritingHosts = false
     private(set) var lastWriteError: String?
+    var helperMissing = false
 
     func toggleProfile(_ profile: Profile, context: ModelContext) {
         profile.isActive.toggle()
@@ -96,15 +97,21 @@ final class ProfileStore {
     }
 
     func writeHosts(context: ModelContext) {
+        if !HelperInstaller().isInstalled {
+            helperMissing = true
+            return
+        }
         let descriptor = FetchDescriptor<Profile>()
         guard let profiles = try? context.fetch(descriptor) else { return }
         isWritingHosts = true
         lastWriteError = nil
-        do {
-            try HostsFileManager.shared.write(profiles: profiles)
-        } catch {
-            lastWriteError = error.localizedDescription
+        Task { @MainActor [weak self] in
+            defer { self?.isWritingHosts = false }
+            do {
+                try await HostsFileManager.shared.write(profiles: profiles)
+            } catch {
+                self?.lastWriteError = error.localizedDescription
+            }
         }
-        isWritingHosts = false
     }
 }

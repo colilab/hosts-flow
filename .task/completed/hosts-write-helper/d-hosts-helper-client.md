@@ -47,3 +47,9 @@ Lato app: client `NSXPCConnection` che parla col daemon, sostituzione del path "
 - Debounce dei write → task `22-hosts-trigger`
 - Reset blocco gestito → task `29-settings-reset-block`
 - Logiche advanced di retry / backoff
+
+---
+
+**Completed:** 2026-05-08
+
+**Resolution:** `HostsXPCClient` (`@Observable` singleton) gestisce `NSXPCConnection(machServiceName:options: .privileged)` con invalidation/interruption handler che azzerano la connection per riconnessione lazy. `HostsFileManager.write` ora `async throws` e delega scrittura al client XPC. `ProfileStore.writeHosts` resta sync fire-and-forget (lancia `Task @MainActor`); pre-flight check su `HelperInstaller.isInstalled` setta `helperMissing` flag che ContentView osserva via `.sheet`. `HelperOnboardingSheet` mostrato al primo trigger se helper assente; "Installa" chiama `HelperInstaller.install()` e su success ri-trigger il write. `HelperSettingsSection` in Settings espone stato + bottoni install/uninstall.

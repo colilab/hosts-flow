@@ -5,10 +5,24 @@ struct ContentView: View {
 
     @Query(sort: \Profile.order) private var profiles: [Profile]
     @State private var selectedProfile: Profile?
+    @State private var helperInstaller = HelperInstaller()
     @Environment(\.modelContext) private var context
     @Environment(ProfileStore.self) private var store
 
     var body: some View {
+        @Bindable var store = store
+        return content
+            .sheet(isPresented: $store.helperMissing) {
+                HelperOnboardingSheet(installer: helperInstaller) { installed in
+                    store.helperMissing = false
+                    if installed {
+                        store.writeHosts(context: context)
+                    }
+                }
+            }
+    }
+
+    private var content: some View {
         HSplitView {
             SidebarView(selectedProfile: $selectedProfile)
                 .frame(minWidth: 180, idealWidth: 220, maxWidth: 320)

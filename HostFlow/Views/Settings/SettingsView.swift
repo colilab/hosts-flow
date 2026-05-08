@@ -21,6 +21,8 @@ struct SettingsView: View {
                 .pickerStyle(.segmented)
             }
 
+            HelperSettingsSection()
+
             Section("Info") {
                 LabeledContent("Versione") {
                     Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—")

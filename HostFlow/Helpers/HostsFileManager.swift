@@ -36,11 +36,11 @@ final class HostsFileManager {
         return try parse(raw)
     }
 
-    func write(profiles: [Profile]) throws {
+    func write(profiles: [Profile]) async throws {
         let current = try readRaw()
         let block = buildBlock(from: profiles)
         let updated = replaceBlock(in: current, with: block)
-        try updated.write(toFile: hostsPath, atomically: true, encoding: .utf8)
+        try await HostsXPCClient.shared.writeHosts(updated)
     }
 
     private func readRaw() throws -> String {
@@ -80,7 +80,9 @@ final class HostsFileManager {
 
     private func buildBlock(from profiles: [Profile]) -> String {
         var lines = [blockStart, warningLine1, warningLine2]
-        let activeProfiles = profiles.filter(\.isActive).sorted { $0.order < $1.order }
+        let activeProfiles = profiles
+            .filter { $0.isActive && !$0.isReadOnly }
+            .sorted { $0.order < $1.order }
         for profile in activeProfiles {
             lines.append("")
             lines.append("# --- \(profile.name) ---")
