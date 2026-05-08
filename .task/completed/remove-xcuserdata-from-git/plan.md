@@ -20,3 +20,9 @@ I file sotto `xcuserdata/` erano stati committati prima che le regole `.gitignor
 - Riscrittura della storia git (i file resteranno nei commit passati)
 - Modifiche al `.gitignore` (le regole esistenti sono già corrette)
 - Push remoto (lasciato all'utente)
+
+---
+
+**Completed:** 2026-05-08
+
+**Resolution:** Rimossi dal tracking git tre file `xcuserdata` (incluso uno di un altro utente, `acolinucci`, scoperto durante la verifica) tramite `git rm --cached` e committati in `03f2237`. I file restano sul disco locale; le regole gitignore esistenti coprono i futuri commit.

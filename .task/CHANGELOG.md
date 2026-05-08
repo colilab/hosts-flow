@@ -1,5 +1,18 @@
 # Changelog
 
+## [2026-05-08] — Untrack xcuserdata files
+
+**Type:** chore
+
+### Changes
+- Removed `xcuserdata` files from git tracking; they had been committed before the `.gitignore` rules were added, so the existing ignore patterns had no effect on already-tracked paths
+- Files remain on disk locally; future changes will be ignored by the existing `*.xcodeproj/xcuserdata/` and `*.xcworkspace/xcuserdata/` rules
+
+### Files modified
+- `HostFlow/HostFlow.xcodeproj/project.xcworkspace/xcuserdata/luca.xcuserdatad/UserInterfaceState.xcuserstate` — untracked
+- `HostFlow/HostFlow.xcodeproj/xcuserdata/luca.xcuserdatad/xcschemes/xcschememanagement.plist` — untracked
+- `HostFlow/HostFlow.xcodeproj/xcuserdata/acolinucci.xcuserdatad/xcschemes/xcschememanagement.plist` — untracked
+
 ## [2026-05-08] — Record — Duplicate (ip, hostname) pair warning
 
 **Type:** feature
