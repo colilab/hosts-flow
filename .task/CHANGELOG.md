@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026-05-08] — Record — Duplicate (ip, hostname) pair warning
+
+**Type:** feature
+
+### Changes
+- Added `@Query` for all profiles to `ProfileDetailView` so the detail can reason about cross-profile state
+- Added `RecordPair` `Hashable` (lowercased ip + hostname) and computed `duplicatedPairs: Set<RecordPair>` — counts the (ip, hostname) pair across this profile's records (any state) plus enabled records of other active profiles; entries with count > 1 are flagged
+- Pair-based detection avoids false positives like the standard loopback `::1 localhost` + `127.0.0.1 localhost` — different IPs for the same hostname are NOT considered duplicates
+- Hostname column in the records Table now wraps the `Text` in an `HStack` and shows an orange `exclamationmark.triangle.fill` SF Symbol with `.help` tooltip "Record duplicato — stessa coppia IP/hostname presente più volte" whenever the row's pair is in the duplicate set
+- Validation (blocking) on IP / hostname during add and edit was already covered by tasks 03 + (revised) modal Edit; this task only adds the non-blocking duplicate awareness
+
+### Files modified
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — `@Query allProfiles`, `RecordPair` + `duplicatedPairs` computed, warning icon in Hostname column
+
 ## [2026-05-08] — Record edit — Modal-only with explicit Save / Cancel
 
 **Type:** refactor

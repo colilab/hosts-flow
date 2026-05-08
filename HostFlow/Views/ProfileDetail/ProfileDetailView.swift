@@ -6,6 +6,7 @@ struct ProfileDetailView: View {
     @Bindable var profile: Profile
     @Environment(\.modelContext) private var context
     @Environment(ProfileStore.self) private var store
+    @Query private var allProfiles: [Profile]
 
     @State private var searchText = ""
     @State private var editingRecord: HostRecord?
@@ -18,6 +19,24 @@ struct ProfileDetailView: View {
             $0.hostname.localizedCaseInsensitiveContains(searchText) ||
             $0.ip.localizedCaseInsensitiveContains(searchText)
         }
+    }
+
+    private struct RecordPair: Hashable {
+        let ip: String
+        let hostname: String
+    }
+
+    private var duplicatedPairs: Set<RecordPair> {
+        var counts: [RecordPair: Int] = [:]
+        for r in profile.records {
+            counts[RecordPair(ip: r.ip.lowercased(), hostname: r.hostname.lowercased()), default: 0] += 1
+        }
+        for p in allProfiles where p.isActive && p.id != profile.id {
+            for r in p.records where r.isEnabled {
+                counts[RecordPair(ip: r.ip.lowercased(), hostname: r.hostname.lowercased()), default: 0] += 1
+            }
+        }
+        return Set(counts.filter { $0.value > 1 }.keys)
     }
 
     var body: some View {
@@ -127,10 +146,18 @@ struct ProfileDetailView: View {
             .width(min: 100, ideal: 140)
 
             TableColumn("Hostname") { record in
-                Text(record.hostname)
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundStyle(record.isEnabled ? .primary : .secondary)
-                    .opacity(record.isEnabled ? 1.0 : 0.5)
+                HStack(spacing: 4) {
+                    Text(record.hostname)
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundStyle(record.isEnabled ? .primary : .secondary)
+                        .opacity(record.isEnabled ? 1.0 : 0.5)
+                    if duplicatedPairs.contains(RecordPair(ip: record.ip.lowercased(), hostname: record.hostname.lowercased())) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                            .help("Record duplicato — stessa coppia IP/hostname presente più volte")
+                    }
+                }
             }
         }
         .contextMenu(forSelectionType: HostRecord.ID.self) { items in

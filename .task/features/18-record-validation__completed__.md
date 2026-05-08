@@ -30,3 +30,9 @@ Mostrare un warning visivo (non blocking) quando un hostname è duplicato all'in
 
 - `.help("...")` per tooltip
 - Cross-profile: query `Profile` con `isActive == true` e flatten records
+
+---
+
+**Completed:** 2026-05-08
+
+**Resolution:** Validazione bloccante IP/hostname già coperta da 03 + modal edit refactor. Aggiunto `@Query allProfiles` + computed `duplicatedHostnames` (this profile + altri profili attivi enabled) + icona orange `exclamationmark.triangle.fill` con tooltip nella colonna Hostname.

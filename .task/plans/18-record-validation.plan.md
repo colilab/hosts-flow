@@ -14,12 +14,12 @@ Definizione duplicato (case-insensitive lowercase):
 
 ## Steps
 
-1. [ ] In `ProfileDetailView`: aggiungere `@Query private var allProfiles: [Profile]`
-2. [ ] Computed `duplicatedHostnames: Set<String>`:
+1. [x] In `ProfileDetailView`: aggiungere `@Query private var allProfiles: [Profile]`
+2. [x] Computed `duplicatedHostnames: Set<String>`:
    - Conta hostname lowercased da: tutti i record di `profile` + record `isEnabled` di `allProfiles` con `isActive == true && id != profile.id`
    - Ritorna le chiavi con count > 1
-3. [ ] In `TableColumn("Hostname")`: wrappare il `Text` esistente in un HStack(spacing: 4) che, se `duplicatedHostnames.contains(record.hostname.lowercased())`, mostra `Image(systemName: "exclamationmark.triangle.fill")` `.font(.caption) .foregroundStyle(.orange) .help("Hostname duplicato — l'ultimo record attivo prevarrà")`
-4. [ ] Build verifica
+3. [x] In `TableColumn("Hostname")`: wrappare il `Text` esistente in un HStack(spacing: 4) che, se `duplicatedHostnames.contains(record.hostname.lowercased())`, mostra `Image(systemName: "exclamationmark.triangle.fill")` `.font(.caption) .foregroundStyle(.orange) .help("Hostname duplicato — l'ultimo record attivo prevarrà")`
+4. [x] Build verifica
 
 ## Out of scope
 
