@@ -261,7 +261,6 @@
 				DA2276C0EC7B766A252905F5 /* Sources */,
 				47B955A6807D1E20B570D3ED /* Embed Dependencies */,
 				C12BC3512BAD5F1E547EF7CF /* Embed helper plist */,
-				C184A246598BD57B8EC957A7 /* Sign CDHash manifest */,
 			);
 			buildRules = (
 			);
@@ -334,26 +333,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e\nDEST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Library/LaunchDaemons\"\nmkdir -p \"$DEST\"\ncp \"${SRCROOT}/Helper/Resources/com.colilab.hostflow.helper.plist\" \"$DEST/\"\n";
-		};
-		C184A246598BD57B8EC957A7 /* Sign CDHash manifest */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Sign CDHash manifest";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/Contents/Resources/cdhash-manifest.json",
-				"$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/Contents/Resources/cdhash-manifest.json.sig",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nif [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n  echo \"Debug build — skipping manifest signing (helper bypasses verification)\"\n  : > \"${SCRIPT_OUTPUT_FILE_0}\"\n  : > \"${SCRIPT_OUTPUT_FILE_1}\"\n  exit 0\nfi\nif [ -z \"${HOSTFLOW_PRIVATE_KEY:-}\" ]; then\n  echo \"error: HOSTFLOW_PRIVATE_KEY env var is required for Release builds\"\n  exit 1\nfi\n\"${SRCROOT}/../Scripts/sign-manifest.sh\" \\\n  \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app\" \\\n  \"${HOSTFLOW_PRIVATE_KEY}\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

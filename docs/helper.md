@@ -166,54 +166,100 @@ For an open-source local-dev tool we want users to be able to build from
 source and run without any Apple Developer membership. Hence the custom
 scheme below.
 
-### 5.2 The scheme: Ed25519-signed CDHash manifest
+### 5.2 The scheme: Ed25519-signed binary-hash manifest
 
 ```
-                               ┌─────────────────────────────────┐
-                               │    Build machine (developer)    │
-                               │                                 │
-                               │   Scripts/sign-manifest.sh      │
-                               │                                 │
-                               │   1. codesign -dvvv App.app     │
-                               │      → CDHash (sha256 of app)   │
-                               │                                 │
-                               │   2. write cdhash-manifest.json │
-                               │      {"version":1,              │
-                               │       "cdhashes":["..."]}       │
-                               │                                 │
-                               │   3. openssl pkeyutl -sign      │
-                               │      with private.pem (Ed25519) │
-                               │      → cdhash-manifest.json.sig │
-                               └─────────────────────────────────┘
+                               ┌─────────────────────────────────────┐
+                               │    Build machine (developer)        │
+                               │                                     │
+                               │   Scripts/build-release.sh:         │
+                               │                                     │
+                               │   1. xcodebuild Release             │
+                               │      → App.app codesigned (ad-hoc)  │
+                               │                                     │
+                               │   2. shasum -a 256                  │
+                               │      Contents/MacOS/HostFlow        │
+                               │      → binary SHA-256 hash H        │
+                               │                                     │
+                               │   3. write binary-hash-manifest.json│
+                               │      {"version":1,                  │
+                               │       "binaryHashes":["<H>"]}       │
+                               │                                     │
+                               │   4. openssl pkeyutl -sign          │
+                               │      with private.pem (Ed25519)     │
+                               │      → binary-hash-manifest.json.sig│
+                               │                                     │
+                               │   ⚠ NEVER re-codesign after step 4. │
+                               │     The embedded signature lives    │
+                               │     inside the Mach-O; re-signing   │
+                               │     rewrites those bytes and        │
+                               │     invalidates H.                  │
+                               └─────────────────────────────────────┘
                                           │
-                                          │  (both files embedded in
+                                          │  (both files placed in
                                           ▼   App.app/Contents/Resources/)
-                               ┌─────────────────────────────────┐
-                               │   App.app/Contents/Resources/   │
-                               │     cdhash-manifest.json        │
-                               │     cdhash-manifest.json.sig    │
-                               └─────────────────────────────────┘
+                               ┌─────────────────────────────────────┐
+                               │   App.app/Contents/Resources/       │
+                               │     binary-hash-manifest.json       │
+                               │     binary-hash-manifest.json.sig   │
+                               └─────────────────────────────────────┘
                                           │
        ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ install/run boundary ─ ─
                                           │
                                           ▼
-                ┌────────────────────────────────────────────────┐
-                │   HostFlowHelper (root) — runtime check        │
-                │                                                │
-                │   1. Get caller PID from NSXPCConnection       │
-                │   2. SecCodeCopyGuestWithAttributes(pid:...)   │
-                │   3. SecCodeCopySigningInformation             │
-                │      → kSecCodeInfoUnique = caller CDHash      │
-                │   4. SecCodeCopyPath → caller bundle URL       │
-                │   5. Read manifest + .sig from bundle          │
-                │   6. CryptoKit Curve25519.Signing.PublicKey    │
-                │      .isValidSignature(.sig, for: manifest)    │
-                │   7. Caller CDHash ∈ manifest.cdhashes ?       │
-                │                                                │
-                │   All checks pass → exportedObject = service   │
-                │   Any check fails  → return false (drop conn)  │
-                └────────────────────────────────────────────────┘
+                ┌──────────────────────────────────────────────────┐
+                │   HostFlowHelper (root) — runtime check          │
+                │                                                  │
+                │   1. Get caller PID from NSXPCConnection         │
+                │   2. SecCodeCopyGuestWithAttributes(pid:...)     │
+                │   3. SecCodeCopyPath → caller bundle URL         │
+                │   4. Read CFBundleExecutable from Info.plist     │
+                │   5. SHA256 of <bundle>/Contents/MacOS/<exec>    │
+                │   6. Read manifest + .sig from bundle Resources/ │
+                │   7. CryptoKit Curve25519.Signing.PublicKey      │
+                │      .isValidSignature(.sig, for: manifest)      │
+                │   8. SHA256 ∈ manifest.binaryHashes ?            │
+                │                                                  │
+                │   All checks pass → exportedObject = service     │
+                │   Any check fails  → return false (drop conn)    │
+                └──────────────────────────────────────────────────┘
 ```
+
+#### Why hash the binary instead of the bundle CDHash
+
+An earlier iteration of this design used the bundle's **CDHash** (the hash
+that `codesign` stamps into the binary's CodeDirectory, summarising the
+binary plus every resource file). It hit an unsolvable chicken-and-egg
+problem:
+
+1. Build app → codesign → CDHash X stamped into the binary.
+2. Write `cdhash-manifest.json` (containing X) into `Contents/Resources/`.
+3. Xcode's final codesign phase re-signs the bundle. The new resource list
+   now includes the manifest, so a fresh CDHash Y is stamped.
+4. Manifest contains X, but the running app's CDHash is Y → mismatch →
+   verification always fails.
+
+You cannot break the cycle without doing one of:
+
+* embedding the manifest *outside* the bundle (sidecar files distributed
+  alongside `.app`) — UX regression,
+* writing a custom `CodeResources` rule that excludes the manifest from
+  the seal — modern codesign no longer supports this,
+* skipping the final re-signing — leaves the bundle's resource seal
+  inconsistent and fights Xcode's build phases.
+
+The chosen alternative is to hash **only the main executable** at
+`Contents/MacOS/<CFBundleExecutable>`. Its bytes contain:
+
+* the compiled Mach-O code,
+* the embedded code signature (codesign appends a `__LINKEDIT` blob with
+  the CodeDirectory and signature data into the binary itself).
+
+Once the binary is signed, its bytes are stable. Adding files to
+`Contents/Resources/` does not modify the executable. The cycle vanishes.
+
+The cost is a smaller integrity surface — see §5.4 for what this does
+*not* protect.
 
 #### Step-by-step what each piece does
 
@@ -227,29 +273,28 @@ scheme below.
      the daemon binary; rotating it requires rebuilding the daemon and a new
      install.
 
-2. **CDHash manifest** — JSON document listing the SHA-256 CDHashes that the
-   daemon should accept as callers:
+2. **Binary-hash manifest** — JSON document listing the SHA-256 hashes of
+   the main executable that the daemon should accept as callers:
    ```json
-   {"version": 1, "cdhashes": ["abcd…"]}
+   {"version": 1, "binaryHashes": ["<sha256-hex>"]}
    ```
-   The CDHash of an app is computed by `codesign` over the app's CodeDirectory
-   (which itself summarises every page of the binary plus all bundle
-   resources). Two builds with the same source and same signing identity
-   produce the same CDHash; any change to the binary changes it.
+   Computed via `shasum -a 256 <App>/Contents/MacOS/<CFBundleExecutable>`.
 
 3. **Detached signature** — `Scripts/sign-manifest.sh` runs
    `openssl pkeyutl -sign -rawin` on the manifest bytes, producing
-   `cdhash-manifest.json.sig`. Ed25519 (RFC 8032) is used in its raw 64-byte
-   detached form; `-rawin` tells OpenSSL not to pre-hash (Ed25519 is
-   non-prehash by definition).
+   `binary-hash-manifest.json.sig`. Ed25519 (RFC 8032) is used in its raw
+   64-byte detached form; `-rawin` tells OpenSSL not to pre-hash (Ed25519
+   is non-prehash by definition).
 
-4. **Build-time injection** — a post-build script on the `HostFlow` target
-   runs `sign-manifest.sh` against the freshly codesigned `.app`. In Debug
-   builds the signing step is skipped entirely (the daemon bypasses
-   verification with `#if DEBUG` so local development doesn't require the
-   private key). In Release builds the script aborts the build if the
-   `HOSTFLOW_PRIVATE_KEY` env var isn't set, so a developer cannot ship an
-   unsigned manifest by accident.
+4. **Build-time injection via `Scripts/build-release.sh`** — the wrapper
+   script calls `xcodebuild -configuration Release`, ad-hoc-signs the
+   bundle if Xcode didn't (Automatic signing without a Team ID skips
+   codesign in Release), then runs `sign-manifest.sh`. Manifest signing is
+   driven externally rather than from a Xcode "Run Script" build phase
+   because Xcode's final codesign phase always runs *after* user phases —
+   the previous CDHash-based approach failed exactly because of this
+   ordering. Running the manifest step *after* `xcodebuild` returns
+   guarantees the binary bytes are frozen.
 
 5. **Runtime verification** — when a connection arrives, the daemon's
    `HelperListenerDelegate.listener(_:shouldAcceptNewConnection:)` runs
@@ -258,17 +303,17 @@ scheme below.
    * `SecCodeCopyGuestWithAttributes(nil, [kSecGuestAttributePid: pid], …)`
      resolves a `SecCode` referring to the caller's running process.
    * `SecCodeCopyStaticCode` materialises a `SecStaticCode` over the bundle
-     on disk, which is what the next two calls operate on.
-   * `SecCodeCopySigningInformation(staticCode, [], &info)` returns a
-     dictionary; `info[kSecCodeInfoUnique]` is the CDHash as `Data`.
-   * `SecCodeCopyPath(staticCode, [], &url)` returns the caller's bundle
-     URL — needed to find the manifest+signature on disk.
+     on disk; `SecCodeCopyPath` returns the bundle URL.
+   * The daemon reads `Contents/Info.plist` to find `CFBundleExecutable`,
+     then computes `SHA256.hash(data:)` over the bytes of
+     `Contents/MacOS/<exec>` using CryptoKit.
+   * The manifest and signature live next to that binary, in
+     `Contents/Resources/binary-hash-manifest.json[.sig]`.
    * `Curve25519.Signing.PublicKey(rawRepresentation: AuthorizedKeys.publicKeyData)
      .isValidSignature(sigData, for: manifestData)` does the Ed25519 verify
-     using CryptoKit (Apple's first-party cryptography framework, available
-     since macOS 10.15; constant-time by construction).
-   * Finally, the caller's CDHash (lowercased hex) must appear in
-     `manifest.cdhashes`.
+     (CryptoKit's implementation is constant-time by construction).
+   * Finally, the caller's binary SHA-256 (lowercased hex) must appear in
+     `manifest.binaryHashes`.
    * Any failure throws `HelperError.unauthorizedCaller |
      .manifestMissing | .manifestInvalid`; the listener logs via `NSLog`
      and returns `false`, dropping the connection before any service object
@@ -298,7 +343,7 @@ attacker would have to:
 
 1. Win the kernel PID race against a real Host Flow process, **and**
 2. Possess the Ed25519 private key (so they could publish a manifest
-   listing their attacker binary's CDHash).
+   listing their attacker binary's hash).
 
 (2) is equivalent to "the security of the whole scheme has already been
 broken." The marginal exposure from PID-vs-audit-token is therefore
@@ -318,37 +363,60 @@ return // accept any caller
 
 In Debug builds the daemon accepts everyone. The rationale:
 
-* Debug builds change CDHash on every recompile; a manifest baked at link
-  time would be stale within seconds.
+* Debug builds change the binary on every recompile; a manifest baked at
+  link time would be stale within seconds.
 * Local development would otherwise need the private key on every
   developer's machine, which is the opposite of what we want.
 * Debug builds are not what gets distributed; Release builds enforce the
   full chain.
 
-The post-build script also short-circuits the manifest signing step in
-Debug, so no half-baked artifacts are produced.
+`Scripts/build-release.sh` is Release-only and refuses to run without
+`HOSTFLOW_PRIVATE_KEY` set, so a developer cannot ship an unsigned manifest
+by accident.
 
 ### 5.3 What the scheme defends against
 
-| Threat                                                     | Defended? |
-| ---------------------------------------------------------- | --------- |
-| Random user-space process dialing the helper               | yes — fails CDHash check |
-| Modified/repackaged Host Flow.app (e.g. trojaned)          | yes — CDHash changes, no longer in manifest |
-| Manifest tampering (swap in attacker's CDHash)             | yes — Ed25519 signature breaks |
-| Replay of an old signed manifest after a key rotation      | partial — the daemon embeds the current public key, so manifests signed with the previous key fail. There is no per-manifest revocation list. |
-| Running daemon swap (replace binary on disk)               | partially — binary is `root:wheel 0755`, only root can replace it; an attacker who is already root has by definition won. |
-| TOCTOU on PID                                              | yes — see §5.2 |
-| Attacker steals private key                                | NO — they can publish manifests for any binary. Treat the private key like a code-signing key: keep it offline, rotate on suspected compromise. |
+| Threat                                                          | Defended? |
+| --------------------------------------------------------------- | --------- |
+| Random user-space process dialing the helper                    | yes — its binary hash is not in the manifest |
+| Modified Host Flow executable (trojaned Mach-O)                 | yes — binary SHA-256 changes |
+| Repackaged app re-signed with attacker key                      | yes — codesign rewrites the binary's signature blob, hash changes |
+| Manifest tampering (swap in attacker's binary hash)             | yes — Ed25519 signature breaks |
+| Replay of an old signed manifest after a key rotation           | partial — the daemon embeds the current public key, so manifests signed with the previous key fail. There is no per-manifest revocation list. |
+| Running daemon swap (replace binary on disk)                    | partially — binary is `root:wheel 0755`, only root can replace it; an attacker who is already root has by definition won. |
+| TOCTOU on PID                                                   | yes — see §5.2 |
+| Modification of bundle resources (Info.plist, assets, .strings) | NO — see §5.4 |
+| Attacker steals private key                                     | NO — they can publish manifests for any binary. Treat the private key like a code-signing key: keep it offline, rotate on suspected compromise. |
 
 ### 5.4 What the scheme does NOT do
+
+* **No bundle integrity.** Because we hash *only* the main executable, an
+  attacker who gains write access to `Contents/Resources/` or
+  `Contents/Info.plist` without modifying the binary can mutate those files
+  and the daemon will still accept the caller. This is acceptable for Host
+  Flow only because the bundle does not load any code or security-critical
+  data from those locations:
+  * No `dlopen`-loaded plug-ins.
+  * No `NSLocalizedString` lookups feeding into shell commands, URLs, or
+    privileged operations (see the discipline note below).
+  * No sidecar JSON / plist files driving runtime behaviour.
+
+  **Discipline going forward:** if you add localisation, configuration
+  files, or any runtime-loaded resources, never let their values pilot
+  security-critical decisions (paths, commands, URLs, AppleScript inputs,
+  authorisation rights). Resources are display-only; constants live in
+  Swift source (which *is* hashed). Reviewing this rule whenever the
+  bundle layout changes keeps the binary-only check sound.
 
 * **No notarization.** Strategy B2 was chosen specifically to avoid an Apple
   Developer Team ID, so the resulting helper is not notarized and cannot be
   distributed via the App Store. Local builds and direct DMG distribution
   are fine.
-* **No multi-signer.** The manifest format supports multiple CDHashes (so
-  multiple builds can be authorised simultaneously) but only one signing
-  key. Multi-signer support is deliberately deferred.
+
+* **No multi-signer.** The manifest format supports multiple binary hashes
+  (so multiple builds can be authorised simultaneously) but only one
+  signing key. Multi-signer support is deliberately deferred.
+
 * **No remote/over-the-network manifest.** The manifest must live on disk
   inside the app bundle; the daemon never fetches anything over the
   network.
@@ -521,16 +589,23 @@ mv Scripts/keys/private.pem ~/Documents/keys-vault/hostflow-private.pem
 
 ```bash
 export HOSTFLOW_PRIVATE_KEY=~/Documents/keys-vault/hostflow-private.pem
-xcodegen generate
-xcodebuild -project HostFlow/HostFlow.xcodeproj \
-           -scheme HostFlow \
-           -configuration Release \
-           build
+./Scripts/build-release.sh
 ```
 
-The post-build script signs the manifest in place inside the freshly built
-`.app`. If `HOSTFLOW_PRIVATE_KEY` is not set, the build fails before
-producing an unsigned artifact.
+The wrapper runs `xcodegen generate`, `xcodebuild -configuration Release`,
+ad-hoc-signs the bundle if Xcode skipped codesign (Automatic signing
+without a Team ID does this in Release), then runs `Scripts/sign-manifest.sh`
+to compute the binary SHA-256 and write the signed manifest into
+`Contents/Resources/`. The script aborts early if `HOSTFLOW_PRIVATE_KEY`
+is unset or the file is missing, so an unsigned artifact cannot ship by
+accident.
+
+**Critical invariant: never run `codesign --force` on the produced `.app`
+afterwards.** Re-signing rewrites the executable's embedded code-signature
+blob, which changes its SHA-256, which makes the manifest stale. The
+daemon will then reject the very app you just built. If you need to fix
+something, re-run `Scripts/build-release.sh` end to end so the manifest
+is regenerated against the new binary bytes.
 
 ### Key rotation (when needed)
 
@@ -553,7 +628,7 @@ producing an unsigned artifact.
 | Helper installed but daemon not registered            | XPC connect fails; `lastWriteError` surfaces "Could not connect…". |
 | Manifest missing (Release build without sign step)    | Daemon rejects connection with `manifestMissing`; user sees error. |
 | Manifest signature invalid (key mismatch)             | Daemon rejects with `manifestInvalid`. |
-| Caller CDHash not in manifest (e.g. modified app)     | Daemon rejects with `unauthorizedCaller`. |
+| Caller binary hash not in manifest (modified or re-codesigned app) | Daemon rejects with `unauthorizedCaller`. |
 | `/etc/hosts` write itself fails (disk full, etc)      | `HelperError.writeFailed` returned to client; alert via UI. |
 
 ---
@@ -567,7 +642,7 @@ producing an unsigned artifact.
 | `Helper/HelperListenerDelegate.swift`             | Accepts/refuses incoming XPC connections |
 | `Helper/HelperService.swift`                      | The actual `writeHosts` implementation |
 | `Helper/HelperError.swift`                        | Typed errors (`unauthorizedCaller`, `manifestMissing`, …) |
-| `Helper/CallerVerification.swift`                 | PID → SecCode → CDHash → manifest verification |
+| `Helper/CallerVerification.swift`                 | PID → SecCode → bundle URL → SHA-256 of main executable → manifest verification |
 | `Helper/AuthorizedKeys.swift`                     | Embedded Ed25519 public key (32 byte hex) |
 | `Helper/Resources/com.colilab.hostflow.helper.plist` | launchd plist template (copied into the app bundle) |
 | `Helpers/HelperInstaller.swift`                   | App-side install/uninstall via osascript |
@@ -576,14 +651,20 @@ producing an unsigned artifact.
 | `Views/Onboarding/HelperOnboardingSheet.swift`    | First-time install flow |
 | `Views/Settings/HelperSettingsSection.swift`      | Settings-level state + install/uninstall buttons |
 | `Scripts/make-keys.sh`                            | One-shot Ed25519 keypair generation |
-| `Scripts/sign-manifest.sh`                        | CDHash extraction + manifest write + Ed25519 sign |
+| `Scripts/sign-manifest.sh`                        | Compute SHA-256 of main executable, write manifest, sign with Ed25519 |
+| `Scripts/build-release.sh`                        | End-to-end Release build wrapper: xcodebuild + manifest signing |
 
 ---
 
 ## 12. Glossary
 
-* **CDHash** — SHA-256 hash of an app's CodeDirectory; uniquely identifies
-  a signed binary. Visible via `codesign -dvvv App.app | grep CDHash`.
+* **Binary hash (this scheme)** — SHA-256 of the bytes of
+  `Contents/MacOS/<CFBundleExecutable>`. Stable across copies of the app
+  and across post-build manifest writes; changes whenever the executable
+  is recompiled or re-codesigned.
+* **CDHash** — SHA-256 hash of an app's *CodeDirectory* (covers binary +
+  resources + Info.plist). Visible via `codesign -dvvv App.app | grep CDHash`.
+  Not used by Host Flow's verification — see §5.2 for why.
 * **SecCode / SecStaticCode** — Apple Security framework objects
   representing, respectively, a *running* code instance and a *static*
   view of code on disk. Many introspection APIs require the static form.

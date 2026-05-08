@@ -1,5 +1,26 @@
 # Changelog
 
+## [2026-05-08] — Privileged helper — switch from CDHash to binary SHA-256 verification
+
+**Type:** bugfix
+
+### Changes
+- **Root cause of the bug**: the previous CDHash-based verification was structurally broken. The post-build sign script ran *before* Xcode's final codesign phase. Xcode's final sign sealed the just-written manifest into a fresh CodeResources hash, so the CDHash stamped in the binary at runtime never matched the CDHash recorded in the manifest. End-to-end Release tests showed the daemon receiving callers with one CDHash while the manifest contained another, causing every call to be rejected silently.
+- **Fix**: hash only the main executable (`Contents/MacOS/<CFBundleExecutable>`) with SHA-256 instead of the bundle's CDHash. The executable's bytes are stable once codesign has stamped it, so writing the manifest into `Contents/Resources/` afterwards does not change the hash. The chicken-and-egg dependency between manifest content and bundle CDHash disappears.
+- New `Scripts/build-release.sh` end-to-end wrapper: runs `xcodegen generate`, `xcodebuild -configuration Release`, ad-hoc-signs the bundle if Xcode skipped codesign (Automatic signing without a Team ID does so in Release), then invokes `Scripts/sign-manifest.sh`. Replaces the broken `postBuildScripts` "Sign CDHash manifest" entry, which was the wrong place architecturally — Xcode's codesign always runs after user phases.
+- `Scripts/sign-manifest.sh` rewritten: reads `CFBundleExecutable` from `Info.plist`, computes `shasum -a 256` of the executable, writes `binary-hash-manifest.json` (`{"version":1,"binaryHashes":["<sha256>"]}`) and an Ed25519 detached signature alongside it. Renamed manifest from `cdhash-manifest.json` to `binary-hash-manifest.json` to make the new semantics explicit. Removed the inline ad-hoc sign step (it now lives in `build-release.sh` to keep `sign-manifest.sh` purely about manifest signing).
+- `HostFlow/Helper/CallerVerification.swift` rewritten: removed `extractCDHash` (PID → SecCode → `kSecCodeInfoUnique`); new `sha256OfMainExecutable(bundleURL:)` reads `Contents/Info.plist` for `CFBundleExecutable` and computes `CryptoKit.SHA256.hash` over the executable bytes. `Manifest` Decodable struct now has `binaryHashes` instead of `cdhashes`.
+- `HostFlow/project.yml`: dropped the `Sign CDHash manifest` post-build script entry.
+- New invariant documented in `docs/helper.md` and enforced by build-release.sh's contract: never run `codesign --force` on the produced `.app` afterwards. Re-signing rewrites the executable's embedded signature blob, changing the SHA-256 and invalidating the manifest. If a fix is needed, run `build-release.sh` end-to-end again.
+- Trade-off acknowledged: the hash now covers only the executable, not Info.plist / Resources / Frameworks. Acceptable for Host Flow because the bundle does not load runtime-driven configuration or plug-ins. Discipline note added to `docs/helper.md` §5.4 — when localisation or other Resources-driven features get added, their values must never feed security-critical code paths (paths, shell commands, URLs, AppleScript inputs).
+
+### Files modified
+- `Scripts/sign-manifest.sh` — full rewrite around binary SHA-256 + new manifest field name
+- `Scripts/build-release.sh` — new end-to-end Release build wrapper
+- `HostFlow/Helper/CallerVerification.swift` — replaced CDHash extraction with executable SHA-256 hashing
+- `HostFlow/project.yml` — removed broken postBuildScripts entry
+- `docs/helper.md` — §5.2 (scheme), §5.3 (threat table), §5.4 (added bundle-integrity caveat + Resources discipline note), §9 (build flow), §10 (failure modes), §11 (file map), §12 (glossary)
+
 ## [2026-05-08] — Privileged helper — technical documentation
 
 **Type:** chore

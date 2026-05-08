@@ -10,9 +10,9 @@ struct CallerVerification {
         return
         #else
         let secCode = try copySecCode()
-        let cdHash = try extractCDHash(from: secCode)
         let bundleURL = try copyBundleURL(from: secCode)
-        try verifyManifest(bundleURL: bundleURL, expectedCDHash: cdHash)
+        let binaryHash = try sha256OfMainExecutable(bundleURL: bundleURL)
+        try verifyManifest(bundleURL: bundleURL, expectedHash: binaryHash)
         #endif
     }
 
@@ -25,40 +25,42 @@ struct CallerVerification {
         return code
     }
 
-    private func extractCDHash(from code: SecCode) throws -> Data {
-        let staticCode = try copyStaticCode(from: code)
-        var infoCF: CFDictionary?
-        let status = SecCodeCopySigningInformation(staticCode, [], &infoCF)
-        guard status == errSecSuccess,
-              let info = infoCF as? [String: Any],
-              let hash = info[kSecCodeInfoUnique as String] as? Data
-        else { throw HelperError.unauthorizedCaller }
-        return hash
-    }
-
     private func copyBundleURL(from code: SecCode) throws -> URL {
-        let staticCode = try copyStaticCode(from: code)
-        var urlCF: CFURL?
-        let status = SecCodeCopyPath(staticCode, [], &urlCF)
-        guard status == errSecSuccess, let url = urlCF as URL? else {
-            throw HelperError.unauthorizedCaller
-        }
-        return url
-    }
-
-    private func copyStaticCode(from code: SecCode) throws -> SecStaticCode {
         var staticCode: SecStaticCode?
         let status = SecCodeCopyStaticCode(code, [], &staticCode)
         guard status == errSecSuccess, let staticCode else {
             throw HelperError.unauthorizedCaller
         }
-        return staticCode
+        var urlCF: CFURL?
+        let pathStatus = SecCodeCopyPath(staticCode, [], &urlCF)
+        guard pathStatus == errSecSuccess, let url = urlCF as URL? else {
+            throw HelperError.unauthorizedCaller
+        }
+        return url
     }
 
-    private func verifyManifest(bundleURL: URL, expectedCDHash: Data) throws {
+    private func sha256OfMainExecutable(bundleURL: URL) throws -> String {
+        let infoURL = bundleURL.appendingPathComponent("Contents/Info.plist")
+        guard let infoData = try? Data(contentsOf: infoURL),
+              let info = try? PropertyListSerialization.propertyList(from: infoData, options: [], format: nil) as? [String: Any],
+              let execName = info["CFBundleExecutable"] as? String
+        else { throw HelperError.unauthorizedCaller }
+
+        let binaryURL = bundleURL
+            .appendingPathComponent("Contents/MacOS", isDirectory: true)
+            .appendingPathComponent(execName)
+
+        guard let binaryData = try? Data(contentsOf: binaryURL) else {
+            throw HelperError.unauthorizedCaller
+        }
+        let digest = SHA256.hash(data: binaryData)
+        return digest.map { String(format: "%02x", $0) }.joined()
+    }
+
+    private func verifyManifest(bundleURL: URL, expectedHash: String) throws {
         let resources = bundleURL.appendingPathComponent("Contents/Resources", isDirectory: true)
-        let manifestURL = resources.appendingPathComponent("cdhash-manifest.json")
-        let sigURL = resources.appendingPathComponent("cdhash-manifest.json.sig")
+        let manifestURL = resources.appendingPathComponent("binary-hash-manifest.json")
+        let sigURL = resources.appendingPathComponent("binary-hash-manifest.json.sig")
 
         guard let manifestData = try? Data(contentsOf: manifestURL),
               let sigData = try? Data(contentsOf: sigURL)
@@ -76,14 +78,13 @@ struct CallerVerification {
         }
 
         let manifest = try JSONDecoder().decode(Manifest.self, from: manifestData)
-        let expectedHex = expectedCDHash.map { String(format: "%02x", $0) }.joined()
-        guard manifest.cdhashes.contains(where: { $0.lowercased() == expectedHex }) else {
+        guard manifest.binaryHashes.contains(where: { $0.lowercased() == expectedHash }) else {
             throw HelperError.unauthorizedCaller
         }
     }
 
     private struct Manifest: Decodable {
         let version: Int
-        let cdhashes: [String]
+        let binaryHashes: [String]
     }
 }
