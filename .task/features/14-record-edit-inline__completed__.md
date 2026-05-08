@@ -33,3 +33,6 @@ Permettere edit inline delle celle IP e Hostname nella `Table` di `ProfileDetail
 **Completed:** 2026-05-07
 
 **Resolution:** Implementato il rename con doppio click sul record
+---
+
+**⚠ Rolled back on 2026-05-08:** the inline edit had a UX bug — on click-out the cell kept the typed (unsaved) value visible, making it look saved when it wasn't, and validation failure left the cell stuck. Replaced with a "Modifica" entry in the records Table context menu opening the modal `EditRecordSheet` (now with explicit Annulla / Salva). See changelog entry "Record edit — Modal-only with explicit Save / Cancel".

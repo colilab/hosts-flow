@@ -28,3 +28,9 @@ Durante l'iterazione UI (cambio a `HSplitView`) il `.searchable` nativo SwiftUI 
 
 - L'empty state va dentro `recordsList`'s parent — sostituisce la Table quando il filtro è attivo e vuoto
 - Performance OK fino a ~10k record senza ottimizzazioni
+
+---
+
+**Completed:** 2026-05-07
+
+**Resolution:** Aggiunto branch `ContentUnavailableView.search(text:)` nel body di `ProfileDetailView` per il caso `!searchText.isEmpty && filteredRecords.isEmpty`. Tutto il resto (search bar, filter, clear button) era già in place dal refactor HSplitView.

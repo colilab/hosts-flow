@@ -1,5 +1,34 @@
 # Changelog
 
+## [2026-05-08] — Record edit — Modal-only with explicit Save / Cancel
+
+**Type:** refactor
+
+### Changes
+- Rolled back the double-click inline edit on IP / Hostname Table cells (task 14): on validation failure the cell stayed open with stale draft text, on click-out the change appeared "saved" while the model was actually unchanged — confusing UX
+- Removed `CellAddress`, `editingCell`, `draftValue`, `focusedCell`, `editableCell(...)`, `startEdit/commitEdit/cancelEdit`
+- IP / Hostname columns are now plain `Text` views again (with `.opacity(0.5)` for disabled records preserved from task 15)
+- Context menu in records Table extended with **"Modifica"** entry (visible only when a single record is selected, disabled when profile is read-only) — opens the existing `EditRecordSheet` modal
+- `EditRecordSheet` refactored to use a **draft buffer** (`@State ip`, `@State hostname` initialised from the record) so edits no longer mutate the SwiftData object during typing
+- Modal now exposes explicit **"Annulla"** (cancel — discards changes) and **"Salva"** (.borderedProminent, disabled while invalid) buttons instead of the previous single "Chiudi"
+- Inline error message + Italian labels + `prompt:` placeholders + `@FocusState` autofocus on IP — consistent with `AddRecordSheet`
+
+### Files modified
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — removed inline-edit infrastructure, plain Text columns, "Modifica" in context menu
+- `HostFlow/Views/ProfileDetail/EditRecordSheet.swift` — draft buffer + Annulla / Salva buttons + autofocus
+
+## [2026-05-07] — Record — Search empty state
+
+**Type:** feature
+
+### Changes
+- `ProfileDetailView` body now distinguishes three cases: profile with no records, search active with no matches, normal records list
+- For the search-no-match case, uses native `ContentUnavailableView.search(text:)` which renders the standard macOS "No Results" view with the current query
+- Search bar / filtering / clear button were already in place from the earlier `HSplitView` refactor — this task added only the empty state branch
+
+### Files modified
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — three-way conditional with `ContentUnavailableView.search` branch
+
 ## [2026-05-07] — Record delete with multi-select
 
 **Type:** feature
@@ -31,21 +60,23 @@
 
 - `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — added `.opacity(record.isEnabled ? 1.0 : 0.5)` modifier to text cells
 
-## [2026-05-07] — Record — Inline record rename
+## [2026-05-07] — Record — Inline edit IP / hostname
 
 **Type:** feature
 
 ### Changes
-
-- Double-clicking a record IP or Hostname now enables the cell editing
-- Enter commits, Esc reverts, click-outside (blur) commits as well
-- Empty draft or unchanged name → silent revert
-- Invalid record → silent revert
-- Read-only profiles: double-click is a no-op (no editing mode)
+- Double-clicking an IP or Hostname cell in the records `Table` swaps the `Text` for an inline `TextField` driven by `@FocusState`-managed focus
+- Added `CellAddress` `Hashable` struct (recordID + field) to track which cell is being edited
+- Return on the IP cell commits the value and advances focus to the Hostname cell of the same row; Return on Hostname commits and exits
+- Tab key handled via `.onKeyPress(.tab)` for the same advance/close behaviour
+- Esc cancels (`.onExitCommand`) — value reverts
+- Validation per field via `HostValidator.isValidIP` / `isValidHostname` on commit; failure shows a red `RoundedRectangle` overlay border on the editing cell, no save, edit stays open until the user fixes or cancels
+- Read-only profiles: double-click is a no-op
+- Successful commit triggers `writeHosts` so `/etc/hosts` reflects the change immediately for active profiles
+- The modal `EditRecordSheet` (pencil button) is preserved alongside as an alternative entry point
 
 ### Files modified
-
-- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift`
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — `CellAddress` struct, editing state + `@FocusState`, `editableCell(...)` helper, `startEdit/commitEdit/cancelEdit`, IP/Hostname columns updated to use the editable cell
 
 ## [2026-05-07] — Record — Add record polish
 
