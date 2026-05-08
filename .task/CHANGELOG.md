@@ -1,5 +1,26 @@
 # Changelog
 
+## [2026-05-08] — Privileged helper (XPC) — scaffolding (sub-task a)
+
+**Type:** feature
+
+### Changes
+- Added new `HostFlowHelper` target to `project.yml` (Command Line Tool, macOS 14, bundle id `com.colilab.hostflow.helper`)
+- Introduced shared `Shared/` source folder compiled into both `HostFlow` and `HostFlowHelper` targets, hosting the `@objc HostFlowHelperProtocol` (XPC interface) and `HostFlowHelperConstants.machServiceName`
+- Helper skeleton: `main.swift` configures `NSXPCListener(machServiceName:)`, `HelperListenerDelegate` accepts connections and exports `HostFlowHelperProtocol`, `HelperService.writeHosts` is currently a no-op stub returning success
+- Launchd plist template at `Helper/Resources/com.colilab.hostflow.helper.plist` declares the mach service, root user, and points `ProgramArguments` to `/Library/PrivilegedHelperTools/com.colilab.hostflow.helper` (final installed path)
+- Embedding pipeline in the app bundle: helper binary is copied to `HostFlow.app/Contents/Library/LaunchDaemons/` via xcodegen `dependencies.copy` (destination `wrapper`, subpath `Contents/Library/LaunchDaemons`); plist copied alongside via a postBuildScript (xcodegen silently dropped the `.plist` resource entry, so a script phase was the reliable workaround)
+- Both targets compile clean with ad-hoc signing; final bundle contains both `com.colilab.hostflow.helper` binary and its plist under `Contents/Library/LaunchDaemons/`
+- No real `/etc/hosts` write logic, no caller verification, no installer — those remain in sub-tasks b, c, d
+
+### Files modified
+- `HostFlow/project.yml` — new `HostFlowHelper` target, `Shared/` source path on app target, dependency embed + postBuildScript for plist
+- `HostFlow/Shared/HostFlowHelperProtocol.swift` — new shared XPC protocol + mach service constant
+- `HostFlow/Helper/main.swift` — listener bootstrap
+- `HostFlow/Helper/HelperListenerDelegate.swift` — `NSXPCListenerDelegate` exporting the interface
+- `HostFlow/Helper/HelperService.swift` — stub `writeHosts` implementation
+- `HostFlow/Helper/Resources/com.colilab.hostflow.helper.plist` — launchd plist template
+
 ## [2026-05-08] — Untrack xcuserdata files
 
 **Type:** chore

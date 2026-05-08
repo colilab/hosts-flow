@@ -10,9 +10,12 @@
 		011531F94A0E8FF1C43452FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C29C2D40583440968D3491 /* ContentView.swift */; };
 		025DD7DE5AF0996A4186CDFF /* HostFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962A106CD4B2C27A4DF88FFF /* HostFlowApp.swift */; };
 		04DAB0853BE631F88B6A08CC /* AddProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9675089FCC91E088F7656CDB /* AddProfileSheet.swift */; };
+		071B6CCABAD23D7B0C5F4802 /* HostFlowHelper in Embed Dependencies */ = {isa = PBXBuildFile; fileRef = 72A6998664817F913D404C96 /* HostFlowHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		08FEA26EBEB616BCF241CC26 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9182BD4A56DA00D9A72D4B /* SidebarView.swift */; };
 		092DA13347E91AF07C139367 /* HostValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08B92A29E532CD6A45BE845 /* HostValidator.swift */; };
+		1D8AF3D0558E988B45A2635D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E50A5A7E8A93617BC1226 /* main.swift */; };
 		2537EB46E582B496AD7B725A /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C66693F262DF5ADCA6DCF5 /* MenuBarView.swift */; };
+		2B42D735F4CC5DF4F09D3E44 /* HelperListenerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF3775EAEABE058613E103A /* HelperListenerDelegate.swift */; };
 		479B6063135C464B7D203590 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD252067315F25E616C42BE /* AppSettings.swift */; };
 		4D4C93E446F4EE312826180A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34443BF3B959DBF01127C21 /* Profile.swift */; };
 		50D02D0EEF71A99E5BEA88B0 /* ProfileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9651F263872E4319C64419 /* ProfileDetailView.swift */; };
@@ -21,24 +24,56 @@
 		9215CB5F1A241ADE13E5DF0F /* HostsFileParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4CA3366C69090D8D8AEEFE /* HostsFileParser.swift */; };
 		9699FE669F81DD002CBC9087 /* HostRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3634CC7C88A085F4F0A8FE66 /* HostRecord.swift */; };
 		C7C2A9D2A704CDE0DB0E0E38 /* EditRecordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8767DE637961AB296C4C0EF6 /* EditRecordSheet.swift */; };
+		C7C6963751ED83F9B3830129 /* HostFlowHelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B064FA0C014B7ECFB753026 /* HostFlowHelperProtocol.swift */; };
 		D58038BF77784408ACC40ABF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4640EBB32848C5F94462A4D /* SettingsView.swift */; };
 		E405CDB2502B0EFE5AC4CCDC /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B83AC8610860D04F54BEE4AA /* ProfileStore.swift */; };
+		E5E44BCBD88FFB08DD9945DA /* HelperService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078992EFBB586325566E5F8F /* HelperService.swift */; };
+		EACF29E33743EA5F214FC722 /* HostFlowHelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B064FA0C014B7ECFB753026 /* HostFlowHelperProtocol.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		797C6912FCC5762D2C2D94F8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0AA101F2493010D84926EE08 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 037F74CA91455F2F064F70AC;
+			remoteInfo = HostFlowHelper;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		47B955A6807D1E20B570D3ED /* Embed Dependencies */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/LaunchDaemons;
+			dstSubfolderSpec = 1;
+			files = (
+				071B6CCABAD23D7B0C5F4802 /* HostFlowHelper in Embed Dependencies */,
+			);
+			name = "Embed Dependencies";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		078992EFBB586325566E5F8F /* HelperService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperService.swift; sourceTree = "<group>"; };
 		18C29C2D40583440968D3491 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		24C66693F262DF5ADCA6DCF5 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		2A3FA13ADDEE68A07887AF53 /* HostsFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileManager.swift; sourceTree = "<group>"; };
+		2B064FA0C014B7ECFB753026 /* HostFlowHelperProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostFlowHelperProtocol.swift; sourceTree = "<group>"; };
+		2B3E50A5A7E8A93617BC1226 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		2E86FDF092AA4237434BEAA5 /* AddRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecordSheet.swift; sourceTree = "<group>"; };
 		3634CC7C88A085F4F0A8FE66 /* HostRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostRecord.swift; sourceTree = "<group>"; };
 		3A4CA3366C69090D8D8AEEFE /* HostsFileParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileParser.swift; sourceTree = "<group>"; };
 		4C9651F263872E4319C64419 /* ProfileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDetailView.swift; sourceTree = "<group>"; };
 		5D9182BD4A56DA00D9A72D4B /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		5FD252067315F25E616C42BE /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		72A6998664817F913D404C96 /* HostFlowHelper */ = {isa = PBXFileReference; includeInIndex = 0; path = HostFlowHelper; sourceTree = BUILT_PRODUCTS_DIR; };
 		8767DE637961AB296C4C0EF6 /* EditRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecordSheet.swift; sourceTree = "<group>"; };
 		962A106CD4B2C27A4DF88FFF /* HostFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostFlowApp.swift; sourceTree = "<group>"; };
 		9675089FCC91E088F7656CDB /* AddProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddProfileSheet.swift; sourceTree = "<group>"; };
 		B83AC8610860D04F54BEE4AA /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
+		BDF3775EAEABE058613E103A /* HelperListenerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperListenerDelegate.swift; sourceTree = "<group>"; };
 		C4640EBB32848C5F94462A4D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		D34443BF3B959DBF01127C21 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		E995FE21FEBA892E881B6AFC /* HostFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HostFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -52,6 +87,16 @@
 				24C66693F262DF5ADCA6DCF5 /* MenuBarView.swift */,
 			);
 			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		08BADABC28F21364B86E0C71 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				BDF3775EAEABE058613E103A /* HelperListenerDelegate.swift */,
+				078992EFBB586325566E5F8F /* HelperService.swift */,
+				2B3E50A5A7E8A93617BC1226 /* main.swift */,
+			);
+			path = Helper;
 			sourceTree = "<group>";
 		};
 		35549D202592120D17EB64B7 /* Helpers */ = {
@@ -87,8 +132,10 @@
 			isa = PBXGroup;
 			children = (
 				FF48CD5E9BF5730166978BE0 /* App */,
+				08BADABC28F21364B86E0C71 /* Helper */,
 				35549D202592120D17EB64B7 /* Helpers */,
 				F5B2DCD2CFADB7309577E7EB /* Models */,
+				C7888A3E6CE291E0BE7E8CAB /* Shared */,
 				3C4A7684180FDACE7670934A /* Stores */,
 				9D0C81A03F11C499812C293D /* Views */,
 				DD80962C39B485EA35191D2C /* Products */,
@@ -123,10 +170,19 @@
 			path = Sidebar;
 			sourceTree = "<group>";
 		};
+		C7888A3E6CE291E0BE7E8CAB /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				2B064FA0C014B7ECFB753026 /* HostFlowHelperProtocol.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		DD80962C39B485EA35191D2C /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				E995FE21FEBA892E881B6AFC /* HostFlow.app */,
+				72A6998664817F913D404C96 /* HostFlowHelper */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -152,15 +208,35 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		037F74CA91455F2F064F70AC /* HostFlowHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 89B6DDA89F243FBA55F36D2E /* Build configuration list for PBXNativeTarget "HostFlowHelper" */;
+			buildPhases = (
+				69528A299FB4B1D757D39895 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HostFlowHelper;
+			packageProductDependencies = (
+			);
+			productName = HostFlowHelper;
+			productReference = 72A6998664817F913D404C96 /* HostFlowHelper */;
+			productType = "com.apple.product-type.tool";
+		};
 		3115DB6E4F9DC89857F1EF7A /* HostFlow */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1F610781744FB72CF6154A44 /* Build configuration list for PBXNativeTarget "HostFlow" */;
 			buildPhases = (
 				DA2276C0EC7B766A252905F5 /* Sources */,
+				47B955A6807D1E20B570D3ED /* Embed Dependencies */,
+				C12BC3512BAD5F1E547EF7CF /* Embed helper plist */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				ED5596FFA3473D4E20D9D4AC /* PBXTargetDependency */,
 			);
 			name = HostFlow;
 			packageProductDependencies = (
@@ -178,6 +254,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
+					037F74CA91455F2F064F70AC = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
 					3115DB6E4F9DC89857F1EF7A = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
@@ -199,11 +279,46 @@
 			projectRoot = "";
 			targets = (
 				3115DB6E4F9DC89857F1EF7A /* HostFlow */,
+				037F74CA91455F2F064F70AC /* HostFlowHelper */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		C12BC3512BAD5F1E547EF7CF /* Embed helper plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Helper/Resources/com.colilab.hostflow.helper.plist",
+			);
+			name = "Embed helper plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/Contents/Library/LaunchDaemons/com.colilab.hostflow.helper.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\nDEST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Library/LaunchDaemons\"\nmkdir -p \"$DEST\"\ncp \"${SRCROOT}/Helper/Resources/com.colilab.hostflow.helper.plist\" \"$DEST/\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		69528A299FB4B1D757D39895 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B42D735F4CC5DF4F09D3E44 /* HelperListenerDelegate.swift in Sources */,
+				E5E44BCBD88FFB08DD9945DA /* HelperService.swift in Sources */,
+				EACF29E33743EA5F214FC722 /* HostFlowHelperProtocol.swift in Sources */,
+				1D8AF3D0558E988B45A2635D /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DA2276C0EC7B766A252905F5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -214,6 +329,7 @@
 				011531F94A0E8FF1C43452FB /* ContentView.swift in Sources */,
 				C7C2A9D2A704CDE0DB0E0E38 /* EditRecordSheet.swift in Sources */,
 				025DD7DE5AF0996A4186CDFF /* HostFlowApp.swift in Sources */,
+				C7C6963751ED83F9B3830129 /* HostFlowHelperProtocol.swift in Sources */,
 				9699FE669F81DD002CBC9087 /* HostRecord.swift in Sources */,
 				092DA13347E91AF07C139367 /* HostValidator.swift in Sources */,
 				76EBC2C36532CD939DED0AD9 /* HostsFileManager.swift in Sources */,
@@ -228,6 +344,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		ED5596FFA3473D4E20D9D4AC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 037F74CA91455F2F064F70AC /* HostFlowHelper */;
+			targetProxy = 797C6912FCC5762D2C2D94F8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		23B60E5CDE91735D18DEC25D /* Release */ = {
@@ -288,6 +412,36 @@
 				SWIFT_VERSION = 5.9;
 			};
 			name = Release;
+		};
+		90056271392A4CA6F4425724 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.colilab.hostflow.helper;
+				PRODUCT_NAME = com.colilab.hostflow.helper;
+				SDKROOT = macosx;
+				SKIP_INSTALL = NO;
+			};
+			name = Release;
+		};
+		A28509528553A508C298BCD0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.colilab.hostflow.helper;
+				PRODUCT_NAME = com.colilab.hostflow.helper;
+				SDKROOT = macosx;
+				SKIP_INSTALL = NO;
+			};
+			name = Debug;
 		};
 		B680A416F07283D9D124D8FB /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -395,6 +549,15 @@
 			buildConfigurations = (
 				D8FD4B83A18B2451A25D309E /* Debug */,
 				F42B225F51D3D4347FC82C96 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		89B6DDA89F243FBA55F36D2E /* Build configuration list for PBXNativeTarget "HostFlowHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A28509528553A508C298BCD0 /* Debug */,
+				90056271392A4CA6F4425724 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

@@ -51,7 +51,7 @@
 Introduce un helper privilegiato (`com.colilab.hostflow.helper`) che riceve via XPC la richiesta di scrittura di `/etc/hosts` dall'app principale e la esegue come root. La feature è suddivisa in 4 sub-task incrementali (scaffolding, signing manifest, installer privilegiato, client XPC + UI onboarding), con verifica del chiamante basata su CDHash firmato Ed25519 invece che Team ID Apple Developer (strada B2).
 
 ## Steps
-1. [ ] **a — Scaffolding helper**: nuovo target `HostFlowHelper` (Command Line Tool) in `project.yml`, protocollo `HostFlowHelperProtocol` condiviso, `XPCListener` skeleton nel main del helper, template plist launchd con `MachServices` + `User: root` — `project.yml`, `HostFlowHelper/`, `Shared/HostFlowHelperProtocol.swift`
+1. [x] **a — Scaffolding helper**: nuovo target `HostFlowHelper` (Command Line Tool) in `project.yml`, protocollo `HostFlowHelperProtocol` condiviso, `XPCListener` skeleton nel main del helper, template plist launchd con `MachServices` + `User: root` — `project.yml`, `HostFlowHelper/`, `Shared/HostFlowHelperProtocol.swift`
 2. [ ] **b — Signing pipeline (Ed25519)**: script di build che genera manifest firmato col CDHash dell'app, helper verifica al runtime che il chiamante corrisponda al manifest firmato — `Scripts/sign-manifest.sh`, `HostFlowHelper/CallerVerification.swift`
 3. [ ] **c — Installer privilegiato**: install/uninstall via `AuthorizationServices` + `launchctl bootstrap`, copia helper in `/Library/PrivilegedHelperTools/` e plist in `/Library/LaunchDaemons/` — `HostFlow/Helpers/HelperInstaller.swift`
 4. [ ] **d — Client XPC + UI**: `NSXPCConnection(machServiceName:)` lato app, sostituzione di `HostsFileManager.write` con chiamata XPC `writeHosts`, UI di onboarding che richiede installazione helper al primo avvio o quando assente, gestione errori (helper mancante / connessione fallita) — `HostFlow/Helpers/HostsFileManager.swift`, `HostFlow/Views/Onboarding/HelperInstallView.swift`
@@ -67,4 +67,4 @@ Introduce un helper privilegiato (`com.colilab.hostflow.helper`) che riceve via 
 - @.task/hosts-write-helper/a-hosts-helper-target.md
 - @.task/hosts-write-helper/b-hosts-helper-signing.md
 - @.task/hosts-write-helper/c-hosts-helper-installer.md
-- @.task/hosts-write-helper/d-hosts-helper-cliebt.md
+- @.task/hosts-write-helper/d-hosts-helper-client.md

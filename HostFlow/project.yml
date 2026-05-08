@@ -25,8 +25,27 @@ targets:
       - path: Stores
       - path: Views
       - path: Helpers
+      - path: Shared
     resources:
       - path: Resources/Assets.xcassets
+    postBuildScripts:
+      - name: Embed helper plist
+        script: |
+          set -e
+          DEST="${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Library/LaunchDaemons"
+          mkdir -p "$DEST"
+          cp "${SRCROOT}/Helper/Resources/com.colilab.hostflow.helper.plist" "$DEST/"
+        inputFiles:
+          - $(SRCROOT)/Helper/Resources/com.colilab.hostflow.helper.plist
+        outputFiles:
+          - $(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/Contents/Library/LaunchDaemons/com.colilab.hostflow.helper.plist
+    dependencies:
+      - target: HostFlowHelper
+        embed: true
+        codeSign: true
+        copy:
+          destination: wrapper
+          subpath: Contents/Library/LaunchDaemons
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.colilab.hostflow
@@ -39,3 +58,17 @@ targets:
         com.apple.security.files.user-selected.read-write: true
         com.apple.security.temporary-exception.files.absolute-path.read-write:
           - /etc/hosts
+
+  HostFlowHelper:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Helper
+        excludes:
+          - Resources/**
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.colilab.hostflow.helper
+        PRODUCT_NAME: com.colilab.hostflow.helper
+        SKIP_INSTALL: NO

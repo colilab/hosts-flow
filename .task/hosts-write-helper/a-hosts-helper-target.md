@@ -39,3 +39,9 @@ Scaffolding del binario helper privilegiato: nuovo target `HostFlowHelper` (Comm
 - Verifica caller via Ed25519 → b
 - Installazione/registrazione daemon → c
 - Client app-side → d
+
+---
+
+**Completed:** 2026-05-08
+
+**Resolution:** Target `HostFlowHelper` aggiunto, protocollo XPC condiviso in `Shared/`, listener skeleton + service stub in `Helper/`, plist launchd embedded in `Contents/Library/LaunchDaemons/` (binary via xcodegen `dependencies.copy`, plist via postBuildScript per workaround xcodegen). Build pulita di entrambi i target con ad-hoc signing.
