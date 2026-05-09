@@ -6,7 +6,7 @@ import Observation
 final class ProfileStore {
 
     private(set) var isWritingHosts = false
-    private(set) var lastWriteError: String?
+    var lastWriteError: String?
     var helperMissing = false
 
     func toggleProfile(_ profile: Profile, context: ModelContext) {

@@ -20,6 +20,24 @@ struct ContentView: View {
                     }
                 }
             }
+            .alert(
+                "Errore di scrittura /etc/hosts",
+                isPresented: Binding(
+                    get: { store.lastWriteError != nil },
+                    set: { if !$0 { store.lastWriteError = nil } }
+                ),
+                presenting: store.lastWriteError
+            ) { _ in
+                Button("Riprova") {
+                    store.lastWriteError = nil
+                    store.writeHosts(context: context)
+                }
+                Button("Annulla", role: .cancel) {
+                    store.lastWriteError = nil
+                }
+            } message: { message in
+                Text(message)
+            }
     }
 
     private var content: some View {

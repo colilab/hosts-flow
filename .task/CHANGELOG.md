@@ -1,5 +1,25 @@
 # Changelog
 
+## [2026-05-09] — Hosts write atomic — rollback on error + alert with retry + helper file log
+
+**Type:** feature
+
+### Context
+Task `.task/features/21-hosts-write-atomic.md`. The atomic backup-then-rename pipeline was already in place in `HelperService.performWrite`; this entry covers the three gaps surfaced when re-reading the spec against the implementation.
+
+### Changes
+- `HelperService.performWrite` now wraps the write/setAttributes/replaceItem sequence in a `do/catch` that removes the leftover `/etc/hosts.hostflow.tmp` if any step after creation fails. Before, the tmp was deleted only *before* the write, so a mid-pipeline failure (e.g. setAttributes denied, replaceItem failing) left a stray tmp file behind. The original `/etc/hosts` was already safe — `replaceItemAt` is the last operation — but the cleanup now matches the spec's "rollback (delete tmp, file originale intatto)".
+- New error file log in `HelperService`: on a failed `writeHosts` the helper appends an ISO8601-stamped `ERROR` line to `/Library/Logs/HostFlow/helper.log`. The directory is created on demand and the file is chmod 644 on first write so the user can `tail` it without sudo.
+  - **Deviation from spec**: the task says `~/Library/Logs/HostFlow/helper.log`, but the helper runs as root and `~` resolves to `/var/root/Library/Logs/...` — unreadable to the user without sudo, defeating the purpose. `/Library/Logs/HostFlow/helper.log` is the macOS convention for system-daemon logs and is reachable by the user.
+  - Level is errors-only (info paths still go to `os_log`), per user choice.
+- `ProfileStore.lastWriteError` dropped its `private(set)` so the `ContentView` alert can clear it on dismiss without a dedicated method.
+- `ContentView` now binds an `.alert` to `store.lastWriteError`. Title: "Errore di scrittura /etc/hosts". Buttons: "Riprova" (re-runs `store.writeHosts(context:)` with the current profiles) and "Annulla" (cancel role, clears the error). Uses `presenting:` so the message renders the actual error text.
+
+### Files modified
+- `HostFlow/Helper/HelperService.swift` — rollback-on-error in `performWrite`; new `appendErrorLog` static helper; `writeHosts` calls it from the catch alongside `os_log`.
+- `HostFlow/Stores/ProfileStore.swift` — `lastWriteError` is now publicly settable so the alert binding can clear it.
+- `HostFlow/App/ContentView.swift` — added `.alert` modifier with retry/cancel actions on the existing body.
+
 ## [2026-05-09] — Hosts authorization — HelperStatus + AppSettings exposure + uninstall confirm
 
 **Type:** feature
