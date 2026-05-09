@@ -5,15 +5,15 @@ struct ContentView: View {
 
     @Query(sort: \Profile.order) private var profiles: [Profile]
     @State private var selectedProfile: Profile?
-    @State private var helperInstaller = HelperInstaller()
     @Environment(\.modelContext) private var context
     @Environment(ProfileStore.self) private var store
+    @Environment(AppSettings.self) private var settings
 
     var body: some View {
         @Bindable var store = store
         return content
             .sheet(isPresented: $store.helperMissing) {
-                HelperOnboardingSheet(installer: helperInstaller) { installed in
+                HelperOnboardingSheet(installer: settings.helperInstaller) { installed in
                     store.helperMissing = false
                     if installed {
                         store.writeHosts(context: context)

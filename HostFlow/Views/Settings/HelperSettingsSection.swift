@@ -2,25 +2,25 @@ import SwiftUI
 
 struct HelperSettingsSection: View {
 
-    @State private var installer = HelperInstaller()
-    @State private var isInstalled = false
+    @Environment(AppSettings.self) private var settings
     @State private var isWorking = false
     @State private var errorMessage: String?
+    @State private var showUninstallConfirm = false
 
     var body: some View {
         Section("Componente di sistema") {
             LabeledContent("Stato") {
-                Text(isInstalled ? "Installato" : "Non installato")
-                    .foregroundStyle(isInstalled ? AnyShapeStyle(.secondary) : AnyShapeStyle(Color.red))
+                statusLabel
             }
 
             HStack {
-                if isInstalled {
+                switch settings.helperStatus {
+                case .installed:
                     Button("Disinstalla…", role: .destructive) {
-                        runUninstall()
+                        showUninstallConfirm = true
                     }
                     .disabled(isWorking)
-                } else {
+                case .notInstalled, .error:
                     Button("Installa…") {
                         runInstall()
                     }
@@ -35,20 +35,38 @@ struct HelperSettingsSection: View {
                     .foregroundStyle(.red)
             }
         }
-        .task { refresh() }
+        .task { settings.helperInstaller.refreshStatus() }
+        .confirmationDialog(
+            "Disinstallare il componente di sistema?",
+            isPresented: $showUninstallConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Disinstalla", role: .destructive) { runUninstall() }
+            Button("Annulla", role: .cancel) {}
+        } message: {
+            Text("Verrà richiesta la password di amministratore. Senza l'helper, Host Flow non potrà più aggiornare /etc/hosts.")
+        }
     }
 
-    private func refresh() {
-        isInstalled = installer.isInstalled
+    @ViewBuilder
+    private var statusLabel: some View {
+        switch settings.helperStatus {
+        case .installed:
+            Text("Installato").foregroundStyle(.secondary)
+        case .notInstalled:
+            Text("Non installato").foregroundStyle(.red)
+        case .error:
+            Text("Errore").foregroundStyle(.red)
+        }
     }
 
     private func runInstall() {
         isWorking = true
         errorMessage = nil
         Task {
-            defer { isWorking = false; refresh() }
+            defer { isWorking = false }
             do {
-                try installer.install()
+                try settings.helperInstaller.install()
             } catch {
                 errorMessage = (error as NSError).localizedDescription
             }
@@ -59,9 +77,9 @@ struct HelperSettingsSection: View {
         isWorking = true
         errorMessage = nil
         Task {
-            defer { isWorking = false; refresh() }
+            defer { isWorking = false }
             do {
-                try installer.uninstall()
+                try settings.helperInstaller.uninstall()
             } catch {
                 errorMessage = (error as NSError).localizedDescription
             }

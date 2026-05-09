@@ -25,6 +25,10 @@ final class AppSettings {
         didSet { applyLaunchAtLogin() }
     }
 
+    let helperInstaller: HelperInstaller = .shared
+
+    var helperStatus: HelperStatus { helperInstaller.status }
+
     init() {
         if let raw = UserDefaults.standard.string(forKey: "appearanceMode"),
            let mode = AppearanceMode(rawValue: raw) {

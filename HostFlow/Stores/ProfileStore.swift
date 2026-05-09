@@ -97,7 +97,8 @@ final class ProfileStore {
     }
 
     func writeHosts(context: ModelContext) {
-        if !HelperInstaller().isInstalled {
+        HelperInstaller.shared.refreshStatus()
+        if !HelperInstaller.shared.isInstalled {
             helperMissing = true
             return
         }

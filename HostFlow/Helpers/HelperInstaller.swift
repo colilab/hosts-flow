@@ -19,15 +19,37 @@ enum HelperInstallerError: LocalizedError {
     }
 }
 
+enum HelperStatus {
+    case notInstalled
+    case installed
+    case error(Error)
+
+    var isInstalled: Bool {
+        if case .installed = self { return true }
+        return false
+    }
+}
+
 @Observable
 final class HelperInstaller {
+    static let shared = HelperInstaller()
+
     private let helperLabel = "com.colilab.hostflow.helper"
     private let installedHelperPath = "/Library/PrivilegedHelperTools/com.colilab.hostflow.helper"
     private let installedPlistPath = "/Library/LaunchDaemons/com.colilab.hostflow.helper.plist"
 
-    var isInstalled: Bool {
-        FileManager.default.fileExists(atPath: installedPlistPath)
+    private(set) var status: HelperStatus = .notInstalled
+
+    var isInstalled: Bool { status.isInstalled }
+
+    private init() {
+        refreshStatus()
+    }
+
+    func refreshStatus() {
+        let installed = FileManager.default.fileExists(atPath: installedPlistPath)
             && FileManager.default.fileExists(atPath: installedHelperPath)
+        status = installed ? .installed : .notInstalled
     }
 
     func install() throws {
@@ -55,7 +77,13 @@ final class HelperInstaller {
         launchctl bootstrap system "\(installedPlistPath)"
         """
 
-        try runPrivileged(script: script, prompt: "Host Flow needs administrator privileges to install the helper.")
+        do {
+            try runPrivileged(script: script, prompt: "Host Flow needs administrator privileges to install the helper.")
+            status = .installed
+        } catch {
+            status = .error(error)
+            throw error
+        }
     }
 
     func uninstall() throws {
@@ -64,7 +92,13 @@ final class HelperInstaller {
         rm -f "\(installedHelperPath)"
         rm -f "\(installedPlistPath)"
         """
-        try runPrivileged(script: script, prompt: "Host Flow needs administrator privileges to remove the helper.")
+        do {
+            try runPrivileged(script: script, prompt: "Host Flow needs administrator privileges to remove the helper.")
+            status = .notInstalled
+        } catch {
+            status = .error(error)
+            throw error
+        }
     }
 
     private func runPrivileged(script: String, prompt: String) throws {

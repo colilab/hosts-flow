@@ -1,5 +1,24 @@
 # Changelog
 
+## [2026-05-09] — Hosts authorization — HelperStatus + AppSettings exposure + uninstall confirm
+
+**Type:** feature
+
+### Changes
+- New `HelperStatus` enum (`.notInstalled`, `.installed`, `.error(Error)`) in `HelperInstaller.swift`. Replaces the bare `isInstalled: Bool` as the canonical state, while `isInstalled` is kept as a derived convenience.
+- `HelperInstaller` is now a singleton (`.shared`) with `@Observable` `status`. `install()`/`uninstall()` mutate `status` on success/failure (`.error` carries the thrown error). New `refreshStatus()` re-checks filesystem on demand.
+- `AppSettings` exposes `helperInstaller` and a derived `helperStatus`, so the UI can read the helper state through the same store it already injects.
+- `ContentView`, `HelperSettingsSection` and `ProfileStore.writeHosts` migrated to the shared singleton (no more local `HelperInstaller()` instances). `ProfileStore.writeHosts` now calls `refreshStatus()` before checking, so the onboarding sheet triggers correctly even after an external uninstall.
+- `HelperSettingsSection` rewritten to switch on `HelperStatus` for the label/button, and to gate uninstall behind a native `.confirmationDialog` ("Disinstallare il componente di sistema?") — prevents an accidental admin prompt + helper removal.
+- `.requiresApproval` case explicitly **not** added: it belongs to `SMAppService.daemon` flow which Host Flow does not use (no Apple Developer Team ID). The osascript install path either succeeds, is cancelled by the user, or errors — there is no third "approval pending" state to model.
+
+### Files touched
+- `HostFlow/Helpers/HelperInstaller.swift` — `HelperStatus` enum, singleton, status mutations.
+- `HostFlow/Stores/AppSettings.swift` — `helperInstaller`/`helperStatus` exposure.
+- `HostFlow/Stores/ProfileStore.swift` — singleton + refreshStatus before write check.
+- `HostFlow/App/ContentView.swift` — installer pulled from `AppSettings`, dropped local `@State`.
+- `HostFlow/Views/Settings/HelperSettingsSection.swift` — status-driven UI + uninstall confirmation dialog.
+
 ## [2026-05-08] — Privileged helper — switch from CDHash to binary SHA-256 verification
 
 **Type:** bugfix
