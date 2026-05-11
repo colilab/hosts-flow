@@ -40,6 +40,7 @@ struct MenuBarView: View {
 
     @Query(sort: \Profile.order) private var profiles: [Profile]
     @Environment(\.modelContext) private var context
+    @Environment(\.openWindow) private var openWindow
     @Environment(ProfileStore.self) private var store
     @Environment(AppSettings.self) private var appSettings
 
@@ -75,9 +76,11 @@ struct MenuBarView: View {
             Divider()
                 .padding(.vertical, 4)
 
-            Button("Apri Host Flow") {
+            Button {
                 NSApp.activate(ignoringOtherApps: true)
-                NSApp.windows.first?.makeKeyAndOrderFront(nil)
+                openWindow(id: "main")
+            } label: {
+                Label("Apri Host Flow", systemImage: "macwindow")
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 12)
@@ -93,10 +96,13 @@ struct MenuBarView: View {
             Divider()
                 .padding(.vertical, 4)
 
-            Button("Esci") {
+            Button {
                 NSApp.terminate(nil)
+            } label: {
+                Label("Esci", systemImage: "power")
             }
             .buttonStyle(.plain)
+            .keyboardShortcut("q", modifiers: .command)
             .padding(.horizontal, 12)
             .padding(.bottom, 12)
             .padding(.top, 2)

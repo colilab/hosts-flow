@@ -18,7 +18,7 @@ struct HostFlowApp: App {
     @State private var appSettings = AppSettings()
 
     var body: some Scene {
-        WindowGroup {
+        Window("Host Flow", id: "main") {
             ContentView()
                 .modelContainer(container)
                 .environment(profileStore)

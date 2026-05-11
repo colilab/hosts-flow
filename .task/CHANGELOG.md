@@ -1,5 +1,18 @@
 # Changelog
 
+## [2026-05-11] — MenuBar "Apri Host Flow" and "Esci" polished to spec
+
+**Type:** feature
+
+### Changes
+- Main `WindowGroup` is now identified as `"main"`, so `openWindow(id: "main")` can resurrect it after the user closes the window.
+- MenuBar "Apri Host Flow" button switched from `NSApp.windows.first?.makeKeyAndOrderFront` to `openWindow(id: "main")` (still activates the app first). Label is now `Label("Apri Host Flow", systemImage: "macwindow")`.
+- MenuBar "Esci" button now uses `Label("Esci", systemImage: "power")` and `.keyboardShortcut("q", modifiers: .command)` so ⌘Q is shown and invokable from the popover.
+
+### Files modified
+- `HostFlow/App/HostFlowApp.swift` — `WindowGroup(id: "main")`.
+- `HostFlow/Views/MenuBar/MenuBarView.swift` — `@Environment(\.openWindow)`, restyled Apri/Esci buttons, ⌘Q shortcut.
+
 ## [2026-05-11] — MenuBar status icon reacts to active profiles and write errors
 
 **Type:** feature
