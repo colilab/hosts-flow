@@ -1,5 +1,24 @@
 # Changelog
 
+## [2026-05-11] — /etc/hosts external-edit watcher syncs Default profile
+
+**Type:** feature
+
+### Changes
+- New `HostsFileWatcher` (`@MainActor`) monitors `/etc/hosts` via `DispatchSource.makeFileSystemObjectSource` on a `O_EVTONLY` file descriptor (events: `.write`, `.delete`, `.rename`, `.extend`, `.attrib`).
+- Event handler debounces 300ms then triggers a sync — but only if `ProfileStore.isWritingHosts == false` and the file mtime is more than ±2s away from `lastWriteAt` (belt-and-suspenders against feedback loops from our own writes).
+- On `.delete` / `.rename` (atomic replace), watcher detaches the source, reopens the fd with exponential backoff (50/100/200/500/1000/2000 ms, ~5s budget), then forces a sync because the contents likely just changed.
+- New `ProfileStore.syncDefaultFromFile(context:)` performs a structural diff against the Default profile (the `isReadOnly` one): records keyed by `(ip, hostname)`. Missing keys → insert; vanished keys → delete; matching key with different `isEnabled` → update in place. Idempotent — re-saving identical content produces no changes (no loop).
+- New `HostsFileParser.parseUnmanaged(_:)` exposes the existing pre/post-block parsing for direct consumption by the watcher (without re-reading the file).
+- `ContentView` now owns a `@State HostsFileWatcher()` and starts it in the existing `.task` right after `store.seedIfNeeded(...)`.
+
+### Files modified
+- `HostFlow/Helpers/HostsFileWatcher.swift` — new file, watcher implementation.
+- `HostFlow/Helpers/HostsFileParser.swift` — extracted `parseUnmanaged(_:)` helper.
+- `HostFlow/Stores/ProfileStore.swift` — added `syncDefaultFromFile(context:)` with structural diff.
+- `HostFlow/App/ContentView.swift` — owns the watcher and starts it after seed.
+- `HostFlow/HostFlow.xcodeproj/project.pbxproj` — regenerated via xcodegen to pick up the new file.
+
 ## [2026-05-11] — Hosts write — debounced trigger (500ms) + last-write timestamp + quit-time flush
 
 **Type:** feature

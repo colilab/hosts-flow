@@ -102,6 +102,54 @@ final class ProfileStore {
         try? context.save()
     }
 
+    func syncDefaultFromFile(context: ModelContext) {
+        let parsed: [ParsedHostRecord]
+        do {
+            let content = try HostsFileManager.shared.read()
+            parsed = HostsFileParser.parseUnmanaged(content)
+        } catch {
+            print("HostFlow: watcher could not read /etc/hosts — \(error.localizedDescription)")
+            return
+        }
+
+        let descriptor = FetchDescriptor<Profile>(predicate: #Predicate { $0.isReadOnly == true })
+        guard let defaultProfile = (try? context.fetch(descriptor))?.first else { return }
+
+        struct Key: Hashable { let ip: String; let hostname: String }
+        var existing: [Key: HostRecord] = [:]
+        for record in defaultProfile.records {
+            existing[Key(ip: record.ip, hostname: record.hostname)] = record
+        }
+
+        var seen = Set<Key>()
+        var changed = false
+        for entry in parsed {
+            let key = Key(ip: entry.ip, hostname: entry.hostname)
+            guard !seen.contains(key) else { continue }
+            seen.insert(key)
+            if let record = existing[key] {
+                if record.isEnabled != entry.isEnabled {
+                    record.isEnabled = entry.isEnabled
+                    changed = true
+                }
+            } else {
+                let record = HostRecord(ip: entry.ip, hostname: entry.hostname, profile: defaultProfile)
+                record.isEnabled = entry.isEnabled
+                context.insert(record)
+                changed = true
+            }
+        }
+
+        for (key, record) in existing where !seen.contains(key) {
+            context.delete(record)
+            changed = true
+        }
+
+        if changed {
+            try? context.save()
+        }
+    }
+
     func scheduleWrite(context: ModelContext) {
         writeDebouncer?.cancel()
         writeDebouncer = Task { @MainActor [weak self] in

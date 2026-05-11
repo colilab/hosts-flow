@@ -10,6 +10,10 @@ enum HostsFileParser {
 
     static func parseSystemHosts() throws -> [ParsedHostRecord] {
         let content = try HostsFileManager.shared.read()
+        return parseUnmanaged(content)
+    }
+
+    static func parseUnmanaged(_ content: HostsFileContent) -> [ParsedHostRecord] {
         let unmanaged = [content.preBlock, content.postBlock]
             .filter { !$0.isEmpty }
             .joined(separator: "\n")

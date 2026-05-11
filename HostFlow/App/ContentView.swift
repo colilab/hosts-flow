@@ -9,6 +9,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var context
     @Environment(ProfileStore.self) private var store
     @Environment(AppSettings.self) private var settings
+    @State private var watcher = HostsFileWatcher()
 
     var body: some View {
         @Bindable var store = store
@@ -62,6 +63,7 @@ struct ContentView: View {
         }
         .task {
             store.seedIfNeeded(context: context)
+            watcher.start(profileStore: store, context: context)
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
             store.flushPendingWrite(context: context)
