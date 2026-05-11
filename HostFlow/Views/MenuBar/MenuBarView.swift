@@ -1,6 +1,41 @@
 import SwiftUI
 import SwiftData
 
+struct MenuBarLabel: View {
+
+    @Query(filter: #Predicate<Profile> { $0.isActive && !$0.isReadOnly })
+    private var activeProfiles: [Profile]
+    @Environment(ProfileStore.self) private var store
+
+    var body: some View {
+        Image(systemName: iconName)
+            .symbolRenderingMode(.hierarchical)
+            .foregroundStyle(iconColor)
+            .help(tooltip)
+    }
+
+    private var iconName: String {
+        if store.lastWriteError != nil { return "network.badge.shield.half.filled" }
+        if activeProfiles.isEmpty { return "network.slash" }
+        return "network"
+    }
+
+    private var iconColor: Color {
+        if store.lastWriteError != nil { return .red }
+        if activeProfiles.isEmpty { return .secondary }
+        return Color(nsColor: .controlAccentColor)
+    }
+
+    private var tooltip: String {
+        if store.lastWriteError != nil {
+            return "Host Flow — Errore scrittura /etc/hosts"
+        }
+        let count = activeProfiles.count
+        let suffix = count == 1 ? "profilo attivo" : "profili attivi"
+        return "Host Flow — \(count) \(suffix)"
+    }
+}
+
 struct MenuBarView: View {
 
     @Query(sort: \Profile.order) private var profiles: [Profile]

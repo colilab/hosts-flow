@@ -28,11 +28,15 @@ struct HostFlowApp: App {
         .windowResizability(.contentMinSize)
         .defaultSize(width: 860, height: 560)
 
-        MenuBarExtra("Host Flow", systemImage: "network") {
+        MenuBarExtra {
             MenuBarView()
                 .modelContainer(container)
                 .environment(profileStore)
                 .environment(appSettings)
+        } label: {
+            MenuBarLabel()
+                .modelContainer(container)
+                .environment(profileStore)
         }
         .menuBarExtraStyle(.window)
 

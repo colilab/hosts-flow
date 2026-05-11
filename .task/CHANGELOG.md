@@ -1,5 +1,29 @@
 # Changelog
 
+## [2026-05-11] — MenuBar status icon reacts to active profiles and write errors
+
+**Type:** feature
+
+### Changes
+- New `MenuBarLabel` view drives the menubar symbol reactively from `@Query` over active, non-readonly profiles and `ProfileStore.lastWriteError`:
+  - write error → `network.badge.shield.half.filled`, red
+  - 0 active profiles → `network.slash`, secondary
+  - N active profiles → `network`, accent color
+- Symbols use `.symbolRenderingMode(.hierarchical)` for native look.
+- Native tooltip via `.help(...)` summarises state: "Host Flow — N profili attivi" / "Host Flow — Errore scrittura /etc/hosts".
+- `MenuBarExtra` switched from the `systemImage:` initializer to the `content:label:` form so the icon can be a SwiftUI view; `modelContainer` + `ProfileStore` environment are injected on both branches.
+
+### Files modified
+- `HostFlow/Views/MenuBar/MenuBarView.swift` — added `MenuBarLabel`.
+- `HostFlow/App/HostFlowApp.swift` — `MenuBarExtra` uses `MenuBarLabel` as label.
+
+## Also fixed (this session) — XPC continuation leak in writeHosts
+
+The previous `HostsXPCClient.writeHosts` could leak its continuation when the XPC channel was rejected/invalidated, because the proxy's error handler was empty. Reworked so the proxy is obtained inside `withCheckedThrowingContinuation` with an error handler that resumes via a `ResumeOnce` guard (idempotent against double-resume if both reply and error handler fire).
+
+### Files modified
+- `HostFlow/Helpers/HostsXPCClient.swift` — fix leak; `connect()` now returns the `NSXPCConnection`.
+
 ## [2026-05-11] — MenuBar profile list polished to spec
 
 **Type:** feature
