@@ -1,5 +1,18 @@
 # Changelog
 
+## [2026-05-11] — MenuBar profile list polished to spec
+
+**Type:** feature
+
+### Changes
+- Popover root width increased from 220pt to 280pt to match spec.
+- Empty state now renders a centered `tray` SF Symbol plus the full copy "Nessun profilo. Crea il primo dalla finestra principale.".
+- Profile row layout refactored to sidebar-style: `HStack { Text(name) + optional lock icon + Spacer + Toggle(labelsHidden) }`, instead of wrapping the label inside the `Toggle`. Toggle keeps `.toggleStyle(.switch)` and `.controlSize(.mini)` for visual parity with `SidebarView`.
+- No record-count badge added (explicitly excluded during grilling).
+
+### Files modified
+- `HostFlow/Views/MenuBar/MenuBarView.swift` — width, empty state, row layout.
+
 ## [2026-05-11] — /etc/hosts external-edit watcher syncs Default profile
 
 **Type:** feature

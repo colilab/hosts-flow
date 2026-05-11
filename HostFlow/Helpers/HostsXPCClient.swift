@@ -10,13 +10,23 @@ final class HostsXPCClient {
     private init() {}
 
     func writeHosts(_ content: String) async throws {
-        let proxy = try connect()
+        let conn = try connect()
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            let once = ResumeOnce()
+            let proxy = conn.remoteObjectProxyWithErrorHandler { error in
+                once.run { continuation.resume(throwing: error) }
+            } as? HostFlowHelperProtocol
+            guard let proxy else {
+                once.run { continuation.resume(throwing: HostFlowClientError.connectionFailed) }
+                return
+            }
             proxy.writeHosts(content: content) { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
+                once.run {
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
                 }
             }
         }
@@ -29,7 +39,7 @@ final class HostsXPCClient {
         }
     }
 
-    private func connect() throws -> HostFlowHelperProtocol {
+    private func connect() throws -> NSXPCConnection {
         try queue.sync {
             if connection == nil {
                 let conn = NSXPCConnection(machServiceName: HostFlowHelperConstants.machServiceName, options: .privileged)
@@ -43,11 +53,23 @@ final class HostsXPCClient {
                 conn.resume()
                 connection = conn
             }
-            guard let proxy = connection?.remoteObjectProxyWithErrorHandler({ _ in }) as? HostFlowHelperProtocol else {
+            guard let conn = connection else {
                 throw HostFlowClientError.connectionFailed
             }
-            return proxy
+            return conn
         }
+    }
+}
+
+private final class ResumeOnce: @unchecked Sendable {
+    private let lock = NSLock()
+    private var done = false
+    func run(_ block: () -> Void) {
+        lock.lock()
+        let go = !done
+        done = true
+        lock.unlock()
+        if go { block() }
     }
 }
 

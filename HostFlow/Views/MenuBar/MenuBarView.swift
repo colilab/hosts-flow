@@ -19,10 +19,18 @@ struct MenuBarView: View {
             Divider()
 
             if profiles.isEmpty {
-                Text("Nessun profilo")
-                    .foregroundStyle(.secondary)
-                    .font(.callout)
-                    .padding(12)
+                VStack(spacing: 8) {
+                    Image(systemName: "tray")
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                    Text("Nessun profilo. Crea il primo dalla finestra principale.")
+                        .foregroundStyle(.secondary)
+                        .font(.callout)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 16)
             } else {
                 ForEach(profiles) { profile in
                     MenuBarProfileRow(profile: profile)
@@ -58,7 +66,7 @@ struct MenuBarView: View {
             .padding(.bottom, 12)
             .padding(.top, 2)
         }
-        .frame(width: 220)
+        .frame(width: 280)
     }
 }
 
@@ -69,25 +77,33 @@ private struct MenuBarProfileRow: View {
     @Environment(ProfileStore.self) private var store
 
     var body: some View {
-        Toggle(isOn: $profile.isActive) {
-            HStack(spacing: 4) {
-                Text(profile.name)
-                    .font(.callout)
-                if profile.isReadOnly {
-                    Image(systemName: "lock.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
+        HStack(spacing: 6) {
+            Text(profile.name)
+                .font(.callout)
+                .lineLimit(1)
+                .truncationMode(.tail)
+
+            if profile.isReadOnly {
+                Image(systemName: "lock.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 0)
+
+            Toggle(isOn: $profile.isActive) {
+                EmptyView()
+            }
+            .toggleStyle(.switch)
+            .controlSize(.mini)
+            .labelsHidden()
+            .disabled(profile.isReadOnly)
+            .onChange(of: profile.isActive) {
+                try? context.save()
+                store.scheduleWrite(context: context)
             }
         }
-        .toggleStyle(.switch)
-        .controlSize(.mini)
-        .disabled(profile.isReadOnly)
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .onChange(of: profile.isActive) {
-            try? context.save()
-            store.scheduleWrite(context: context)
-        }
     }
 }
