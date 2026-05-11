@@ -56,7 +56,7 @@ struct EditRecordSheet: View {
                     record.ip = trimmedIP
                     record.hostname = trimmedHost
                     try? context.save()
-                    store.writeHosts(context: context)
+                    store.scheduleWrite(context: context)
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)

@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import AppKit
 
 struct ContentView: View {
 
@@ -61,6 +62,9 @@ struct ContentView: View {
         }
         .task {
             store.seedIfNeeded(context: context)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+            store.flushPendingWrite(context: context)
         }
         .onAppear {
             if selectedProfile == nil {

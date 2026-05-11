@@ -104,7 +104,7 @@ struct ProfileDetailView: View {
             .toggleStyle(.switch)
             .disabled(profile.isReadOnly)
             .onChange(of: profile.isActive) {
-                store.writeHosts(context: context)
+                store.scheduleWrite(context: context)
             }
 
             Spacer()
@@ -128,7 +128,7 @@ struct ProfileDetailView: View {
             TableColumn("") { record in
                 Toggle("", isOn: Binding(
                     get: { record.isEnabled },
-                    set: { record.isEnabled = $0; store.writeHosts(context: context) }
+                    set: { record.isEnabled = $0; store.scheduleWrite(context: context) }
                 ))
                 .toggleStyle(.switch)
                 .controlSize(.mini)
@@ -192,7 +192,7 @@ struct ProfileDetailView: View {
             }
         }
         try? context.save()
-        store.writeHosts(context: context)
+        store.scheduleWrite(context: context)
         selectedRecordIDs.removeAll()
     }
 }

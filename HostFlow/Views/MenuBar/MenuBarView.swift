@@ -87,7 +87,7 @@ private struct MenuBarProfileRow: View {
         .padding(.vertical, 6)
         .onChange(of: profile.isActive) {
             try? context.save()
-            store.writeHosts(context: context)
+            store.scheduleWrite(context: context)
         }
     }
 }

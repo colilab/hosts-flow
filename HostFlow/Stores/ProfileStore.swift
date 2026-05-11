@@ -6,13 +6,19 @@ import Observation
 final class ProfileStore {
 
     private(set) var isWritingHosts = false
+    private(set) var lastWriteAt: Date?
     var lastWriteError: String?
     var helperMissing = false
+
+    @ObservationIgnored
+    private var writeDebouncer: Task<Void, Never>?
+
+    private static let debounceInterval: Duration = .milliseconds(500)
 
     func toggleProfile(_ profile: Profile, context: ModelContext) {
         profile.isActive.toggle()
         try? context.save()
-        writeHosts(context: context)
+        scheduleWrite(context: context)
     }
 
     @discardableResult
@@ -30,13 +36,13 @@ final class ProfileStore {
             profile.order = index
         }
         try? context.save()
-        writeHosts(context: context)
+        scheduleWrite(context: context)
     }
 
     func deleteProfile(_ profile: Profile, context: ModelContext) {
         context.delete(profile)
         try? context.save()
-        writeHosts(context: context)
+        scheduleWrite(context: context)
     }
 
     @discardableResult
@@ -96,7 +102,30 @@ final class ProfileStore {
         try? context.save()
     }
 
+    func scheduleWrite(context: ModelContext) {
+        writeDebouncer?.cancel()
+        writeDebouncer = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: Self.debounceInterval)
+            guard !Task.isCancelled else { return }
+            self?.writeDebouncer = nil
+            self?.writeHostsImmediate(context: context)
+        }
+    }
+
     func writeHosts(context: ModelContext) {
+        writeDebouncer?.cancel()
+        writeDebouncer = nil
+        writeHostsImmediate(context: context)
+    }
+
+    func flushPendingWrite(context: ModelContext) {
+        guard writeDebouncer != nil else { return }
+        writeDebouncer?.cancel()
+        writeDebouncer = nil
+        writeHostsImmediate(context: context)
+    }
+
+    private func writeHostsImmediate(context: ModelContext) {
         HelperInstaller.shared.refreshStatus()
         if !HelperInstaller.shared.isInstalled {
             helperMissing = true
@@ -110,6 +139,7 @@ final class ProfileStore {
             defer { self?.isWritingHosts = false }
             do {
                 try await HostsFileManager.shared.write(profiles: profiles)
+                self?.lastWriteAt = Date()
             } catch {
                 self?.lastWriteError = error.localizedDescription
             }

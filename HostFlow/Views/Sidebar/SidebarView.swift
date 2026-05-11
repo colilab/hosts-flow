@@ -45,7 +45,7 @@ struct SidebarView: View {
 
                         Button(profile.isActive ? "Disattiva" : "Attiva") {
                             profile.isActive.toggle()
-                            store.writeHosts(context: context)
+                            store.scheduleWrite(context: context)
                         }
                         .disabled(profile.isReadOnly)
                     }
@@ -66,7 +66,7 @@ struct SidebarView: View {
 
             Divider()
 
-            HStack {
+            HStack(spacing: 8) {
                 Button {
                     isAddingProfile = true
                 } label: {
@@ -75,6 +75,12 @@ struct SidebarView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.leading, 12)
+
+                if store.isWritingHosts {
+                    ProgressView()
+                        .controlSize(.small)
+                        .help("Scrittura /etc/hosts in corso…")
+                }
 
                 Spacer()
 
@@ -169,7 +175,7 @@ private struct ProfileRowView: View {
             .labelsHidden()
             .disabled(profile.isReadOnly)
             .onChange(of: profile.isActive) {
-                store.writeHosts(context: context)
+                store.scheduleWrite(context: context)
             }
         }
         .frame(maxWidth: .infinity)

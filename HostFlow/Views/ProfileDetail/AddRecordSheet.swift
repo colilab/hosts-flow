@@ -50,7 +50,7 @@ struct AddRecordSheet: View {
                     let record = HostRecord(ip: trimmedIP, hostname: trimmedHost, profile: profile)
                     context.insert(record)
                     try? context.save()
-                    store.writeHosts(context: context)
+                    store.scheduleWrite(context: context)
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)

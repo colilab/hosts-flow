@@ -1,5 +1,31 @@
 # Changelog
 
+## [2026-05-11] — Hosts write — debounced trigger (500ms) + last-write timestamp + quit-time flush
+
+**Type:** feature
+
+### Context
+Task `.task/features/22-hosts-trigger.md`. Each mutation (profile toggle, record toggle, add/edit/delete record, reorder) was calling `ProfileStore.writeHosts` synchronously, so a burst of 5 rapid toggles fired 5 separate XPC writes to the helper. Adds a debounce layer that coalesces bursts into a single write, plus the `lastWriteAt` timestamp the upcoming watcher task (23) needs to distinguish app writes from external edits.
+
+### Changes
+- `ProfileStore` new public API:
+  - `scheduleWrite(context:)` — cancels any pending debouncer Task and schedules a fresh one with `Task.sleep(for: .milliseconds(500))`. 5 toggles in 200ms collapse to a single write.
+  - `flushPendingWrite(context:)` — if a debouncer is pending, cancels it and runs the write immediately. Wired to `NSApplication.willTerminateNotification` from `ContentView` so a quit within the 500ms window still persists the last mutation (best-effort: the XPC message dispatches to the helper, which runs as root and is independent of the GUI process lifecycle — no synchronous wait on the reply).
+  - `writeHosts(context:)` retained but now also cancels the debouncer first; used only by the retry-from-error alert and post-helper-install trigger (immediate UX expected on those paths).
+  - `private writeHostsImmediate(context:)` — the previous body of `writeHosts`, now invoked by all three public entry points.
+- `lastWriteAt: Date?` is `private(set)`, set after a successful XPC write completes. Exposed for the watcher in task 23 (±2s mtime window).
+- `writeDebouncer: Task<Void, Never>?` stored on the store and marked `@ObservationIgnored` — internal cancellation token, not part of the observable surface.
+- Mutation callsites migrated to `scheduleWrite`: `ProfileStore.toggleProfile`/`reorder`/`deleteProfile`, `SidebarView` (context-menu toggle + row toggle), `ProfileDetailView` (profile toggle, record `isEnabled` toggle, `deleteRecords`), `MenuBarView` row toggle, `AddRecordSheet`, `EditRecordSheet`.
+- `SidebarView` footer now shows a `ProgressView().controlSize(.small)` next to the "Nuovo profilo" button while `store.isWritingHosts` is true, with help tooltip "Scrittura /etc/hosts in corso…". Chose the sidebar footer over a menu-bar icon swap because the menu-bar status icon is the subject of task 25 — keeping concerns separate.
+
+### Files modified
+- `HostFlow/Stores/ProfileStore.swift` — new debounce/flush/immediate API, `lastWriteAt`, `writeDebouncer`.
+- `HostFlow/App/ContentView.swift` — imports `AppKit`, observes `NSApplication.willTerminateNotification` → `flushPendingWrite`.
+- `HostFlow/Views/Sidebar/SidebarView.swift` — `scheduleWrite` callsites + ProgressView in footer.
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — `scheduleWrite` on profile toggle, record toggle, deleteRecords.
+- `HostFlow/Views/ProfileDetail/AddRecordSheet.swift`, `EditRecordSheet.swift` — `scheduleWrite` after insert/edit.
+- `HostFlow/Views/MenuBar/MenuBarView.swift` — `scheduleWrite` on profile toggle.
+
 ## [2026-05-09] — Hosts write atomic — rollback on error + alert with retry + helper file log
 
 **Type:** feature
