@@ -1,5 +1,23 @@
 # Changelog
 
+## [2026-05-12] — Settings: "Pulisci" ora cancella tutti i profili Host Flow
+
+**Type:** feature
+
+### Context
+Revisione del task `.task/completed/settings-reset-block/spec.md`: il comportamento precedente disattivava i profili attivi e rimuoveva il blocco da `/etc/hosts` ma lasciava intatti profili e record. Nuova semantica: il bottone è un reset completo dei dati Host Flow, mantenendo solo il profilo Default (read-only, specchio di `/etc/hosts` via watcher).
+
+### Changes
+- `ProfileStore.resetManagedBlock(context:)` riscritta: invece di iterare i profili attivi e impostare `isActive = false`, ora fa `context.delete` su tutti i profili con `isReadOnly == false` (cascade SwiftData elimina automaticamente i loro `HostRecord` grazie a `@Relationship(deleteRule: .cascade)`), poi forza `Default.isActive = true` cosicché il Default diventa l'unico profilo attivo. Il resto del flusso (cancel debouncer, `HelperInstaller.refreshStatus` → `helperMissing` se non installato, `Task @MainActor` con `removeManagedBlock()` e `lastWriteAt`/`lastWriteError`) è invariato.
+- `SettingsView` alert message aggiornato da "Verrà rimosso il blocco Host Flow da /etc/hosts. I tuoi profili NON saranno cancellati." → "Verranno rimossi tutti i profili Host Flow e i loro record. Il blocco verrà rimosso da /etc/hosts. L'operazione è irreversibile." per riflettere la nuova semantica distruttiva. Label bottone ("Pulisci") e descrizione di sezione restano invariati su richiesta esplicita.
+- Feedback visivo: la sidebar reagisce automaticamente alla cancellazione via `@Query` SwiftData — nessuna logica aggiuntiva richiesta.
+- Notifica di sistema esplicitamente **non** aggiunta: l'app è sempre in foreground durante il reset, quindi macOS consegnerebbe la notifica silenziosamente al Notification Center senza banner. Decisione presa dopo un primo tentativo con `UNUserNotificationCenter` che è stato rimosso (un'opzione sarebbe stata implementare `UNUserNotificationCenterDelegate.willPresent` per forzare il banner in foreground, ma il costo/benefit non giustifica l'aggiunta del delegate + import + entitlement management).
+
+### Files modified
+- `HostFlow/Stores/ProfileStore.swift` — `resetManagedBlock(context:)` ora elimina i profili non-readOnly e attiva il Default.
+- `HostFlow/Views/Settings/SettingsView.swift` — testo dell'alert di conferma aggiornato.
+- `.task/completed/settings-reset-block/spec.md` — riallineato col nuovo comportamento (obiettivo, requisiti, checklist, note tecniche).
+
 ## [2026-05-12] — Settings: sezione "Info" con versione app e copyright
 
 **Type:** feature

@@ -177,13 +177,19 @@ final class ProfileStore {
         writeDebouncer?.cancel()
         writeDebouncer = nil
 
-        let descriptor = FetchDescriptor<Profile>(predicate: #Predicate { $0.isActive == true && $0.isReadOnly == false })
-        if let activeProfiles = try? context.fetch(descriptor) {
-            for profile in activeProfiles {
-                profile.isActive = false
-            }
-            try? context.save()
+        let userProfiles = (try? context.fetch(
+            FetchDescriptor<Profile>(predicate: #Predicate { $0.isReadOnly == false })
+        )) ?? []
+        for profile in userProfiles {
+            context.delete(profile)
         }
+
+        let defaultProfile = (try? context.fetch(
+            FetchDescriptor<Profile>(predicate: #Predicate { $0.isReadOnly == true })
+        ))?.first
+        defaultProfile?.isActive = true
+
+        try? context.save()
 
         HelperInstaller.shared.refreshStatus()
         if !HelperInstaller.shared.isInstalled {

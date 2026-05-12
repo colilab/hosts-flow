@@ -79,7 +79,7 @@ struct SettingsView: View {
                 store.resetManagedBlock(context: modelContext)
             }
         } message: {
-            Text("Verrà rimosso il blocco Host Flow da /etc/hosts. I tuoi profili NON saranno cancellati.")
+            Text("Verranno rimossi tutti i profili Host Flow e i loro record. Il blocco verrà rimosso da /etc/hosts. L'operazione è irreversibile.")
         }
         .alert(
             alertTitle(for: settings.launchAtLoginAlert),
