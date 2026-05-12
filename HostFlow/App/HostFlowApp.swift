@@ -44,6 +44,8 @@ struct HostFlowApp: App {
 
         Settings {
             SettingsView()
+                .modelContainer(container)
+                .environment(profileStore)
                 .environment(appSettings)
                 .preferredColorScheme(appSettings.preferredColorScheme)
         }

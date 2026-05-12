@@ -1,5 +1,22 @@
 # Changelog
 
+## [2026-05-12] — Settings: "Pulisci /etc/hosts" rimuove il blocco gestito da Host Flow
+
+**Type:** feature
+
+### Changes
+- Nuova `HostsFileManager.removeManagedBlock()` (async throws): legge `/etc/hosts`, rimuove l'intervallo dai marker `# --- Host Flow Start ---` al `# --- Host Flow End ---` (inclusi), assorbe anche la newline separatrice immediatamente precedente se vuota per evitare doppi blank-line residui, poi scrive via `HostsXPCClient`. Se i marker non sono presenti la write avviene comunque sullo stesso contenuto (no-op contenutistico). Nuova `hasManagedBlock()` sincrona che riusa il read raw e cerca i due marker — usata per il gating del bottone.
+- Nuova `ProfileStore.resetManagedBlock(context:)` che orchestra il reset in tre passi: (1) cancella eventuale debouncer pendente perché un write coalescente subito dopo ricreerebbe il blocco, (2) imposta `isActive = false` su tutti i profili attivi **non read-only** (il profilo Default resta attivo — già escluso dal blocco gestito via `buildBlock` perché `isReadOnly == true`, quindi disattivarlo sarebbe un side-effect visibile sulla sidebar senza alcun impatto sul blocco), (3) invoca `removeManagedBlock()` via `Task @MainActor` riusando lo stesso pattern di `writeHostsImmediate` per `isWritingHosts`/`lastWriteError`/`lastWriteAt` e per il pre-flight `HelperInstaller.refreshStatus()` → `helperMissing` se non installato. I record dentro i profili NON vengono toccati, come richiesto dal copy dell'alert.
+- Nuova sezione "Avanzate" in `SettingsView` con `Button("Pulisci")` `.buttonStyle(.borderedProminent) .tint(.red)`, sottotitolo `caption` "Rimuove il blocco gestito da Host Flow. I profili non saranno cancellati.", disabled finché `hasManagedBlock == false` o `store.isWritingHosts == true`. Alert nativo di conferma (titolo "Pulisci /etc/hosts", messaggio "Verrà rimosso il blocco Host Flow da /etc/hosts. I tuoi profili NON saranno cancellati.", bottoni "Annulla" cancel role / "Rimuovi" destructive role) prima di invocare l'azione.
+- Stato `hasManagedBlock` calcolato in `.onAppear` e refreshato su `.onChange(of: store.lastWriteAt)` — alla luce della discussion preliminare ho scelto questo over un watch reattivo (HostsFileWatcher) perché Settings è una finestra effimera e tutte le mutazioni che cambiano lo stato del blocco passano comunque per `lastWriteAt`.
+- `Settings` scene in `HostFlowApp` ora inietta anche `modelContainer(container)` e `environment(profileStore)` (prima solo `appSettings`), perché la sezione "Avanzate" ha bisogno di entrambi per fare il reset.
+
+### Files modified
+- `HostFlow/Helpers/HostsFileManager.swift` — `removeManagedBlock()`, `hasManagedBlock()`, private `stripBlock(from:)`.
+- `HostFlow/Stores/ProfileStore.swift` — `resetManagedBlock(context:)`.
+- `HostFlow/Views/Settings/SettingsView.swift` — sezione "Avanzate", stato locale `hasManagedBlock`/`showResetConfirm`, alert conferma.
+- `HostFlow/App/HostFlowApp.swift` — `Settings` scene ora riceve `modelContainer` + `ProfileStore` via environment.
+
 ## [2026-05-12] — Settings: Appearance picker (System/Light/Dark) override applied to all scenes
 
 **Type:** feature

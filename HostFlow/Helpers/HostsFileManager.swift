@@ -43,6 +43,35 @@ final class HostsFileManager {
         try await HostsXPCClient.shared.writeHosts(updated)
     }
 
+    func hasManagedBlock() -> Bool {
+        guard let raw = try? readRaw() else { return false }
+        let lines = raw.components(separatedBy: "\n")
+        return lines.contains(blockStart) && lines.contains(blockEnd)
+    }
+
+    func removeManagedBlock() async throws {
+        let current = try readRaw()
+        let stripped = stripBlock(from: current)
+        try await HostsXPCClient.shared.writeHosts(stripped)
+    }
+
+    private func stripBlock(from content: String) -> String {
+        var lines = content.components(separatedBy: "\n")
+        guard let startIdx = lines.firstIndex(of: blockStart),
+              let endIdx = lines.firstIndex(of: blockEnd),
+              startIdx < endIdx else {
+            return content
+        }
+
+        var removeFrom = startIdx
+        if removeFrom > 0, lines[removeFrom - 1].isEmpty {
+            removeFrom -= 1
+        }
+
+        lines.removeSubrange(removeFrom...endIdx)
+        return lines.joined(separator: "\n")
+    }
+
     private func readRaw() throws -> String {
         guard FileManager.default.isReadableFile(atPath: hostsPath) else {
             throw HostsFileError.notReadable

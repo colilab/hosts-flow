@@ -173,6 +173,37 @@ final class ProfileStore {
         writeHostsImmediate(context: context)
     }
 
+    func resetManagedBlock(context: ModelContext) {
+        writeDebouncer?.cancel()
+        writeDebouncer = nil
+
+        let descriptor = FetchDescriptor<Profile>(predicate: #Predicate { $0.isActive == true && $0.isReadOnly == false })
+        if let activeProfiles = try? context.fetch(descriptor) {
+            for profile in activeProfiles {
+                profile.isActive = false
+            }
+            try? context.save()
+        }
+
+        HelperInstaller.shared.refreshStatus()
+        if !HelperInstaller.shared.isInstalled {
+            helperMissing = true
+            return
+        }
+
+        isWritingHosts = true
+        lastWriteError = nil
+        Task { @MainActor [weak self] in
+            defer { self?.isWritingHosts = false }
+            do {
+                try await HostsFileManager.shared.removeManagedBlock()
+                self?.lastWriteAt = Date()
+            } catch {
+                self?.lastWriteError = error.localizedDescription
+            }
+        }
+    }
+
     private func writeHostsImmediate(context: ModelContext) {
         HelperInstaller.shared.refreshStatus()
         if !HelperInstaller.shared.isInstalled {
