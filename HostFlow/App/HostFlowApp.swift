@@ -23,6 +23,7 @@ struct HostFlowApp: App {
                 .modelContainer(container)
                 .environment(profileStore)
                 .environment(appSettings)
+                .preferredColorScheme(appSettings.preferredColorScheme)
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
@@ -33,6 +34,7 @@ struct HostFlowApp: App {
                 .modelContainer(container)
                 .environment(profileStore)
                 .environment(appSettings)
+                .preferredColorScheme(appSettings.preferredColorScheme)
         } label: {
             MenuBarLabel()
                 .modelContainer(container)
@@ -43,6 +45,7 @@ struct HostFlowApp: App {
         Settings {
             SettingsView()
                 .environment(appSettings)
+                .preferredColorScheme(appSettings.preferredColorScheme)
         }
     }
 }

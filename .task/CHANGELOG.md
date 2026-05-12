@@ -1,5 +1,18 @@
 # Changelog
 
+## [2026-05-12] — Settings: Appearance picker (System/Light/Dark) override applied to all scenes
+
+**Type:** feature
+
+### Changes
+- `AppearanceMode` ora espone `colorScheme: ColorScheme?` (nil per `.system`, `.light`/`.dark` per gli altri casi).
+- `AppSettings` espone computed `preferredColorScheme: ColorScheme?` derivato da `appearanceMode`.
+- `HostFlowApp` applica `.preferredColorScheme(appSettings.preferredColorScheme)` su `Window`, popover di `MenuBarExtra` e scena `Settings`. Cambio live senza restart; persistenza già esistente in `UserDefaults`.
+
+### Files modified
+- `HostFlow/Stores/AppSettings.swift` — import `SwiftUI`, `AppearanceMode.colorScheme`, `AppSettings.preferredColorScheme`.
+- `HostFlow/App/HostFlowApp.swift` — modifier `.preferredColorScheme` sulle tre scene.
+
 ## [2026-05-11] — MenuBar "Apri Host Flow" and "Esci" polished to spec
 
 **Type:** feature

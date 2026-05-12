@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import ServiceManagement
+import SwiftUI
 
 enum AppearanceMode: String, CaseIterable, Identifiable {
     case system, light, dark
@@ -10,6 +11,14 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
         case .system: "System"
         case .light:  "Light"
         case .dark:   "Dark"
+        }
+    }
+
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: nil
+        case .light:  .light
+        case .dark:   .dark
         }
     }
 }
@@ -32,6 +41,8 @@ final class AppSettings {
     var appearanceMode: AppearanceMode = .system {
         didSet { UserDefaults.standard.set(appearanceMode.rawValue, forKey: "appearanceMode") }
     }
+
+    var preferredColorScheme: ColorScheme? { appearanceMode.colorScheme }
 
     var launchAtLogin: Bool = false {
         didSet {
