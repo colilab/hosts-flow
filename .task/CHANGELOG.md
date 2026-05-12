@@ -1,5 +1,24 @@
 # Changelog
 
+## [2026-05-12] — Settings: sezione "Info" con versione app e copyright
+
+**Type:** feature
+
+### Changes
+- Nuova sezione "Info" in `SettingsView` con `LabeledContent("Versione", value: Bundle.main.appVersion)` e footer `© 2026 Colilab` (caption, secondary). Sostituisce la riga "Versione" precedente che leggeva il valore direttamente da `Bundle.main.infoDictionary` inline.
+- Nuovo helper `Bundle.appVersion` / `Bundle.appBuild` (legge rispettivamente `CFBundleShortVersionString` e `CFBundleVersion`, fallback `—`) in `HostFlow/Helpers/Bundle+AppInfo.swift`. `appBuild` non è esposto attualmente nella UI ma resta disponibile come API.
+- `project.yml` ora definisce `MARKETING_VERSION: "1.0.0"` e `CURRENT_PROJECT_VERSION: "1"` in `settings.base` come single source of truth, e `Info.plist` referenzia entrambe le chiavi via `$(MARKETING_VERSION)` / `$(CURRENT_PROJECT_VERSION)`. Bump di versione/build ora si fa in un solo punto (`project.yml`) invece che editare l'Info.plist hardcoded.
+- Versione adottata in formato semver completo (`major.minor.patch` = `1.0.0`) per coerenza con la convenzione App Store.
+
+### Out of scope
+- Link "Sito web" / "Codice sorgente" (escluso esplicitamente dall'utente per questa iterazione)
+
+### Files modified
+- `HostFlow/project.yml` — `MARKETING_VERSION` + `CURRENT_PROJECT_VERSION` in `settings.base`.
+- `HostFlow/Resources/Info.plist` — `CFBundleShortVersionString` / `CFBundleVersion` ora riferiscono le build settings.
+- `HostFlow/Helpers/Bundle+AppInfo.swift` — nuovo helper.
+- `HostFlow/Views/Settings/SettingsView.swift` — sezione "Info" con `LabeledContent` + footer copyright.
+
 ## [2026-05-12] — Settings: "Pulisci /etc/hosts" rimuove il blocco gestito da Host Flow
 
 **Type:** feature
