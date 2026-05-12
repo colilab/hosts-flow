@@ -1,5 +1,27 @@
 # Changelog
 
+## [2026-05-12] — MenuBar popover: hover visual feedback + layout polish
+
+**Type:** feature
+
+### Context
+Il popover del `MenuBarExtra` usa `.menuBarExtraStyle(.window)` (custom SwiftUI, non `NSMenu` nativo): di conseguenza i bottoni in `.buttonStyle(.plain)` non offrivano alcun feedback visivo all'hover sulle voci "Apri Host Flow", "Impostazioni...", "Esci". Inoltre il layout del popover aveva alcune scelte da rifinire (titolo ridondante, distinguibilità del toggle nelle righe profilo).
+
+### Changes
+- Nuovo `MenuItemButtonStyle: ButtonStyle` (private) + `MenuItemButtonBody` view privata che traccia lo stato hover via `@State isHovered` + `.onHover`. Quando `isHovered || configuration.isPressed`, la label dipinge background `Color.accentColor` su `RoundedRectangle(cornerRadius: 4)` inset di 5pt dai bordi del popover e foreground `Color.white`; altrimenti background trasparente e foreground `Color.primary`. Padding interno `horizontal 7 / vertical 4`, `frame(maxWidth: .infinity, alignment: .leading)` per allargare l'area cliccabile su tutta la riga, `contentShape(Rectangle())` perché l'hover scatti su tutta la pillola (non solo sulla label).
+- Applicato `.buttonStyle(MenuItemButtonStyle())` ai tre bottoni "Apri Host Flow" (`Label` + `macwindow`), "Impostazioni..." (`SettingsLink` + `gearshape`) e "Esci" (`Label` + `power`, con `keyboardShortcut("q", modifiers: .command)` già in essere).
+- Rimosso il titolo "Host Flow" e il `Divider` che lo seguiva — il titolo è ridondante con il `MenuBarLabel` già presente in barra di stato.
+- Aggiunto sottotitolo "Profili" (`font(.caption)`, `.fontWeight(.semibold)`, `foregroundStyle(.secondary)`, padding `horizontal 12 / top 10 / bottom 4`) sopra l'elenco profili — solo nel ramo non-vuoto, lo stato vuoto continua a renderizzare il proprio `tray` SF Symbol + copy.
+- `MenuBarProfileRow` NON usa hover background sulla riga: durante l'iterazione era stato applicato per consistenza con i bottoni d'azione, ma rendeva il `Toggle` indistinguibile sullo sfondo accent. Ripristinata la riga "piatta" con `padding(horizontal 12, vertical 5)`. Aggiunto invece `NSCursor.pointingHand.push()`/`pop()` su `.onHover` del solo `Toggle`, con guard `!profile.isReadOnly` (il profilo Default non deve mostrare il cursor pointer perché il toggle è `.disabled`).
+
+### Out of scope
+- Border radius del popover (sperimentato un `NSViewRepresentable` `PopoverCornerRadiusAdjuster` che impostava `contentView.layer.cornerRadius = 6` sull'`NSWindow` del popover, rimosso su richiesta esplicita dell'utente per tornare al border radius di sistema).
+- Menu app standard nella top bar di sistema (titolo applicazione + menu Apple/File/Edit/Window/Help quando la finestra principale è in primo piano): è un effetto voluto di `LSUIElement = true` in `Info.plist`, documentato nel `README.md` sotto la sezione Features.
+
+### Files modified
+- `HostFlow/Views/MenuBar/MenuBarView.swift` — nuove `MenuItemButtonStyle`/`MenuItemButtonBody`, layout del popover ripulito (no titolo, sottotitolo "Profili"), `MenuBarProfileRow` con cursor pointer sul solo toggle.
+- `README.md` — nota "Menu bar app behavior" sotto Features che spiega l'assenza di Dock icon e menu di sistema (`LSUIElement = true`) come scelta di design intenzionale.
+
 ## [2026-05-12] — Settings: "Pulisci" ora cancella tutti i profili Host Flow
 
 **Type:** feature

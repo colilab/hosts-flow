@@ -46,14 +46,6 @@ struct MenuBarView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Host Flow")
-                .font(.headline)
-                .padding(.horizontal, 12)
-                .padding(.top, 12)
-                .padding(.bottom, 8)
-
-            Divider()
-
             if profiles.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "tray")
@@ -68,6 +60,14 @@ struct MenuBarView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 16)
             } else {
+                Text("Profili")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.top, 10)
+                    .padding(.bottom, 4)
+
                 ForEach(profiles) { profile in
                     MenuBarProfileRow(profile: profile)
                 }
@@ -82,16 +82,12 @@ struct MenuBarView: View {
             } label: {
                 Label("Apri Host Flow", systemImage: "macwindow")
             }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .buttonStyle(MenuItemButtonStyle())
 
             SettingsLink {
-                Text("Impostazioni...")
+                Label("Impostazioni...", systemImage: "gearshape")
             }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .buttonStyle(MenuItemButtonStyle())
 
             Divider()
                 .padding(.vertical, 4)
@@ -101,13 +97,41 @@ struct MenuBarView: View {
             } label: {
                 Label("Esci", systemImage: "power")
             }
-            .buttonStyle(.plain)
+            .buttonStyle(MenuItemButtonStyle())
             .keyboardShortcut("q", modifiers: .command)
-            .padding(.horizontal, 12)
-            .padding(.bottom, 12)
-            .padding(.top, 2)
+            .padding(.bottom, 8)
         }
         .frame(width: 280)
+    }
+}
+
+private struct MenuItemButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        MenuItemButtonBody(configuration: configuration)
+    }
+}
+
+private struct MenuItemButtonBody: View {
+    let configuration: ButtonStyle.Configuration
+    @State private var isHovered = false
+
+    var body: some View {
+        configuration.label
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 4)
+            .foregroundStyle(isHighlighted ? Color.white : Color.primary)
+            .background {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(isHighlighted ? Color.accentColor : .clear)
+            }
+            .contentShape(Rectangle())
+            .padding(.horizontal, 5)
+            .onHover { isHovered = $0 }
+    }
+
+    private var isHighlighted: Bool {
+        isHovered || configuration.isPressed
     }
 }
 
@@ -139,12 +163,20 @@ private struct MenuBarProfileRow: View {
             .controlSize(.mini)
             .labelsHidden()
             .disabled(profile.isReadOnly)
+            .onHover { hovering in
+                guard !profile.isReadOnly else { return }
+                if hovering {
+                    NSCursor.pointingHand.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
             .onChange(of: profile.isActive) {
                 try? context.save()
                 store.scheduleWrite(context: context)
             }
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 6)
+        .padding(.vertical, 5)
     }
 }
