@@ -18,6 +18,8 @@ A native macOS app for developers and sysadmins who want to manage virtual hosts
 - 🔔 **Menu Bar** — quick profile toggle from the macOS status bar without opening the main window.
 - ⚙️ **Settings** — launch at login, appearance (System / Light / Dark), and `/etc/hosts` write permission management.
 
+> ℹ️ **Menu bar app behavior** — Host Flow runs as a status bar accessory (`LSUIElement = true`). This is intentional: it keeps the app lightweight and discreet, with no Dock icon and no system menu bar (Apple menu / app name menu / File / Edit / Window / Help) shown when the main window is in focus. All actions are reachable from the status bar popover and from the in-app UI; standard shortcuts like `⌘Q` (quit) and `⌘,` (settings) still work while the window is focused.
+
 ---
 
 ## 🛠 Tech Stack
