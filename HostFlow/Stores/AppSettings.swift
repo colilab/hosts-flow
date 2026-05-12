@@ -14,6 +14,18 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
     }
 }
 
+enum LaunchAtLoginAlert: Identifiable, Equatable {
+    case registrationFailed(String)
+    case requiresApproval
+
+    var id: String {
+        switch self {
+        case .registrationFailed: "registrationFailed"
+        case .requiresApproval:   "requiresApproval"
+        }
+    }
+}
+
 @Observable
 final class AppSettings {
 
@@ -22,8 +34,15 @@ final class AppSettings {
     }
 
     var launchAtLogin: Bool = false {
-        didSet { applyLaunchAtLogin() }
+        didSet {
+            guard !isSyncingLaunchAtLogin else { return }
+            applyLaunchAtLogin()
+        }
     }
+
+    var launchAtLoginAlert: LaunchAtLoginAlert?
+
+    private var isSyncingLaunchAtLogin = false
 
     let helperInstaller: HelperInstaller = .shared
 
@@ -34,6 +53,12 @@ final class AppSettings {
            let mode = AppearanceMode(rawValue: raw) {
             appearanceMode = mode
         }
+        syncLaunchAtLoginFromSystem()
+    }
+
+    func syncLaunchAtLoginFromSystem() {
+        isSyncingLaunchAtLogin = true
+        defer { isSyncingLaunchAtLogin = false }
         launchAtLogin = (SMAppService.mainApp.status == .enabled)
     }
 
@@ -41,11 +66,15 @@ final class AppSettings {
         do {
             if launchAtLogin {
                 try SMAppService.mainApp.register()
+                if SMAppService.mainApp.status == .requiresApproval {
+                    launchAtLoginAlert = .requiresApproval
+                }
             } else {
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            // registration failure is non-fatal
+            launchAtLoginAlert = .registrationFailed(error.localizedDescription)
         }
+        syncLaunchAtLoginFromSystem()
     }
 }

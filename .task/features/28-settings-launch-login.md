@@ -13,10 +13,10 @@ Toggle in Settings che registra/deregistra l'app come login item via `SMAppServi
 
 ## Checklist
 
-- [ ] In `AppSettings`: `var launchAtLogin: Bool` con setter che chiama `register/unregister`
-- [ ] Init: leggi `SMAppService.mainApp.status` → `launchAtLogin = (status == .enabled)`
-- [ ] Toggle in `SettingsView` bindato a `appSettings.launchAtLogin`
-- [ ] Error handling: catch + show Alert "Impossibile attivare avvio automatico: \(error.localizedDescription)"
+- [x] In `AppSettings`: `var launchAtLogin: Bool` con setter che chiama `register/unregister`
+- [x] Init: leggi `SMAppService.mainApp.status` → `launchAtLogin = (status == .enabled)`
+- [x] Toggle in `SettingsView` bindato a `appSettings.launchAtLogin`
+- [x] Error handling: catch + show Alert "Impossibile attivare avvio automatico: \(error.localizedDescription)"
 - [ ] Test: enable → riavvia mac → verifica autostart
 
 ## Note tecniche
