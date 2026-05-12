@@ -13,11 +13,11 @@ Sezione "Info" in Settings con versione app, build number, link a sito/repo, cop
 
 ## Checklist
 
-- [ ] `LabeledContent("Versione", value: "\(version) (\(build))")`
-- [ ] Helper `Bundle.main.appVersion` + `appBuild`
+- [x] `LabeledContent("Versione", value: "\(version) (\(build))")`
+- [x] Helper `Bundle.main.appVersion` + `appBuild`
 - [ ] Link "Sito web" / "Codice sorgente" (placeholder URL)
-- [ ] Copyright in footer della section
-- [ ] Verificare che `project.yml` abbia version + build settings corretti
+- [x] Copyright in footer della section
+- [x] Verificare che `project.yml` abbia version + build settings corretti
 
 ## Note tecniche
 

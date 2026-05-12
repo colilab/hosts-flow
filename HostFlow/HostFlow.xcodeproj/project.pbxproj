@@ -20,6 +20,7 @@
 		2B42D735F4CC5DF4F09D3E44 /* HelperListenerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF3775EAEABE058613E103A /* HelperListenerDelegate.swift */; };
 		479B6063135C464B7D203590 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD252067315F25E616C42BE /* AppSettings.swift */; };
 		48E230352B89175045F63EEC /* CallerVerification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6B6B32171D67C973B8D726 /* CallerVerification.swift */; };
+		4A4B0CF49722A65BCAD95537 /* Bundle+AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C9ED91B1A67FCCC5D1AE71 /* Bundle+AppInfo.swift */; };
 		4D4C93E446F4EE312826180A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34443BF3B959DBF01127C21 /* Profile.swift */; };
 		50D02D0EEF71A99E5BEA88B0 /* ProfileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9651F263872E4319C64419 /* ProfileDetailView.swift */; };
 		5289C2BCDAB7AF837CD1D3F0 /* HostsFileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7FB830547FEE1031B618CC4 /* HostsFileWatcher.swift */; };
@@ -87,6 +88,7 @@
 		A7FB830547FEE1031B618CC4 /* HostsFileWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileWatcher.swift; sourceTree = "<group>"; };
 		B83AC8610860D04F54BEE4AA /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		BDF3775EAEABE058613E103A /* HelperListenerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperListenerDelegate.swift; sourceTree = "<group>"; };
+		C2C9ED91B1A67FCCC5D1AE71 /* Bundle+AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+AppInfo.swift"; sourceTree = "<group>"; };
 		C4640EBB32848C5F94462A4D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C866BD9C8D45804DBEBFA4B6 /* HelperError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperError.swift; sourceTree = "<group>"; };
 		CB379F5A3EE3C0A3DD110E13 /* HelperInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperInstaller.swift; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 		35549D202592120D17EB64B7 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				C2C9ED91B1A67FCCC5D1AE71 /* Bundle+AppInfo.swift */,
 				CB379F5A3EE3C0A3DD110E13 /* HelperInstaller.swift */,
 				2A3FA13ADDEE68A07887AF53 /* HostsFileManager.swift */,
 				3A4CA3366C69090D8D8AEEFE /* HostsFileParser.swift */,
@@ -361,6 +364,7 @@
 				04DAB0853BE631F88B6A08CC /* AddProfileSheet.swift in Sources */,
 				542843400A13634AD3054B15 /* AddRecordSheet.swift in Sources */,
 				479B6063135C464B7D203590 /* AppSettings.swift in Sources */,
+				4A4B0CF49722A65BCAD95537 /* Bundle+AppInfo.swift in Sources */,
 				011531F94A0E8FF1C43452FB /* ContentView.swift in Sources */,
 				C7C2A9D2A704CDE0DB0E0E38 /* EditRecordSheet.swift in Sources */,
 				C762E1082CD7ED1392C4F73E /* HelperInstaller.swift in Sources */,
@@ -429,6 +433,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -443,6 +448,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = HostFlow;
@@ -518,6 +524,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -538,6 +545,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

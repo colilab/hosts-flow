@@ -50,11 +50,14 @@ struct SettingsView: View {
                 }
             }
 
-            Section("Info") {
-                LabeledContent("Versione") {
-                    Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—")
-                        .foregroundStyle(.secondary)
-                }
+            Section {
+                LabeledContent("Versione", value: Bundle.main.appVersion)
+            } header: {
+                Text("Info")
+            } footer: {
+                Text("© 2026 Colilab")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
