@@ -8,16 +8,10 @@ struct MenuBarLabel: View {
     @Environment(ProfileStore.self) private var store
 
     var body: some View {
-        Image(systemName: iconName)
+        Image("MenuBarIcon")
             .symbolRenderingMode(.hierarchical)
             .foregroundStyle(iconColor)
             .help(tooltip)
-    }
-
-    private var iconName: String {
-        if store.lastWriteError != nil { return "network.badge.shield.half.filled" }
-        if activeProfiles.isEmpty { return "network.slash" }
-        return "network"
     }
 
     private var iconColor: Color {
