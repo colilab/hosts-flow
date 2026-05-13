@@ -109,17 +109,37 @@ Tre asset distinti, stesso formato:
 
 ## Checklist implementativa
 
-- [ ] Confermare con utente strategia menu bar (1 icona vs 3 icone)
-- [ ] Ricevere gli asset PNG per `AppIcon` (almeno light variant, 10 file)
-- [ ] Inserire i PNG in `AppIcon.appiconset/`
-- [ ] Aggiornare `AppIcon.appiconset/Contents.json` con i `filename` corretti
-- [ ] (Opz.) Aggiungere blocchi `appearances` per dark + tinted in `Contents.json`
-- [ ] Ricevere asset menu bar (PDF preferito)
-- [ ] Creare `Image Set` in `Assets.xcassets` per ciascun asset menu bar
-- [ ] Configurare `Render As: Template Image` su tutti
-- [ ] Modificare `MenuBarLabel` in [MenuBarView.swift:4-37](HostFlow/Views/MenuBar/MenuBarView.swift#L4-L37): sostituire `Image(systemName:)` con `Image("menubar_idle"|"menubar_active"|"menubar_error")`
-- [ ] Verificare resa: Finder, Dock, About panel, status bar (light + dark mode), stato errore
-- [ ] Aggiornare `CHANGELOG.md`
+- [x] Confermare con utente strategia menu bar — scelta strategia 1 (icona singola statica)
+- [x] Ricevere il master AppIcon 1024×1024 dall'utente
+- [x] Generare le 10 size PNG con `sips` da master
+- [x] Aggiornare `AppIcon.appiconset/Contents.json` con i `filename` corretti
+- [x] **Bug fix collaterale:** aggiungere `CFBundleIconName = AppIcon` in `Info.plist` (mancava — senza questa chiave macOS non carica l'icona da `Assets.car`)
+- [x] **Bug fix collaterale:** spostare `Assets.xcassets` da `resources:` (key inventata, ignorata silenziosamente da xcodegen) a `sources:` in `project.yml`
+- [x] (Tentato) Variant dark + tinted — **non supportate** in `.appiconset` per macOS, vedi nota sotto. PNG tinted caricati e poi cancellati come orfani
+- [x] Ricevere asset menu bar (SVG da SF Symbols app)
+- [x] Creare `MenuBarIcon.symbolset` con `Contents.json` formato Symbol Image Set
+- [x] Modificare `MenuBarLabel` in [MenuBarView.swift](HostFlow/Views/MenuBar/MenuBarView.swift): sostituire `Image(systemName: iconName)` con `Image("MenuBarIcon")`, rimossa funzione `iconName` (strategia 1 statica)
+- [x] Verificare resa: Finder, About panel, status bar
+- [x] Aggiornare `CHANGELOG.md`
+
+## Esito finale
+
+**App Icon:** ✅ funzionante, 21 entries in `Assets.car` (10 size × srgb/P3 + thumbnail).
+
+**Menu Bar Icon:** ⚠️ funzionante visivamente ma **monochrome forzato** dal sistema. Vedi nota dedicata sotto.
+
+## Limitazione macOS scoperta — colore custom symbol nella status bar
+
+`NSStatusItem` (sotto a `MenuBarExtra`) forza il rendering monochrome con `controlTextColor` sui Symbol Image Set custom, ignorando `.foregroundStyle(_:)`. Per gli SF Symbols nativi questo non succede perché AppKit ha un percorso speciale di pre-rendering del colore in bitmap; per i custom symbols quel percorso non c'è.
+
+Workaround tentato (poi revertito):
+- `Color.mask { Image }` — produce un bitmap colorato ma rompe la geometria che `MenuBarExtra` si aspetta dalla label view (l'icona scompariva, restava solo un cerchio scuro al click)
+
+Workaround disponibili ma non implementati (costo/benefit non giustificato):
+- (a) Bypassare `MenuBarExtra` e gestire `NSStatusItem` direttamente in AppKit con `NSImage` pre-renderizzata per ogni stato
+- (b) Ibrido: custom symbol per idle/active (monochrome), SF Symbol nativo solo per stato errore (dove il colore funziona)
+
+Decisione presa: accettare il monochrome. Lo stato dei profili/errori è comunicato tramite tooltip al hover e via popover al click. Trade-off accettabile per mantenere il branding custom dell'icona.
 
 ## Note tecniche
 

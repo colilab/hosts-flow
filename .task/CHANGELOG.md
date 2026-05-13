@@ -1,5 +1,33 @@
 # Changelog
 
+## [2026-05-13] — App icon + custom menu bar icon
+
+**Type:** feature
+
+### Context
+L'app non aveva un'icona custom (`AppIcon.appiconset` conteneva solo `Contents.json` vuoto, `.app` mostrava icona generica in Finder/About) e il `MenuBarExtra` usava 3 SF Symbols dinamici (`network` / `network.slash` / `network.badge.shield.half.filled`). Aggiunti entrambi gli asset definitivi forniti dall'utente.
+
+### Changes
+- **AppIcon**: master 1024×1024 PNG fornito dall'utente (`icon_512x512@2x.png`), generate le altre 9 size standard macOS con `sips` (16/32/128/256/512 @1x e @2x). Tutte e 10 in `HostFlow/Resources/Assets.xcassets/AppIcon.appiconset/` con `Contents.json` cablato. `Assets.car` ora contiene 21 entries `AppIcon` (10 size × srgb + extended sRGB/P3 + 1 thumbnail) e `AppIcon.icns` viene generato in `Contents/Resources/`.
+- **CFBundleIconName** aggiunta in `Info.plist` (mancava completamente — senza questa chiave macOS non sa quale icon set caricare da `Assets.car`, anche se l'asset è compilato correttamente). Bug latente che preveniva qualsiasi icona di apparire.
+- **project.yml fix**: `Assets.xcassets` era dichiarata sotto la chiave `resources:` che **non esiste** in xcodegen — veniva ignorata silenziosamente, risultato: `0` riferimenti ad `Assets.xcassets` nel `.xcodeproj` generato. Spostata sotto `sources:` (xcodegen auto-detecta xcassets nei sources e li tratta come resources). Bug latente analogo al precedente.
+- **MenuBarIcon** custom: SVG esportato dall'utente con "Export Symbol" da SF Symbols app, salvato in nuovo `HostFlow/Resources/Assets.xcassets/MenuBarIcon.symbolset/icon.svg` con `Contents.json` formato Symbol Image Set (`idiom: universal`). Compilato come 17 entries multi-weight in `Assets.car` (Encoding=Gray).
+- `MenuBarLabel` in `MenuBarView.swift` modificato: rimossa funzione `iconName` (non più necessaria con strategia "1 sola icona statica" scelta dall'utente), `Image(systemName: iconName)` sostituito da `Image("MenuBarIcon")`. Mantenute funzioni `iconColor` e `tooltip` invariate (vedi nota sotto).
+
+### Limitazioni macOS scoperte e accettate
+
+1. **Variant dark/tinted in `.appiconset` per macOS — NON supportate**. Verificato empiricamente con `actool` (Xcode 26.5): le `appearances` con `luminosity: dark` o `luminosity: tinted` quando `idiom: mac` vengono **silenziosamente ignorate** dal compilatore (nessun errore né warning, ma le entry non finiscono in `Assets.car`). Differenze per piattaforma: iOS/iPadOS 18+ supporta entrambi in `.appiconset`; macOS 15+ tinted icons richiedono il nuovo formato `.icon` di Icon Composer (Xcode 16+, incompatibile con `.appiconset`); su macOS la dark variant storicamente non esiste come asset separato — il design dell'icona deve avere contrasto sufficiente per entrambi i mode. La nostra squircle chiara funziona già bene in entrambi senza variant. PNG tinted forniti dall'utente caricati e poi cancellati come orfani.
+
+2. **Custom MenuBarIcon resta monochrome nella status bar**. `NSStatusItem` (sotto a `MenuBarExtra`) forza il rendering monochrome con `controlTextColor` sui Symbol Image Set custom, ignorando `.foregroundStyle(_:)` applicato a `Image("MenuBarIcon")`. Per gli SF Symbols nativi questo non succede perché AppKit ha un percorso speciale che pre-renderizza il colore in bitmap; per i custom symbols quel percorso non c'è — anche se l'SVG è stato esportato direttamente con "Export Symbol" dall'app ufficiale SF Symbols. Workaround `Color.mask { Image }` tentato e revertito perché rompe la geometria che `MenuBarExtra` si aspetta dalla label view (icona invisibile, solo cerchio scuro al click). Workaround alternativi (bypass `MenuBarExtra` con AppKit + `NSStatusItem` custom, oppure ibrido custom+SF Symbol) non implementati per costo/benefit. Lo stato dei profili e degli errori resta comunicato via tooltip al hover e via popover al click. La logica `iconColor` resta nel codice ma di fatto inerte sulla status bar.
+
+### Files modified
+- `HostFlow/Resources/Assets.xcassets/AppIcon.appiconset/` — 10 PNG + `Contents.json` aggiornato.
+- `HostFlow/Resources/Assets.xcassets/MenuBarIcon.symbolset/` — nuova cartella con `icon.svg` + `Contents.json`.
+- `HostFlow/Resources/Info.plist` — aggiunta `CFBundleIconName = AppIcon`.
+- `HostFlow/project.yml` — `Assets.xcassets` spostata da `resources:` (key inesistente) a `sources:`.
+- `HostFlow/HostFlow.xcodeproj/project.pbxproj` — rigenerato con xcodegen, ora include il riferimento a `Assets.xcassets`.
+- `HostFlow/Views/MenuBar/MenuBarView.swift` — `MenuBarLabel` ora usa `Image("MenuBarIcon")`, rimossa funzione `iconName`.
+
 ## [2026-05-12] — MenuBar popover: hover visual feedback + layout polish
 
 **Type:** feature
