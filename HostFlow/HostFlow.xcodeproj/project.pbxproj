@@ -17,6 +17,7 @@
 		0F3594407CF3B410F8E0CA79 /* AuthorizedKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202C6C906DF5B00744A2A738 /* AuthorizedKeys.swift */; };
 		1D8AF3D0558E988B45A2635D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E50A5A7E8A93617BC1226 /* main.swift */; };
 		2537EB46E582B496AD7B725A /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C66693F262DF5ADCA6DCF5 /* MenuBarView.swift */; };
+		290FA9AD22BD0F4F0FBA2533 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3ED2A29F9505BA26272BDE5 /* Assets.xcassets */; };
 		2B42D735F4CC5DF4F09D3E44 /* HelperListenerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF3775EAEABE058613E103A /* HelperListenerDelegate.swift */; };
 		479B6063135C464B7D203590 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD252067315F25E616C42BE /* AppSettings.swift */; };
 		48E230352B89175045F63EEC /* CallerVerification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6B6B32171D67C973B8D726 /* CallerVerification.swift */; };
@@ -93,6 +94,7 @@
 		C866BD9C8D45804DBEBFA4B6 /* HelperError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperError.swift; sourceTree = "<group>"; };
 		CB379F5A3EE3C0A3DD110E13 /* HelperInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperInstaller.swift; sourceTree = "<group>"; };
 		D34443BF3B959DBF01127C21 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		E3ED2A29F9505BA26272BDE5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E995FE21FEBA892E881B6AFC /* HostFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HostFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F08B92A29E532CD6A45BE845 /* HostValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostValidator.swift; sourceTree = "<group>"; };
 		F488AAAB13E2B5669E0819A0 /* HostsXPCClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsXPCClient.swift; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 				08BADABC28F21364B86E0C71 /* Helper */,
 				35549D202592120D17EB64B7 /* Helpers */,
 				F5B2DCD2CFADB7309577E7EB /* Models */,
+				AF3FCE16192AB7CFA03F3D23 /* Resources */,
 				C7888A3E6CE291E0BE7E8CAB /* Shared */,
 				3C4A7684180FDACE7670934A /* Stores */,
 				9D0C81A03F11C499812C293D /* Views */,
@@ -194,6 +197,14 @@
 				C2A87E8DE5DD648BA48999FC /* Sidebar */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		AF3FCE16192AB7CFA03F3D23 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E3ED2A29F9505BA26272BDE5 /* Assets.xcassets */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		C2A87E8DE5DD648BA48999FC /* Sidebar */ = {
@@ -265,6 +276,7 @@
 			buildConfigurationList = 1F610781744FB72CF6154A44 /* Build configuration list for PBXNativeTarget "HostFlow" */;
 			buildPhases = (
 				DA2276C0EC7B766A252905F5 /* Sources */,
+				F72D63104B11D30AEC5DF83C /* Resources */,
 				47B955A6807D1E20B570D3ED /* Embed Dependencies */,
 				C12BC3512BAD5F1E547EF7CF /* Embed helper plist */,
 			);
@@ -318,6 +330,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F72D63104B11D30AEC5DF83C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				290FA9AD22BD0F4F0FBA2533 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		C12BC3512BAD5F1E547EF7CF /* Embed helper plist */ = {

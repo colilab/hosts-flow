@@ -28,7 +28,6 @@ targets:
       - path: Views
       - path: Helpers
       - path: Shared
-    resources:
       - path: Resources/Assets.xcassets
     postBuildScripts:
       - name: Embed helper plist
