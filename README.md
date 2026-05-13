@@ -1,6 +1,12 @@
-# 🌐 Host Flow
+<p align="center">
+  <img src="HostFlow/Resources/Assets.xcassets/AppIcon.appiconset/icon_128x128%402x.png" width="128" height="128" alt="Host Flow app icon" />
+</p>
 
-A native macOS app for developers and sysadmins who want to manage virtual hosts quickly and cleanly. Inspired by iHosts, it lets you create host profiles that can be activated or deactivated individually or in combination, writing the result directly to `/etc/hosts`.
+<h1 align="center">Host Flow</h1>
+
+<p align="center">
+  A native macOS app for developers and sysadmins who want to manage virtual hosts quickly and cleanly. Inspired by iHosts, it lets you create host profiles that can be activated or deactivated individually or in combination, writing the result directly to <code>/etc/hosts</code>.
+</p>
 
 ![Swift](https://img.shields.io/badge/Swift-5.9-F54A2A?logo=swift&logoColor=white)
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-blue?logo=apple&logoColor=white)
