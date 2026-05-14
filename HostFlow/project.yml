@@ -29,6 +29,7 @@ targets:
       - path: Helpers
       - path: Shared
       - path: Resources/Assets.xcassets
+      - path: Resources/AppIcon.icon
     postBuildScripts:
       - name: Embed helper plist
         script: |

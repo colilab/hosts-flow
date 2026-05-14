@@ -1,5 +1,22 @@
 # Changelog
 
+## [2026-05-14] — Dark mode visual audit
+
+**Type:** chore
+
+### Context
+Static audit of all SwiftUI views to verify dark-mode compliance per project conventions (`conventions.md` § Design HIG: only semantic colors). Goal was to detect hardcoded colors, non-adaptive assets, and contrast issues.
+
+### Outcome
+No code changes required. The codebase is already fully compliant:
+- All foreground/background colors are SwiftUI semantic (`.primary`, `.secondary`, `.red`, `.orange`, `.tint`) or AppKit adaptive (`Color(nsColor: .controlBackgroundColor)`, `.separatorColor`, `.controlAccentColor`).
+- `MenuBarIcon` is a template `.symbolset` — tints automatically.
+- `MenuItemButtonStyle` uses `Color.white` on `Color.accentColor` for hover — verified as the standard macOS menu pattern (works in both modes), kept as-is.
+- `AppIcon` dark variant impossible in `.appiconset` on macOS (already documented 2026-05-13). The current icon design works in both themes; tinted variant would require migration to `.icon` format (Icon Composer / Xcode 16+) — out of scope.
+
+### Files modified
+None.
+
 ## [2026-05-13] — App icon + custom menu bar icon
 
 **Type:** feature
