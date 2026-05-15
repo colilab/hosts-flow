@@ -77,6 +77,20 @@ final class ProfileStore {
         profile.isEditable
     }
 
+    func moveRecords(_ records: [HostRecord], to destination: Profile, context: ModelContext) {
+        guard !destination.isReadOnly else { return }
+        var moved = false
+        for record in records {
+            guard record.profile?.id != destination.id else { continue }
+            if let source = record.profile, source.isReadOnly { continue }
+            record.profile = destination
+            moved = true
+        }
+        guard moved else { return }
+        try? context.save()
+        scheduleWrite(context: context)
+    }
+
     func seedIfNeeded(context: ModelContext) {
         let count = (try? context.fetchCount(FetchDescriptor<Profile>())) ?? 0
         guard count == 0 else { return }

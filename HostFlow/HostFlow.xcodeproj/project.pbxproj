@@ -19,6 +19,7 @@
 		2537EB46E582B496AD7B725A /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C66693F262DF5ADCA6DCF5 /* MenuBarView.swift */; };
 		290FA9AD22BD0F4F0FBA2533 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3ED2A29F9505BA26272BDE5 /* Assets.xcassets */; };
 		2B42D735F4CC5DF4F09D3E44 /* HelperListenerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF3775EAEABE058613E103A /* HelperListenerDelegate.swift */; };
+		3440CDC64B2A14A47B25F391 /* HostRecordTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E2887A99F81C5AB4E240071 /* HostRecordTransfer.swift */; };
 		479B6063135C464B7D203590 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD252067315F25E616C42BE /* AppSettings.swift */; };
 		48E230352B89175045F63EEC /* CallerVerification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6B6B32171D67C973B8D726 /* CallerVerification.swift */; };
 		4A4B0CF49722A65BCAD95537 /* Bundle+AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C9ED91B1A67FCCC5D1AE71 /* Bundle+AppInfo.swift */; };
@@ -77,6 +78,7 @@
 		2E86FDF092AA4237434BEAA5 /* AddRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecordSheet.swift; sourceTree = "<group>"; };
 		3634CC7C88A085F4F0A8FE66 /* HostRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostRecord.swift; sourceTree = "<group>"; };
 		3A4CA3366C69090D8D8AEEFE /* HostsFileParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileParser.swift; sourceTree = "<group>"; };
+		3E2887A99F81C5AB4E240071 /* HostRecordTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostRecordTransfer.swift; sourceTree = "<group>"; };
 		4C9651F263872E4319C64419 /* ProfileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDetailView.swift; sourceTree = "<group>"; };
 		582467A695F148839CA607DC /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		5D9182BD4A56DA00D9A72D4B /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 			isa = PBXGroup;
 			children = (
 				3634CC7C88A085F4F0A8FE66 /* HostRecord.swift */,
+				3E2887A99F81C5AB4E240071 /* HostRecordTransfer.swift */,
 				D34443BF3B959DBF01127C21 /* Profile.swift */,
 			);
 			path = Models;
@@ -400,6 +403,7 @@
 				025DD7DE5AF0996A4186CDFF /* HostFlowApp.swift in Sources */,
 				C7C6963751ED83F9B3830129 /* HostFlowHelperProtocol.swift in Sources */,
 				9699FE669F81DD002CBC9087 /* HostRecord.swift in Sources */,
+				3440CDC64B2A14A47B25F391 /* HostRecordTransfer.swift in Sources */,
 				092DA13347E91AF07C139367 /* HostValidator.swift in Sources */,
 				76EBC2C36532CD939DED0AD9 /* HostsFileManager.swift in Sources */,
 				9215CB5F1A241ADE13E5DF0F /* HostsFileParser.swift in Sources */,

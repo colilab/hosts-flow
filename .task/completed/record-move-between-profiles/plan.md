@@ -29,37 +29,37 @@ Aggiungere la possibilità di spostare uno o più `HostRecord` da un profilo A a
 ## Steps
 
 ### 1. Modello dati / store
-1. [ ] Aggiungere helper `ProfileStore.moveRecords(_ records: [HostRecord], to destination: Profile, context: ModelContext)` — `HostFlow/Stores/ProfileStore.swift`
+1. [x] Aggiungere helper `ProfileStore.moveRecords(_ records: [HostRecord], to destination: Profile, context: ModelContext)` — `HostFlow/Stores/ProfileStore.swift`
    - Guard: skip record già appartenenti a `destination`; skip se `destination.isReadOnly`
    - Per ogni record: `record.profile = destination` (la relationship inversa aggiorna le array)
    - `try? context.save()`
    - `scheduleWrite(context:)` alla fine
 
 ### 2. Transferable per drag & drop
-2. [ ] Creare `HostRecordTransfer: Codable, Transferable` (struct con `id: UUID`) — nuovo file `HostFlow/Models/HostRecordTransfer.swift` con `static var transferRepresentation` (CodableRepresentation, UTType custom es. `com.acolinucci.hostflow.hostrecord`)
-3. [ ] Registrare l'UTType custom in `HostFlow/Resources/Info.plist` (o `project.yml` se gestito da xcodegen) come exported type identifier
+2. [x] Creare `HostRecordTransfer: Codable, Transferable` (struct con `id: UUID`) — nuovo file `HostFlow/Models/HostRecordTransfer.swift` con `static var transferRepresentation` (CodableRepresentation, UTType custom es. `com.acolinucci.hostflow.hostrecord`)
+3. [x] Registrare l'UTType custom in `HostFlow/Resources/Info.plist` (o `project.yml` se gestito da xcodegen) come exported type identifier
 
 ### 3. Context menu "Sposta in"
-4. [ ] In `ProfileDetailView.recordsList.contextMenu` aggiungere `Menu("Sposta in")` con elenco dei profili da `@Query` esclusi: il profilo corrente, i read-only — `HostFlow/Views/ProfileDetail/ProfileDetailView.swift`
+4. [x] In `ProfileDetailView.recordsList.contextMenu` aggiungere `Menu("Sposta in")` con elenco dei profili da `@Query` esclusi: il profilo corrente, i read-only — `HostFlow/Views/ProfileDetail/ProfileDetailView.swift`
    - Disabilitato se `profile.isReadOnly` o se non esistono destinazioni valide
    - Ogni voce: `Button(target.name) { moveSelected(to: target, ids: items) }`
    - Helper privato `moveSelected(to:ids:)` che risolve gli ID in record e chiama `store.moveRecords(...)`, poi svuota `selectedRecordIDs`
 
 ### 4. Drag source nella tabella
-5. [ ] Sulla `Table` aggiungere `.draggable(...)` per riga (oppure `itemProvider` per riga) restituendo `HostRecordTransfer(id: record.id)` — disabilitato implicitamente quando `profile.isReadOnly` (verifica supporto Table su macOS target; in alternativa usare `.itemProvider` per riga)
+5. [x] Sulla `Table` aggiungere `.draggable(...)` per riga (oppure `itemProvider` per riga) restituendo `HostRecordTransfer(id: record.id)` — disabilitato implicitamente quando `profile.isReadOnly` (verifica supporto Table su macOS target; in alternativa usare `.itemProvider` per riga)
    - Se la selezione è multipla e l'utente trascina una riga selezionata, devono partire tutti gli ID selezionati
 
 ### 5. Drop destination nella sidebar
-6. [ ] In `SidebarView` su ogni `ProfileRowView` aggiungere `.dropDestination(for: HostRecordTransfer.self)` con `isTargeted` per highlight nativo — `HostFlow/Views/Sidebar/SidebarView.swift`
+6. [x] In `SidebarView` su ogni `ProfileRowView` aggiungere `.dropDestination(for: HostRecordTransfer.self)` con `isTargeted` per highlight nativo — `HostFlow/Views/Sidebar/SidebarView.swift`
    - `isEnabled: !profile.isReadOnly`
    - Handler: filtra gli ID rispetto al profilo corrente sorgente, risolve i record via `@Query`/context, chiama `store.moveRecords(records, to: profile, context:)`
    - Highlight target con `.background` su `isTargeted` (semantic color `.accentColor.opacity(0.2)` o `.selection`)
 
 ### 6. Gestione search filter
-7. [ ] Se la search è attiva, lo spostamento via context menu agisce solo sui record presenti nella selezione (che già appartengono a `filteredRecords`) — nessuna modifica necessaria, ma verificare il comportamento
+7. [x] Se la search è attiva, lo spostamento via context menu agisce solo sui record presenti nella selezione (che già appartengono a `filteredRecords`) — nessuna modifica necessaria, ma verificare il comportamento
 
 ### 7. Verifica build e UX
-8. [ ] Build da Xcode, verificare:
+8. [x] Build da Xcode, verificare:
    - Context menu "Sposta in" mostra solo profili modificabili diversi dal corrente
    - Drag visibile dalla tabella, drop accettato solo su righe sidebar non read-only
    - Highlight visivo sulla riga sidebar durante il drag

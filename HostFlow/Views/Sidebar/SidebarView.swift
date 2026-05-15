@@ -142,6 +142,7 @@ private struct ProfileRowView: View {
     @Environment(ProfileStore.self) private var store
 
     @State private var draftName = ""
+    @State private var isDropTargeted = false
     @FocusState private var isFieldFocused: Bool
 
     var body: some View {
@@ -180,6 +181,15 @@ private struct ProfileRowView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 2)
+        .background(
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color.accentColor.opacity(isDropTargeted ? 0.2 : 0))
+        )
+        .modifier(RecordDropModifier(
+            isEnabled: !profile.isReadOnly,
+            onDrop: handleDrop,
+            isTargeted: $isDropTargeted
+        ))
         .help(profile.isReadOnly ? "Profilo di sistema — duplica per modificare" : "")
         .onChange(of: isEditing) { _, editing in
             if editing {
@@ -192,6 +202,18 @@ private struct ProfileRowView: View {
                 commit()
             }
         }
+    }
+
+    private func handleDrop(_ items: [HostRecordTransfer]) -> Bool {
+        guard !profile.isReadOnly else { return false }
+        let ids = items.map(\.id)
+        guard !ids.isEmpty else { return false }
+        let descriptor = FetchDescriptor<HostRecord>(predicate: #Predicate { record in
+            ids.contains(record.id)
+        })
+        guard let records = try? context.fetch(descriptor), !records.isEmpty else { return false }
+        store.moveRecords(records, to: profile, context: context)
+        return true
     }
 
     private func commit() {
@@ -210,5 +232,23 @@ private struct ProfileRowView: View {
         profile.name = trimmed
         try? context.save()
         onEndEdit()
+    }
+}
+
+private struct RecordDropModifier: ViewModifier {
+    let isEnabled: Bool
+    let onDrop: ([HostRecordTransfer]) -> Bool
+    @Binding var isTargeted: Bool
+
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content.dropDestination(for: HostRecordTransfer.self) { items, _ in
+                onDrop(items)
+            } isTargeted: { targeted in
+                isTargeted = targeted
+            }
+        } else {
+            content
+        }
     }
 }

@@ -1,5 +1,35 @@
 # Changelog
 
+## [2026-05-15] — Spostamento record tra profili
+
+**Type:** feature
+
+### Context
+Aggiunta la possibilità di spostare uno o più `HostRecord` da un profilo modificabile a un altro profilo modificabile, sia tramite context menu (sottomenu "Sposta in") sia via drag & drop dalla tabella record alla riga di un profilo nella sidebar. I profili read-only sono esclusi sia come sorgente sia come destinazione. Il warning visivo esistente continua a indicare eventuali duplicati nel profilo destinazione (lo spostamento avviene comunque). Dopo lo spostamento viene schedulata una riscrittura di `/etc/hosts`.
+
+### Changes
+- **ProfileStore.swift**: nuovo helper `moveRecords(_:to:context:)`. Guard su destinazione/sorgente read-only e su record già appartenenti al destinazione; riassegna `record.profile = destination` (la relationship inversa SwiftData aggiorna gli array), `try? context.save()` e `scheduleWrite(context:)`.
+- **HostRecordTransfer.swift** (nuovo): struct `Codable, Transferable` con singolo `id: UUID`, `CodableRepresentation(contentType: .hostFlowRecord)`. Aggiunta estensione `UTType.hostFlowRecord` con identifier `com.colilab.hostflow.hostrecord`.
+- **Info.plist**: registrato `UTExportedTypeDeclarations` per `com.colilab.hostflow.hostrecord` (conforms a `public.data`).
+- **ProfileDetailView.swift**:
+  - Tabella migrata alla forma `Table(of:selection:) { columns } rows: { ... }` per consentire `.draggable(HostRecordTransfer(id:))` per riga (solo se `!profile.isReadOnly`).
+  - Context menu: nuovo `Menu("Sposta in")` con elenco profili modificabili diversi dal corrente (ordinati per `order`). Voce nascosta su profilo sorgente read-only e disabilitata se non ci sono destinazioni.
+  - Helper `moveRecords(ids:to:)` che risolve gli ID in record presenti nel profilo e delega allo store; svuota `selectedRecordIDs` dopo l'azione.
+- **SidebarView.swift**:
+  - `ProfileRowView` ora espone `.dropDestination(for: HostRecordTransfer.self)` (via `RecordDropModifier` per gestire il disable su read-only senza rompere il type-check del view builder). Highlight con `Color.accentColor.opacity(0.2)` quando `isTargeted`.
+  - Handler drop: fetch dei `HostRecord` per id via `FetchDescriptor` + `#Predicate` e chiamata a `store.moveRecords(...)`.
+
+### Files modified
+- `HostFlow/Stores/ProfileStore.swift`
+- `HostFlow/Models/HostRecordTransfer.swift` (nuovo)
+- `HostFlow/Resources/Info.plist`
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift`
+- `HostFlow/Views/Sidebar/SidebarView.swift`
+
+### Verification
+- `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug build` → **BUILD SUCCEEDED**.
+- Validazione UX (menu "Sposta in", drag dalla tabella, highlight + drop sulla sidebar, esclusione read-only, trigger scrittura, svuotamento selezione) da effettuare manualmente lanciando l'app.
+
 ## [2026-05-15] — MenuBarExtra migrato a menu nativo macOS
 
 **Type:** refactor

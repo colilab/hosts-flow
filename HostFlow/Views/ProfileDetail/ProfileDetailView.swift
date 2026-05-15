@@ -123,8 +123,14 @@ struct ProfileDetailView: View {
         .padding(.vertical, 10)
     }
 
+    private var moveTargets: [Profile] {
+        allProfiles
+            .filter { !$0.isReadOnly && $0.id != profile.id }
+            .sorted { $0.order < $1.order }
+    }
+
     private var recordsList: some View {
-        Table(filteredRecords, selection: $selectedRecordIDs) {
+        Table(of: HostRecord.self, selection: $selectedRecordIDs) {
             TableColumn("") { record in
                 Toggle("", isOn: Binding(
                     get: { record.isEnabled },
@@ -159,6 +165,15 @@ struct ProfileDetailView: View {
                     }
                 }
             }
+        } rows: {
+            ForEach(filteredRecords) { record in
+                let row = TableRow(record)
+                if profile.isReadOnly {
+                    row
+                } else {
+                    row.draggable(HostRecordTransfer(id: record.id))
+                }
+            }
         }
         .contextMenu(forSelectionType: HostRecord.ID.self) { items in
             if items.count == 1,
@@ -168,6 +183,16 @@ struct ProfileDetailView: View {
                     editingRecord = record
                 }
                 .disabled(profile.isReadOnly)
+            }
+            if !items.isEmpty && !profile.isReadOnly {
+                Menu("Sposta in") {
+                    ForEach(moveTargets, id: \.id) { target in
+                        Button(target.name) {
+                            moveRecords(ids: items, to: target)
+                        }
+                    }
+                }
+                .disabled(moveTargets.isEmpty)
             }
             if !items.isEmpty {
                 Button("Elimina", role: .destructive) {
@@ -183,6 +208,13 @@ struct ProfileDetailView: View {
         .sheet(item: $editingRecord) { record in
             EditRecordSheet(record: record)
         }
+    }
+
+    private func moveRecords(ids: Set<UUID>, to destination: Profile) {
+        let records = profile.records.filter { ids.contains($0.id) }
+        guard !records.isEmpty else { return }
+        store.moveRecords(records, to: destination, context: context)
+        selectedRecordIDs.removeAll()
     }
 
     private func deleteRecords(ids: Set<UUID>) {
