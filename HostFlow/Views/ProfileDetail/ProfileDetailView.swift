@@ -91,7 +91,7 @@ struct ProfileDetailView: View {
             .help(profile.isReadOnly ? "Profilo di sistema — duplica per modificare" : "")
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.vertical, 8)
     }
 
     private var moveTargets: [Profile] {
@@ -118,7 +118,6 @@ struct ProfileDetailView: View {
                 Text(record.ip)
                     .font(.system(.body, design: .monospaced))
                     .foregroundStyle(record.isEnabled ? .primary : .secondary)
-                    .opacity(record.isEnabled ? 1.0 : 0.5)
             }
             .width(min: 100, ideal: 140)
 

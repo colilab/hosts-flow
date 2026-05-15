@@ -34,7 +34,7 @@ struct SettingsView: View {
 
             Section("Avanzate") {
                 HStack {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("Pulisci /etc/hosts")
                         Text("Rimuove il blocco gestito da Host Flow. I profili non saranno cancellati.")
                             .font(.caption)

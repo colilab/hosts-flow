@@ -31,7 +31,7 @@ struct AddProfileSheet: View {
             Text("Nuovo profilo")
                 .font(.headline)
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
                 TextField("Nome profilo", text: $name)
                     .textFieldStyle(.roundedBorder)
                     .focused($nameFocused)

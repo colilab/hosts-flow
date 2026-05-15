@@ -11,7 +11,7 @@ struct HelperOnboardingSheet: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
                 Image(systemName: "lock.shield")
-                    .font(.system(size: 32))
+                    .font(.largeTitle)
                     .foregroundStyle(.tint)
                 Text("Installa il componente di sistema")
                     .font(.title3)

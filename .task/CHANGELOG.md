@@ -1,5 +1,31 @@
 # Changelog
 
+## [2026-05-15] — Style conventions cleanup
+
+**Type:** chore
+
+### Context
+Follow-up to the native components refactor. Audit found 5 residual spacings off the 4/8pt grid, 1 fixed font size, and 1 redundant disabled-state styling that diverged from `.claude/conventions.md`. No design decisions — just constants brought back onto the grid and one semantic font swap.
+
+### Changes
+- **SidebarView.swift** `ProfileRowView`: `HStack(spacing: 6)` → `8`; `.padding(.vertical, 2)` → `4`.
+- **ProfileDetailView.swift** `toolbar`: `.padding(.vertical, 10)` → `8`.
+- **ProfileDetailView.swift** `recordsList` (IP + Hostname columns): removed redundant `.opacity(record.isEnabled ? 1.0 : 0.5)`. Disabled-state look is now driven only by `.foregroundStyle(record.isEnabled ? .primary : .secondary)`.
+- **AddProfileSheet.swift**: inner field+error `VStack(spacing: 6)` → `8`.
+- **SettingsView.swift** "Pulisci /etc/hosts" row: `VStack(spacing: 2)` → `4`.
+- **HelperOnboardingSheet.swift**: header lock icon `.font(.system(size: 32))` → `.font(.largeTitle)` (semantic, ≈34pt).
+
+### Files modified
+- `HostFlow/Views/Sidebar/SidebarView.swift`
+- `HostFlow/Views/Sidebar/AddProfileSheet.swift`
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift`
+- `HostFlow/Views/Settings/SettingsView.swift`
+- `HostFlow/Views/Onboarding/HelperOnboardingSheet.swift`
+
+### Verification
+- `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug -destination 'platform=macOS' build` → **BUILD SUCCEEDED**.
+- Visual delta is minimal by design (1–2pt shifts, slightly larger lock icon, disabled rows slightly less faded). Manual eyeballing recommended.
+
 ## [2026-05-15] — Native SwiftUI components refactor
 
 **Type:** refactor

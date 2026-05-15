@@ -142,7 +142,7 @@ private struct ProfileRowView: View {
     @FocusState private var isFieldFocused: Bool
 
     var body: some View {
-        let row = HStack(spacing: 6) {
+        let row = HStack(spacing: 8) {
             if isEditing {
                 TextField("", text: $draftName)
                     .textFieldStyle(.plain)
@@ -176,7 +176,7 @@ private struct ProfileRowView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
         .background(
             RoundedRectangle(cornerRadius: 4)
                 .fill(Color.accentColor.opacity(isDropTargeted ? 0.2 : 0))
