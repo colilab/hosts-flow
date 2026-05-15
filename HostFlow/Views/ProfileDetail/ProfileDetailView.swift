@@ -41,8 +41,6 @@ struct ProfileDetailView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            searchBar
-
             toolbar
 
             Divider()
@@ -62,37 +60,10 @@ struct ProfileDetailView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .searchable(text: $searchText, prompt: "Cerca IP o hostname")
         .sheet(isPresented: $isAddingRecord) {
             AddRecordSheet(profile: profile)
         }
-    }
-
-    private var searchBar: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.secondary)
-            TextField("Cerca IP o hostname...", text: $searchText)
-                .textFieldStyle(.plain)
-            if !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Color(nsColor: .controlBackgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: 6))
-        .overlay(
-            RoundedRectangle(cornerRadius: 6)
-                .stroke(Color(nsColor: .separatorColor), lineWidth: 0.5)
-        )
-        .padding(.horizontal, 16)
-        .padding(.top, 16)
     }
 
     private var toolbar: some View {

@@ -25,7 +25,6 @@ struct HostFlowApp: App {
                 .environment(appSettings)
                 .preferredColorScheme(appSettings.preferredColorScheme)
         }
-        .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
         .defaultSize(width: 860, height: 560)
 

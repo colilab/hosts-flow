@@ -43,10 +43,10 @@ struct ContentView: View {
     }
 
     private var content: some View {
-        HSplitView {
+        NavigationSplitView {
             SidebarView(selectedProfile: $selectedProfile)
-                .frame(minWidth: 180, idealWidth: 220, maxWidth: 320)
-
+                .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 320)
+        } detail: {
             Group {
                 if let profile = selectedProfile {
                     ProfileDetailView(profile: profile)
@@ -58,9 +58,9 @@ struct ContentView: View {
                     )
                 }
             }
-            .frame(minWidth: 400, maxWidth: .infinity, maxHeight: .infinity)
-            .ignoresSafeArea(.all, edges: .top)
+            .navigationSplitViewColumnWidth(min: 400, ideal: 600)
         }
+        .navigationSplitViewStyle(.balanced)
         .task {
             store.seedIfNeeded(context: context)
             watcher.start(profileStore: store, context: context)

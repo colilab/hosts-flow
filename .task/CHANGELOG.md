@@ -1,5 +1,29 @@
 # Changelog
 
+## [2026-05-15] — Native SwiftUI components refactor
+
+**Type:** refactor
+
+### Context
+UI review identified four spots where custom or non-native constructs diverged from `.claude/architecture.md` / `.claude/conventions.md`. Migrated points 1, 2, 3, 5 to native SwiftUI APIs; point 4 (custom menu bar asset icon) intentionally left as-is. No functional changes for the end user — same behavior, native components.
+
+### Changes
+- **HostFlowApp.swift**: removed `.windowStyle(.hiddenTitleBar)` from the main `Window` scene. The standard title bar enables the native sidebar toggle and provides the toolbar slot where `.searchable` places its field.
+- **ContentView.swift**: replaced `HSplitView` with `NavigationSplitView { sidebar } detail: { ... }`. Sidebar column uses `.navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 320)`; detail column uses `.navigationSplitViewColumnWidth(min: 400, ideal: 600)`. Applied `.navigationSplitViewStyle(.balanced)`. Removed `.ignoresSafeArea(.all, edges: .top)` (no longer needed without hidden title bar).
+- **SidebarView.swift**: removed the outer `VStack(spacing: 0)` and the custom footer (`HStack` with `frame(height: 36)` after a `Divider`). The footer (`Nuovo profilo` button, `ProgressView`, `SettingsLink`) is now attached to the `List` via `.safeAreaInset(edge: .bottom, spacing: 0)` with native padding (horizontal 12, vertical 8) and `.background(.bar)` for the native sidebar footer chrome.
+- **SidebarView.swift**: deleted the private `RecordDropModifier` `ViewModifier`. Drop handling is now inline in `ProfileRowView.body`: the row is built into a local `let row`, then `if profile.isReadOnly { row } else { row.dropDestination(...) }`. Read-only profiles no longer register a drop target at all.
+- **ProfileDetailView.swift**: removed the custom `searchBar` computed property (HStack + magnifying glass + plain TextField + xmark button with manual background/stroke). Replaced with `.searchable(text: $searchText, prompt: "Cerca IP o hostname")` on the view root — the search field now lives in the window toolbar with standard macOS behavior (⌘F focus, native dismiss).
+
+### Files modified
+- `HostFlow/App/HostFlowApp.swift` — removed hidden title bar style.
+- `HostFlow/App/ContentView.swift` — `HSplitView` → `NavigationSplitView` with native column widths and balanced style.
+- `HostFlow/Views/Sidebar/SidebarView.swift` — sidebar footer via `safeAreaInset`; `RecordDropModifier` deleted, drop applied inline.
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — custom search bar replaced by `.searchable`.
+
+### Verification
+- `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug -destination 'platform=macOS' build` → **BUILD SUCCEEDED**.
+- Manual UX checks to run in the app: native sidebar toggle in toolbar, column width constraints (180–320 / ≥400), `.searchable` filters records and shows `ContentUnavailableView.search` when empty, sidebar footer (button / progress / settings) renders with native divider, drag-and-drop record from `Table` onto a non-read-only sidebar row still highlights and moves, drop on read-only profiles produces no highlight.
+
 ## [2026-05-15] — Spostamento record tra profili
 
 **Type:** feature

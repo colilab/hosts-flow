@@ -34,3 +34,9 @@ Allineare 4 elementi UI alle API native SwiftUI e a `.claude/architecture.md` / 
 - `.safeAreaInset(edge: .bottom)` su `List` dentro una colonna `NavigationSplitView`: divider/background nativi senza altezza fissa, padding orizzontale 12 / verticale 8.
 - Drop inline: applicare `.dropDestination(for: HostRecordTransfer.self)` solo nel ramo `!profile.isReadOnly`. Sui profili read-only la row non registra drop target (preferito a un onDrop che fa early-return: zero highlight, zero hit-test).
 - `MenuBarIcon` resta invariato (punto fuori scope).
+
+---
+
+**Completed:** 2026-05-15
+
+**Resolution:** Refactor applicato come da plan. `xcodebuild ... build` → BUILD SUCCEEDED. Validazione UX manuale da fare nell'app (sidebar toggle nativo, `.searchable` in toolbar, footer sidebar, drag-and-drop record).

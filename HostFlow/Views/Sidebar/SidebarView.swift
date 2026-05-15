@@ -13,59 +13,56 @@ struct SidebarView: View {
     @State private var profileToDelete: Profile?
 
     var body: some View {
-        VStack(spacing: 0) {
-            List(selection: $selectedProfile) {
-                ForEach(profiles, id: \.id) { profile in
-                    ProfileRowView(
-                        profile: profile,
-                        isEditing: editingProfileID == profile.id,
-                        existingNames: profiles.map(\.name),
-                        onBeginEdit: { editingProfileID = profile.id },
-                        onEndEdit: { editingProfileID = nil }
-                    )
-                    .tag(profile)
-                    .moveDisabled(profile.isReadOnly)
-                    .contextMenu {
-                        Button("Rinomina") {
-                            editingProfileID = profile.id
-                        }
-                        .disabled(profile.isReadOnly)
-
-                        Button("Duplica") {
-                            let copy = store.duplicate(profile, context: context)
-                            selectedProfile = copy
-                        }
-
-                        Button("Elimina", role: .destructive) {
-                            profileToDelete = profile
-                        }
-                        .disabled(profile.isReadOnly)
-
-                        Divider()
-
-                        Button(profile.isActive ? "Disattiva" : "Attiva") {
-                            profile.isActive.toggle()
-                            store.scheduleWrite(context: context)
-                        }
-                        .disabled(profile.isReadOnly)
+        List(selection: $selectedProfile) {
+            ForEach(profiles, id: \.id) { profile in
+                ProfileRowView(
+                    profile: profile,
+                    isEditing: editingProfileID == profile.id,
+                    existingNames: profiles.map(\.name),
+                    onBeginEdit: { editingProfileID = profile.id },
+                    onEndEdit: { editingProfileID = nil }
+                )
+                .tag(profile)
+                .moveDisabled(profile.isReadOnly)
+                .contextMenu {
+                    Button("Rinomina") {
+                        editingProfileID = profile.id
                     }
-                }
-                .onMove { source, destination in
-                    guard destination > 0 else { return }
-                    var copy = Array(profiles)
-                    copy.move(fromOffsets: source, toOffset: destination)
-                    store.reorder(copy, context: context)
+                    .disabled(profile.isReadOnly)
+
+                    Button("Duplica") {
+                        let copy = store.duplicate(profile, context: context)
+                        selectedProfile = copy
+                    }
+
+                    Button("Elimina", role: .destructive) {
+                        profileToDelete = profile
+                    }
+                    .disabled(profile.isReadOnly)
+
+                    Divider()
+
+                    Button(profile.isActive ? "Disattiva" : "Attiva") {
+                        profile.isActive.toggle()
+                        store.scheduleWrite(context: context)
+                    }
+                    .disabled(profile.isReadOnly)
                 }
             }
-            .listStyle(.sidebar)
-            .onDeleteCommand {
-                if let selected = selectedProfile, !selected.isReadOnly {
-                    profileToDelete = selected
-                }
+            .onMove { source, destination in
+                guard destination > 0 else { return }
+                var copy = Array(profiles)
+                copy.move(fromOffsets: source, toOffset: destination)
+                store.reorder(copy, context: context)
             }
-
-            Divider()
-
+        }
+        .listStyle(.sidebar)
+        .onDeleteCommand {
+            if let selected = selectedProfile, !selected.isReadOnly {
+                profileToDelete = selected
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             HStack(spacing: 8) {
                 Button {
                     isAddingProfile = true
@@ -74,7 +71,6 @@ struct SidebarView: View {
                         .font(.callout)
                 }
                 .buttonStyle(.plain)
-                .padding(.leading, 12)
 
                 if store.isWritingHosts {
                     ProgressView()
@@ -89,11 +85,11 @@ struct SidebarView: View {
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-                .padding(.trailing, 12)
             }
-            .frame(height: 36)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(.bar)
         }
-        .frame(maxHeight: .infinity)
         .sheet(isPresented: $isAddingProfile) {
             AddProfileSheet(existingNames: profiles.map(\.name)) { name in
                 let newProfile = store.addProfile(name: name, context: context)
@@ -146,7 +142,7 @@ private struct ProfileRowView: View {
     @FocusState private var isFieldFocused: Bool
 
     var body: some View {
-        HStack(spacing: 6) {
+        let row = HStack(spacing: 6) {
             if isEditing {
                 TextField("", text: $draftName)
                     .textFieldStyle(.plain)
@@ -185,11 +181,6 @@ private struct ProfileRowView: View {
             RoundedRectangle(cornerRadius: 4)
                 .fill(Color.accentColor.opacity(isDropTargeted ? 0.2 : 0))
         )
-        .modifier(RecordDropModifier(
-            isEnabled: !profile.isReadOnly,
-            onDrop: handleDrop,
-            isTargeted: $isDropTargeted
-        ))
         .help(profile.isReadOnly ? "Profilo di sistema — duplica per modificare" : "")
         .onChange(of: isEditing) { _, editing in
             if editing {
@@ -200,6 +191,16 @@ private struct ProfileRowView: View {
         .onChange(of: isFieldFocused) { _, focused in
             if !focused && isEditing {
                 commit()
+            }
+        }
+
+        if profile.isReadOnly {
+            row
+        } else {
+            row.dropDestination(for: HostRecordTransfer.self) { items, _ in
+                handleDrop(items)
+            } isTargeted: { targeted in
+                isDropTargeted = targeted
             }
         }
     }
@@ -235,20 +236,3 @@ private struct ProfileRowView: View {
     }
 }
 
-private struct RecordDropModifier: ViewModifier {
-    let isEnabled: Bool
-    let onDrop: ([HostRecordTransfer]) -> Bool
-    @Binding var isTargeted: Bool
-
-    func body(content: Content) -> some View {
-        if isEnabled {
-            content.dropDestination(for: HostRecordTransfer.self) { items, _ in
-                onDrop(items)
-            } isTargeted: { targeted in
-                isTargeted = targeted
-            }
-        } else {
-            content
-        }
-    }
-}
