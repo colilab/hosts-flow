@@ -1,5 +1,29 @@
 # Changelog
 
+## [2026-05-15] — Import /etc/hosts file as new profile
+
+**Type:** feature
+**Ref:** [.task/features/36-import-hosts-format.md](.task/features/36-import-hosts-format.md)
+
+### Changes
+- Reused the existing `HostsFileParser.parse(_:)` (already tolerant of blank lines, marker headers, commented records, multiple hostnames per line) — no new parser code.
+- New `ImportService.parseFile(at:)` reads the user-selected file as UTF-8, runs the parser, and returns an `ImportResult` (suggested profile name from the filename + parsed records). Throws `ImportError.readFailed`/`.noValidRecords` with localized descriptions.
+- New `ImportProfileSheet` (preview): editable name `TextField` (defaults to the filename, live duplicate-name validation against existing profiles), record count, read-only `Table` (IP, Hostname, Enabled), Cancel/Import buttons.
+- `SettingsView` Advanced section gains an "Import…" row above "Export…". `NSOpenPanel` accepts `[.plainText, .data]` so files without an extension (like `/etc/hosts`) can be selected. On parse failure or empty result, a native `.alert` is shown — the preview sheet does not open.
+- On confirm: a new profile is created via `ProfileStore.addProfile` (always `isActive = false`), records are inserted with the parsed `isEnabled` flag, success surfaces through the existing HUD overlay.
+- 14 new localized keys: `settings.advanced.import.*`, `import.sheet.title`, `import.records.count` (with plural variation), `import.column.*`, `import.button.import`, `error.import.*`.
+
+### Files modified
+- `HostFlow/Helpers/ImportService.swift` — new service + `ImportResult` (Identifiable) + `ImportError`.
+- `HostFlow/Views/Settings/ImportProfileSheet.swift` — new preview sheet.
+- `HostFlow/Views/Settings/SettingsView.swift` — Import row, open panel, error alert, preview sheet wiring, `createProfile` helper.
+- `HostFlow/Resources/Localizable.xcstrings` — added 14 keys.
+
+### Verification
+- `xcodegen generate` (new source files in `Helpers/` and `Views/Settings/` required project regeneration).
+- `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug -destination 'platform=macOS' build` → **BUILD SUCCEEDED**.
+- Manual UI smoke test (pick `/etc/hosts`, confirm preview, verify new inactive profile in sidebar) not executed from CLI — visual verification recommended.
+
 ## [2026-05-15] — Export all profiles as JSON
 
 **Type:** feature

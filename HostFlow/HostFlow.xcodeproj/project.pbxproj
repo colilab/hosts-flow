@@ -30,6 +30,8 @@
 		50D02D0EEF71A99E5BEA88B0 /* ProfileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9651F263872E4319C64419 /* ProfileDetailView.swift */; };
 		5289C2BCDAB7AF837CD1D3F0 /* HostsFileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7FB830547FEE1031B618CC4 /* HostsFileWatcher.swift */; };
 		542843400A13634AD3054B15 /* AddRecordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E86FDF092AA4237434BEAA5 /* AddRecordSheet.swift */; };
+		5CC8C2870EA52F9ED09C083D /* ImportProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D4894663B8CD795B5DA58E /* ImportProfileSheet.swift */; };
+		674A79F2D058AEC2057CF285 /* ImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5620F9A1DF6355A96BDDB297 /* ImportService.swift */; };
 		6FE2F5B9BEBD63EFCC37DCF9 /* ExportPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = A696F63124AE359F61D459B5 /* ExportPayload.swift */; };
 		76EBC2C36532CD939DED0AD9 /* HostsFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3FA13ADDEE68A07887AF53 /* HostsFileManager.swift */; };
 		822DF26378900C39B7FF5AB3 /* HelperOnboardingSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7940BCB031EB188B3CEC1F84 /* HelperOnboardingSheet.swift */; };
@@ -85,6 +87,7 @@
 		3A4CA3366C69090D8D8AEEFE /* HostsFileParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileParser.swift; sourceTree = "<group>"; };
 		3E2887A99F81C5AB4E240071 /* HostRecordTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostRecordTransfer.swift; sourceTree = "<group>"; };
 		4C9651F263872E4319C64419 /* ProfileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDetailView.swift; sourceTree = "<group>"; };
+		5620F9A1DF6355A96BDDB297 /* ImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportService.swift; sourceTree = "<group>"; };
 		582467A695F148839CA607DC /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		5D9182BD4A56DA00D9A72D4B /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		5FD252067315F25E616C42BE /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
@@ -94,6 +97,7 @@
 		7E69BEC5997E8A136852773D /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		7EE2EE0973F022A8CD736744 /* HelperSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperSettingsSection.swift; sourceTree = "<group>"; };
 		8767DE637961AB296C4C0EF6 /* EditRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecordSheet.swift; sourceTree = "<group>"; };
+		88D4894663B8CD795B5DA58E /* ImportProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportProfileSheet.swift; sourceTree = "<group>"; };
 		962A106CD4B2C27A4DF88FFF /* HostFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostFlowApp.swift; sourceTree = "<group>"; };
 		9675089FCC91E088F7656CDB /* AddProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddProfileSheet.swift; sourceTree = "<group>"; };
 		9A6B6B32171D67C973B8D726 /* CallerVerification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallerVerification.swift; sourceTree = "<group>"; };
@@ -146,6 +150,7 @@
 				A7FB830547FEE1031B618CC4 /* HostsFileWatcher.swift */,
 				F488AAAB13E2B5669E0819A0 /* HostsXPCClient.swift */,
 				F08B92A29E532CD6A45BE845 /* HostValidator.swift */,
+				5620F9A1DF6355A96BDDB297 /* ImportService.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -196,6 +201,7 @@
 			isa = PBXGroup;
 			children = (
 				7EE2EE0973F022A8CD736744 /* HelperSettingsSection.swift */,
+				88D4894663B8CD795B5DA58E /* ImportProfileSheet.swift */,
 				C4640EBB32848C5F94462A4D /* SettingsView.swift */,
 			);
 			path = Settings;
@@ -425,6 +431,8 @@
 				9215CB5F1A241ADE13E5DF0F /* HostsFileParser.swift in Sources */,
 				5289C2BCDAB7AF837CD1D3F0 /* HostsFileWatcher.swift in Sources */,
 				888CCF72A403DDE51C61DE91 /* HostsXPCClient.swift in Sources */,
+				5CC8C2870EA52F9ED09C083D /* ImportProfileSheet.swift in Sources */,
+				674A79F2D058AEC2057CF285 /* ImportService.swift in Sources */,
 				2537EB46E582B496AD7B725A /* MenuBarView.swift in Sources */,
 				4D4C93E446F4EE312826180A /* Profile.swift in Sources */,
 				50D02D0EEF71A99E5BEA88B0 /* ProfileDetailView.swift in Sources */,

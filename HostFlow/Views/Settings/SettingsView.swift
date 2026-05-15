@@ -15,6 +15,8 @@ struct SettingsView: View {
     @State private var showResetConfirm = false
     @State private var hudMessage: LocalizedStringKey?
     @State private var exportError: String?
+    @State private var importResult: ImportResult?
+    @State private var importError: String?
 
     var body: some View {
         @Bindable var settings = settings
@@ -42,6 +44,18 @@ struct SettingsView: View {
             HelperSettingsSection()
 
             Section("settings.section.advanced") {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("settings.advanced.import.title")
+                        Text("settings.advanced.import.description")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button("settings.advanced.import.button") { startImport() }
+                        .buttonStyle(.bordered)
+                }
+
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("settings.advanced.export.title")
@@ -139,6 +153,27 @@ struct SettingsView: View {
         } message: { message in
             Text(message)
         }
+        .alert(
+            "settings.advanced.import.error.title",
+            isPresented: Binding(
+                get: { importError != nil },
+                set: { if !$0 { importError = nil } }
+            ),
+            presenting: importError
+        ) { _ in
+            Button("common.button.ok", role: .cancel) {}
+        } message: { message in
+            Text(message)
+        }
+        .sheet(item: $importResult) { result in
+            ImportProfileSheet(
+                suggestedName: result.suggestedName,
+                records: result.records,
+                existingNames: currentProfileNames()
+            ) { finalName in
+                createProfile(name: finalName, records: result.records)
+            }
+        }
         .overlay(alignment: .top) {
             if let hudMessage {
                 Label(hudMessage, systemImage: "checkmark.circle.fill")
@@ -176,6 +211,38 @@ struct SettingsView: View {
                 exportError = error.localizedDescription
             }
         }
+    }
+
+    private func startImport() {
+        let panel = NSOpenPanel()
+        panel.title = String(localized: "settings.advanced.import.panel.title")
+        panel.allowedContentTypes = [.plainText, .data]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            do {
+                importResult = try ImportService.parseFile(at: url)
+            } catch {
+                importError = error.localizedDescription
+            }
+        }
+    }
+
+    private func currentProfileNames() -> [String] {
+        let descriptor = FetchDescriptor<Profile>()
+        return ((try? modelContext.fetch(descriptor)) ?? []).map(\.name)
+    }
+
+    private func createProfile(name: String, records: [ParsedHostRecord]) {
+        let profile = store.addProfile(name: name, context: modelContext)
+        for parsed in records {
+            let record = HostRecord(ip: parsed.ip, hostname: parsed.hostname, profile: profile)
+            record.isEnabled = parsed.isEnabled
+            modelContext.insert(record)
+        }
+        try? modelContext.save()
+        showHUD("settings.advanced.import.done")
     }
 
     private var defaultExportFilename: String {
