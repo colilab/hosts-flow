@@ -1,5 +1,7 @@
 import SwiftUI
 import SwiftData
+import AppKit
+import UniformTypeIdentifiers
 
 struct ProfileDetailView: View {
 
@@ -12,6 +14,8 @@ struct ProfileDetailView: View {
     @State private var editingRecord: HostRecord?
     @State private var isAddingRecord = false
     @State private var selectedRecordIDs: Set<UUID> = []
+    @State private var hudMessage: LocalizedStringKey?
+    @State private var saveError: String?
 
     private var filteredRecords: [HostRecord] {
         guard !searchText.isEmpty else { return profile.records }
@@ -64,6 +68,30 @@ struct ProfileDetailView: View {
         .sheet(isPresented: $isAddingRecord) {
             AddRecordSheet(profile: profile)
         }
+        .overlay(alignment: .top) {
+            if let hudMessage {
+                Label(hudMessage, systemImage: "checkmark.circle.fill")
+                    .font(.callout)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(.regularMaterial, in: Capsule())
+                    .padding(.top, 12)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: hudMessage != nil)
+        .alert(
+            "profile.detail.export.save.error.title",
+            isPresented: Binding(
+                get: { saveError != nil },
+                set: { if !$0 { saveError = nil } }
+            ),
+            presenting: saveError
+        ) { _ in
+            Button("common.button.ok", role: .cancel) {}
+        } message: { message in
+            Text(message)
+        }
     }
 
     private var toolbar: some View {
@@ -80,6 +108,17 @@ struct ProfileDetailView: View {
 
             Spacer()
 
+            Menu {
+                Button("profile.detail.export.copy") { copyToClipboard() }
+                Button("profile.detail.export.save") { saveToFile() }
+            } label: {
+                Label("profile.detail.export.menu", systemImage: "square.and.arrow.up")
+            }
+            .menuStyle(.borderlessButton)
+            .controlSize(.small)
+            .fixedSize()
+            .disabled(profile.isReadOnly)
+
             Button {
                 isAddingRecord = true
             } label: {
@@ -92,6 +131,45 @@ struct ProfileDetailView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+    }
+
+    private func copyToClipboard() {
+        let text = HostsFileManager.shared.formatProfile(profile)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+        showHUD("profile.detail.export.copied")
+    }
+
+    private func saveToFile() {
+        let text = HostsFileManager.shared.formatProfile(profile)
+        let panel = NSSavePanel()
+        panel.title = String(localized: "profile.detail.export.save.panel.title")
+        panel.allowedContentTypes = [.plainText]
+        panel.nameFieldStringValue = defaultExportFilename
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            do {
+                try text.write(to: url, atomically: true, encoding: .utf8)
+                showHUD("profile.detail.export.saved")
+            } catch {
+                saveError = error.localizedDescription
+            }
+        }
+    }
+
+    private var defaultExportFilename: String {
+        let slug = profile.name
+            .lowercased()
+            .replacingOccurrences(of: " ", with: "-")
+        return "\(slug).hosts"
+    }
+
+    private func showHUD(_ key: LocalizedStringKey) {
+        hudMessage = key
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(1500))
+            hudMessage = nil
+        }
     }
 
     private var moveTargets: [Profile] {

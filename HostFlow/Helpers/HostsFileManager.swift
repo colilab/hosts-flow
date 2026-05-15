@@ -43,6 +43,18 @@ final class HostsFileManager {
         try await HostsXPCClient.shared.writeHosts(updated)
     }
 
+    func formatProfile(_ profile: Profile) -> String {
+        var lines = ["# \(profile.name)"]
+        for record in profile.records {
+            if record.isEnabled {
+                lines.append("\(record.ip) \(record.hostname)")
+            } else {
+                lines.append("# \(record.ip) \(record.hostname)")
+            }
+        }
+        return lines.joined(separator: "\n") + "\n"
+    }
+
     func hasManagedBlock() -> Bool {
         guard let raw = try? readRaw() else { return false }
         let lines = raw.components(separatedBy: "\n")

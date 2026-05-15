@@ -1,5 +1,27 @@
 # Changelog
 
+## [2026-05-15] — Export profile as /etc/hosts text
+
+**Type:** feature
+**Ref:** [.task/features/34-export-hosts-format.md](.task/features/34-export-hosts-format.md)
+
+### Changes
+- New `HostsFileManager.formatProfile(_:) -> String` produces a per-profile text block in `/etc/hosts` format: `# <Profile Name>` header followed by `<ip> <hostname>` lines (disabled records emitted as `# <ip> <hostname>`), trailing newline.
+- `ProfileDetailView` toolbar gains an "Export" `Menu` (SF Symbol `square.and.arrow.up`) with two actions: "Copy to clipboard" and "Save to file…". Disabled on read-only profiles (Default).
+- Copy uses `NSPasteboard.general`; save uses an asynchronous `NSSavePanel` (`allowedContentTypes: [.plainText]`) with default filename `<profile-name-slug>.hosts` (lowercase, spaces → dashes).
+- Transient HUD overlay (regular material capsule, top-aligned, 1.5 s auto-dismiss) confirms successful copy/save without an alert.
+- File-write failures surface through a native `.alert` with the underlying error message.
+- New localized keys under `profile.detail.export.*` (EN base + IT) for the menu, HUD and error strings.
+
+### Files modified
+- `HostFlow/Helpers/HostsFileManager.swift` — added `formatProfile(_:)`.
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — added export menu, copy/save handlers, HUD overlay and save-error alert; imports `AppKit` and `UniformTypeIdentifiers`.
+- `HostFlow/Resources/Localizable.xcstrings` — added 7 keys (`profile.detail.export.menu/copy/save/copied/saved/save.panel.title/save.error.title`).
+
+### Verification
+- `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug -destination 'platform=macOS' build` → **BUILD SUCCEEDED**.
+- Manual UI smoke test (toggle menu, copy, save panel, HUD timing) not executed from CLI — visual verification recommended.
+
 ## [2026-05-15] — Internationalization (English + Italian)
 
 **Type:** feature
