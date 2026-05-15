@@ -1,5 +1,30 @@
 # Changelog
 
+## [2026-05-15] — Import JSON archive with merge/replace modes
+
+**Type:** feature
+**Ref:** [.task/features/37-import-json.md](.task/features/37-import-json.md)
+
+### Changes
+- New `ImportJSONService.parseFile(at:)` decodes the `ExportPayload` and validates `version` against `ExportPayload.currentVersion`. Errors localized: `readFailed`, `invalidFormat`, `unsupportedVersion(found:max:)`.
+- New `ImportMode` enum (`.merge` / `.replace`) with localized label and description keys.
+- `ProfileStore.applyImport(_:mode:context:)`: in `.replace` mode deletes every user profile (`isReadOnly == false`) first — the read-only Default profile is preserved. Then inserts new `Profile` + `HostRecord` instances (fresh UUIDs). `uniqueImportName` suffixes colliding names with `(imported)` / `(importato)` (or numbered if also taken). No `writeHosts` is triggered (imported profiles arrive inactive).
+- New `ImportJSONSheet`: total profile/record counts, segmented Merge/Replace picker, mode description, Cancel/Import buttons. Choosing Replace pops a destructive `.alert` that quotes the number of user profiles that will be deleted.
+- `SettingsView` Advanced row "Import…" became a `Menu` exposing "From hosts file…" (existing flow) and "From JSON…" (new flow). JSON open panel restricted to `[.json]`.
+- 17 new localized keys covering the JSON import flow (sheet, modes, replace confirmation, errors, suffix), localized into EN and IT.
+
+### Files modified
+- `HostFlow/Helpers/ImportJSONService.swift` — new service, error/result types, `ImportMode`.
+- `HostFlow/Stores/ProfileStore.swift` — `userProfileCount(context:)`, `applyImport(_:mode:context:)`, `uniqueImportName(_:taken:)`.
+- `HostFlow/Views/Settings/ImportJSONSheet.swift` — new preview sheet with mode picker and replace confirmation.
+- `HostFlow/Views/Settings/SettingsView.swift` — Import row replaced by a `Menu`, JSON open panel, error alert, sheet wiring.
+- `HostFlow/Resources/Localizable.xcstrings` — added 17 keys.
+
+### Verification
+- `xcodegen generate` (new source files in `Helpers/` and `Views/Settings/`).
+- `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug -destination 'platform=macOS' build` → **BUILD SUCCEEDED**.
+- Manual UI smoke test (export → merge import → replace import with confirmation, plus invalid-JSON and bumped-version error paths) not executed from CLI — visual verification recommended.
+
 ## [2026-05-15] — Import /etc/hosts file as new profile
 
 **Type:** feature

@@ -91,6 +91,57 @@ final class ProfileStore {
         scheduleWrite(context: context)
     }
 
+    func userProfileCount(context: ModelContext) -> Int {
+        let descriptor = FetchDescriptor<Profile>(predicate: #Predicate { $0.isReadOnly == false })
+        return (try? context.fetchCount(descriptor)) ?? 0
+    }
+
+    func applyImport(_ payload: ExportPayload, mode: ImportMode, context: ModelContext) {
+        if mode == .replace {
+            let descriptor = FetchDescriptor<Profile>(predicate: #Predicate { $0.isReadOnly == false })
+            for profile in (try? context.fetch(descriptor)) ?? [] {
+                context.delete(profile)
+            }
+        }
+
+        let existing = (try? context.fetch(FetchDescriptor<Profile>())) ?? []
+        var taken = Set(existing.map { $0.name.lowercased() })
+        let baseOrder = (existing.map(\.order).max() ?? -1) + 1
+
+        for (idx, source) in payload.profiles.enumerated() {
+            let finalName = uniqueImportName(source.name, taken: &taken)
+            let profile = Profile(name: finalName, order: baseOrder + idx, isReadOnly: false)
+            context.insert(profile)
+            for record in source.records {
+                let imported = HostRecord(ip: record.ip, hostname: record.hostname, profile: profile)
+                imported.isEnabled = record.isEnabled
+                context.insert(imported)
+            }
+        }
+        try? context.save()
+    }
+
+    private func uniqueImportName(_ name: String, taken: inout Set<String>) -> String {
+        if !taken.contains(name.lowercased()) {
+            taken.insert(name.lowercased())
+            return name
+        }
+        let candidate = String(format: String(localized: "profile.import.suffix"), name)
+        if !taken.contains(candidate.lowercased()) {
+            taken.insert(candidate.lowercased())
+            return candidate
+        }
+        var i = 2
+        while true {
+            let next = String(format: String(localized: "profile.import.suffix_numbered"), name, i)
+            if !taken.contains(next.lowercased()) {
+                taken.insert(next.lowercased())
+                return next
+            }
+            i += 1
+        }
+    }
+
     func seedIfNeeded(context: ModelContext) {
         let count = (try? context.fetchCount(FetchDescriptor<Profile>())) ?? 0
         guard count == 0 else { return }

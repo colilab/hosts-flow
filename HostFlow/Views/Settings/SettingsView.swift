@@ -17,6 +17,8 @@ struct SettingsView: View {
     @State private var exportError: String?
     @State private var importResult: ImportResult?
     @State private var importError: String?
+    @State private var importJSONResult: ImportJSONResult?
+    @State private var importJSONError: String?
 
     var body: some View {
         @Bindable var settings = settings
@@ -52,8 +54,14 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Button("settings.advanced.import.button") { startImport() }
-                        .buttonStyle(.bordered)
+                    Menu {
+                        Button("settings.advanced.import.hosts") { startImport() }
+                        Button("settings.advanced.import.json") { startImportJSON() }
+                    } label: {
+                        Text("settings.advanced.import.button")
+                    }
+                    .menuStyle(.borderlessButton)
+                    .fixedSize()
                 }
 
                 HStack {
@@ -174,6 +182,27 @@ struct SettingsView: View {
                 createProfile(name: finalName, records: result.records)
             }
         }
+        .alert(
+            "settings.advanced.import.error.title",
+            isPresented: Binding(
+                get: { importJSONError != nil },
+                set: { if !$0 { importJSONError = nil } }
+            ),
+            presenting: importJSONError
+        ) { _ in
+            Button("common.button.ok", role: .cancel) {}
+        } message: { message in
+            Text(message)
+        }
+        .sheet(item: $importJSONResult) { result in
+            ImportJSONSheet(
+                result: result,
+                userProfileCount: store.userProfileCount(context: modelContext)
+            ) { mode in
+                store.applyImport(result.payload, mode: mode, context: modelContext)
+                showHUD("settings.advanced.import.done")
+            }
+        }
         .overlay(alignment: .top) {
             if let hudMessage {
                 Label(hudMessage, systemImage: "checkmark.circle.fill")
@@ -225,6 +254,22 @@ struct SettingsView: View {
                 importResult = try ImportService.parseFile(at: url)
             } catch {
                 importError = error.localizedDescription
+            }
+        }
+    }
+
+    private func startImportJSON() {
+        let panel = NSOpenPanel()
+        panel.title = String(localized: "settings.advanced.import.json.panel.title")
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            do {
+                importJSONResult = try ImportJSONService.parseFile(at: url)
+            } catch {
+                importJSONError = error.localizedDescription
             }
         }
     }

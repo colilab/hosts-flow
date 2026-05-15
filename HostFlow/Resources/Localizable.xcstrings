@@ -327,6 +327,40 @@
         }
       }
     },
+    "error.import.json.invalid" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid JSON file."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File JSON non valido."
+          }
+        }
+      }
+    },
+    "error.import.json.unsupported_version" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unsupported version: %1$d (max supported: %2$d)."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versione non supportata: %1$d (massima supportata: %2$d)."
+          }
+        }
+      }
+    },
     "error.import.no_valid_records" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -696,6 +730,173 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "IP"
+          }
+        }
+      }
+    },
+    "import.json.count" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$d profiles, %2$d records"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$d profili, %2$d record"
+          }
+        }
+      }
+    },
+    "import.json.mode.label" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mode"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modalità"
+          }
+        }
+      }
+    },
+    "import.json.mode.merge" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merge"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unisci"
+          }
+        }
+      }
+    },
+    "import.json.mode.merge.description" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Append imported profiles to the existing ones. Duplicate names get a suffix."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi i profili importati a quelli esistenti. I nomi duplicati ricevono un suffisso."
+          }
+        }
+      }
+    },
+    "import.json.mode.replace" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituisci"
+          }
+        }
+      }
+    },
+    "import.json.mode.replace.description" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete all user profiles and replace them with the imported ones."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina tutti i profili utente e sostituiscili con quelli importati."
+          }
+        }
+      }
+    },
+    "import.json.replace.confirm.button" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete and import"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina e importa"
+          }
+        }
+      }
+    },
+    "import.json.replace.confirm.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d existing profiles will be deleted. This action cannot be undone."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verranno eliminati %d profili esistenti. L'azione non può essere annullata."
+          }
+        }
+      }
+    },
+    "import.json.replace.confirm.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace all user profiles?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituire tutti i profili utente?"
+          }
+        }
+      }
+    },
+    "import.json.sheet.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import profiles from JSON"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa profili da JSON"
           }
         }
       }
@@ -1280,6 +1481,40 @@
         }
       }
     },
+    "profile.import.suffix" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (imported)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (importato)"
+          }
+        }
+      }
+    },
+    "profile.import.suffix_numbered" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (imported %2$d)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (importato %2$d)"
+          }
+        }
+      }
+    },
     "profile.seed.default.name" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1497,7 +1732,6 @@
       }
     },
     "settings.advanced.import.button" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1559,6 +1793,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Importazione non riuscita"
+          }
+        }
+      }
+    },
+    "settings.advanced.import.hosts" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From hosts file…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da file hosts…"
+          }
+        }
+      }
+    },
+    "settings.advanced.import.json" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From JSON…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da JSON…"
+          }
+        }
+      }
+    },
+    "settings.advanced.import.json.panel.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import JSON"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa JSON"
           }
         }
       }
