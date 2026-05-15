@@ -1,33 +1,31 @@
 #!/bin/sh
-# Bumps the project version (MARKETING_VERSION in project.yml) and optionally
-# commits/tags/pushes. Mirrors the pnpm-version flow used in JS projects,
-# adapted to a Swift/macOS project where the version lives in project.yml.
+# Bumps the project version (MARKETING_VERSION in project.yml), commits and
+# pushes. Releases on main (rel/fix) are always tagged. Mirrors the
+# pnpm-version flow used in JS projects, adapted to a Swift/macOS project
+# where the version lives in project.yml.
 #
 # Usage:
-#   Scripts/release.sh -v [none|patch|minor|major] -r [pre|rc|fix|rel] -t
+#   Scripts/release.sh -v [none|patch|minor|major] -r [pre|rc|fix|rel]
 #
 #     -v  version type, default: none
 #     -r  release type, default: rel
-#     -t  commit and tag (release/hotfix only), default: false
 #
 # Branch rules:
-#   main    → only rel or fix
-#   develop → only pre
-#   quality → only rc
+#   main    → only rel or fix     (tagged + pushed)
+#   develop → only pre            (not tagged)
+#   quality → only rc             (not tagged)
 
 set -e
 
 versionType=""
 releaseType=""
-tag=""
 
-while getopts ":v:r:t" arg; do
+while getopts ":v:r:" arg; do
   case $arg in
   v) versionType=$OPTARG ;;
   r) releaseType=$OPTARG ;;
-  t) tag=1 ;;
   *)
-    printf "\n%s -v [none|patch|minor|major] -r [pre|rc|fix|rel] -t\n\n" "$0"
+    printf "\n%s -v [none|patch|minor|major] -r [pre|rc|fix|rel]\n\n" "$0"
     exit 0
     ;;
   esac
@@ -125,8 +123,8 @@ if [ "$versionType" = "none" ] && [ -n "$releaseType" ]; then
   new=$(bump "$current" "none" "$releaseType" "$preid")
 fi
 
-if [ "$new" = "$current" ] && [ -z "$tag" ]; then
-  echo "Nothing to do (versionType=none, releaseType=rel). Use -v, -r or -t."
+if [ "$new" = "$current" ]; then
+  echo "Nothing to do (versionType=none, releaseType=rel). Use -v or -r."
   exit 0
 fi
 
@@ -136,37 +134,22 @@ sed -i '' -E "s/(MARKETING_VERSION:[[:space:]]*\")[^\"]+(\")/\\1${new}\\2/" "$PR
 
 ( cd "$ROOT/HostFlow" && xcodegen generate >/dev/null )
 
-stage() {
-  git -C "$ROOT" add "$PROJECT_YML" "$PBXPROJ"
-}
+git -C "$ROOT" add "$PROJECT_YML" "$PBXPROJ"
 
-if [ "$versionType" != "none" ] && [ -z "$releaseType" ] && [ -z "$tag" ]; then
-  stage
-  git -C "$ROOT" commit -m "chore(version): 💯 bump version to $new"
-fi
+case "$releaseType" in
+  "")
+    git -C "$ROOT" commit -m "chore(release): 💯 release $new"
+    git -C "$ROOT" tag -a "$new" -m "🏷️ Release $new"
+    ;;
+  fix)
+    git -C "$ROOT" commit -m "chore(version): 🔥🔧 hotfix version $new"
+    ;;
+  pre)
+    git -C "$ROOT" commit -m "chore(version): 🆙 prerelease version $new"
+    ;;
+  rc)
+    git -C "$ROOT" commit -m "chore(version): 🔜 release candidate version $new"
+    ;;
+esac
 
-if [ "$releaseType" = "pre" ] && [ -z "$tag" ]; then
-  stage
-  git -C "$ROOT" commit -m "chore(version): 🆙 prerelease version $new"
-fi
-
-if [ "$releaseType" = "rc" ] && [ -z "$tag" ]; then
-  stage
-  git -C "$ROOT" commit -m "chore(version): 🔜 release candidate version $new"
-fi
-
-if [ "$releaseType" = "fix" ] && [ -z "$tag" ]; then
-  stage
-  git -C "$ROOT" commit -m "chore(version): 🔥🔧 hotfix version $new"
-fi
-
-# Tag release / hotfix only — prereleases and rc are not tagged
-if [ "$releaseType" != "pre" ] && [ "$releaseType" != "rc" ] && [ -n "$tag" ]; then
-  stage
-  git -C "$ROOT" commit -m "chore(release): 📦 release $new"
-  git -C "$ROOT" tag -a "$new" -m "🏷️ Release $new"
-fi
-
-if [ -n "$tag" ] || [ "$versionType" != "none" ] || [ "$releaseType" = "pre" ] || [ "$releaseType" = "rc" ] || [ "$releaseType" = "fix" ]; then
-  git -C "$ROOT" push --follow-tags
-fi
+git -C "$ROOT" push --follow-tags
