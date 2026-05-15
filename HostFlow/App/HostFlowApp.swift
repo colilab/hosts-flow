@@ -40,7 +40,7 @@ struct HostFlowApp: App {
                 .modelContainer(container)
                 .environment(profileStore)
         }
-        .menuBarExtraStyle(.window)
+        .menuBarExtraStyle(.menu)
 
         Settings {
             SettingsView()

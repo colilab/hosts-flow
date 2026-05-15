@@ -33,144 +33,69 @@ struct MenuBarLabel: View {
 struct MenuBarView: View {
 
     @Query(sort: \Profile.order) private var profiles: [Profile]
-    @Environment(\.modelContext) private var context
     @Environment(\.openWindow) private var openWindow
-    @Environment(ProfileStore.self) private var store
-    @Environment(AppSettings.self) private var appSettings
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            if profiles.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "tray")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
-                    Text("Nessun profilo. Crea il primo dalla finestra principale.")
-                        .foregroundStyle(.secondary)
-                        .font(.callout)
-                        .multilineTextAlignment(.center)
+        ForEach(profiles) { profile in
+            if profile.isReadOnly {
+                Button {
+                } label: {
+                    Label(profile.name, systemImage: "lock.fill")
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 16)
+                .disabled(true)
             } else {
-                Text("Profili")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 10)
-                    .padding(.bottom, 4)
-
-                ForEach(profiles) { profile in
-                    MenuBarProfileRow(profile: profile)
-                }
+                MenuBarProfileMenu(profile: profile)
             }
-
-            Divider()
-                .padding(.vertical, 4)
-
-            Button {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "main")
-            } label: {
-                Label("Apri Host Flow", systemImage: "macwindow")
-            }
-            .buttonStyle(MenuItemButtonStyle())
-
-            SettingsLink {
-                Label("Impostazioni...", systemImage: "gearshape")
-            }
-            .buttonStyle(MenuItemButtonStyle())
-
-            Divider()
-                .padding(.vertical, 4)
-
-            Button {
-                NSApp.terminate(nil)
-            } label: {
-                Label("Esci", systemImage: "power")
-            }
-            .buttonStyle(MenuItemButtonStyle())
-            .keyboardShortcut("q", modifiers: .command)
-            .padding(.bottom, 8)
         }
-        .frame(width: 280)
+
+        if !profiles.isEmpty {
+            Divider()
+        }
+
+        Button {
+            NSApp.activate(ignoringOtherApps: true)
+            openWindow(id: "main")
+        } label: {
+            Text("Apri Host Flow")
+        }
+
+        SettingsLink {
+            Text("Impostazioni…")
+        }
+
+        Divider()
+
+        Button {
+            NSApp.terminate(nil)
+        } label: {
+            Text("Esci")
+        }
+        .keyboardShortcut("q", modifiers: .command)
     }
 }
 
-private struct MenuItemButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        MenuItemButtonBody(configuration: configuration)
-    }
-}
-
-private struct MenuItemButtonBody: View {
-    let configuration: ButtonStyle.Configuration
-    @State private var isHovered = false
-
-    var body: some View {
-        configuration.label
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 7)
-            .padding(.vertical, 4)
-            .foregroundStyle(isHighlighted ? Color.white : Color.primary)
-            .background {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(isHighlighted ? Color.accentColor : .clear)
-            }
-            .contentShape(Rectangle())
-            .padding(.horizontal, 5)
-            .onHover { isHovered = $0 }
-    }
-
-    private var isHighlighted: Bool {
-        isHovered || configuration.isPressed
-    }
-}
-
-private struct MenuBarProfileRow: View {
+private struct MenuBarProfileMenu: View {
 
     @Bindable var profile: Profile
     @Environment(\.modelContext) private var context
     @Environment(ProfileStore.self) private var store
 
     var body: some View {
-        HStack(spacing: 6) {
-            Text(profile.name)
-                .font(.callout)
-                .lineLimit(1)
-                .truncationMode(.tail)
-
-            if profile.isReadOnly {
-                Image(systemName: "lock.fill")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer(minLength: 0)
-
-            Toggle(isOn: $profile.isActive) {
-                EmptyView()
-            }
-            .toggleStyle(.switch)
-            .controlSize(.mini)
-            .labelsHidden()
-            .disabled(profile.isReadOnly)
-            .onHover { hovering in
-                guard !profile.isReadOnly else { return }
-                if hovering {
-                    NSCursor.pointingHand.push()
-                } else {
-                    NSCursor.pop()
+        Menu {
+            Toggle("Attivo", isOn: Binding(
+                get: { profile.isActive },
+                set: { newValue in
+                    profile.isActive = newValue
+                    try? context.save()
+                    store.scheduleWrite(context: context)
                 }
-            }
-            .onChange(of: profile.isActive) {
-                try? context.save()
-                store.scheduleWrite(context: context)
+            ))
+        } label: {
+            if profile.isActive {
+                Label(profile.name, systemImage: "checkmark")
+            } else {
+                Text(profile.name)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 5)
     }
 }

@@ -1,5 +1,30 @@
 # Changelog
 
+## [2026-05-15] — MenuBarExtra migrato a menu nativo macOS
+
+**Type:** refactor
+
+### Context
+Il `MenuBarExtra` usava `.menuBarExtraStyle(.window)` con un popover SwiftUI custom (`MenuItemButtonStyle`, `MenuBarProfileRow`, hover handling manuale, `Toggle .switch` su ogni riga profilo). Richiesta: passare al menu nativo macOS (`.menu`) per coerenza con HIG, gestendo il toggle del profilo — non rappresentabile come componente nativo top-level — tramite submenu che si apre in hover.
+
+### Changes
+- **HostFlowApp.swift**: `.menuBarExtraStyle(.window)` → `.menuBarExtraStyle(.menu)`.
+- **MenuBarView.swift** riscritto:
+  - Profilo non read-only → `Menu` con label che mostra `Label(name, systemImage: "checkmark")` se attivo o `Text(name)` se inattivo. Submenu contiene una sola `Toggle("Attivo", isOn: ...)` con binding custom che, oltre a mutare `profile.isActive`, esegue `context.save()` + `store.scheduleWrite(context:)`.
+  - Profilo read-only ("Default") → `Button` disabilitato con `Label(name, systemImage: "lock.fill")`, nessun submenu (l'unica azione possibile sarebbe non-funzionante).
+  - Azioni in basso: `Button "Apri Host Flow"`, `SettingsLink "Impostazioni…"`, `Divider`, `Button "Esci"` con `keyboardShortcut("q", .command)`. Divider sopra le azioni solo se la lista profili non è vuota.
+  - Stato vuoto: nessun placeholder, solo le azioni in basso.
+  - Rimossi: `MenuItemButtonStyle`, `MenuItemButtonBody`, `MenuBarProfileRow`, il `VStack` root con `.frame(width: 280)`, e l'`@Environment(AppSettings.self)` non più necessario.
+- `MenuBarLabel` invariato (icona + colore in base a `lastWriteError` / `activeProfiles`).
+
+### Files modified
+- `HostFlow/App/HostFlowApp.swift`
+- `HostFlow/Views/MenuBar/MenuBarView.swift`
+
+### Verification
+- `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug build` → **BUILD SUCCEEDED**.
+- Validazione runtime UX (apertura menu, submenu in hover, checkmark, toggle write trigger, lock.fill su Default, azioni bottom) da effettuare manualmente lanciando l'app.
+
 ## [2026-05-14] — Dark mode visual audit
 
 **Type:** chore

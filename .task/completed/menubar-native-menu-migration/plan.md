@@ -27,23 +27,23 @@ Sostituire il `MenuBarExtra` attualmente in stile `.window` (popover SwiftUI cus
 ## Steps
 
 ### 1. Cambio stile MenuBarExtra
-1. [ ] In [HostFlow/App/HostFlowApp.swift](HostFlow/App/HostFlowApp.swift), cambiare `.menuBarExtraStyle(.window)` → `.menuBarExtraStyle(.menu)`
+1. [x] In [HostFlow/App/HostFlowApp.swift](HostFlow/App/HostFlowApp.swift), cambiare `.menuBarExtraStyle(.window)` → `.menuBarExtraStyle(.menu)`
 
 ### 2. Riscrittura MenuBarView
-2. [ ] In [HostFlow/Views/MenuBar/MenuBarView.swift](HostFlow/Views/MenuBar/MenuBarView.swift) sostituire il body di `MenuBarView` con una struttura compatibile con il menu nativo:
+2. [x] In [HostFlow/Views/MenuBar/MenuBarView.swift](HostFlow/Views/MenuBar/MenuBarView.swift) sostituire il body di `MenuBarView` con una struttura compatibile con il menu nativo:
    - `ForEach(profiles)` che produce, per ogni profilo:
      - se `profile.isReadOnly` → `Button` disabilitato con `Label(profile.name, systemImage: "lock.fill")` (nessuna azione)
      - altrimenti → `Menu` con label condizionale (checkmark+nome se attivo, solo nome se inattivo) il cui content è una singola `Toggle("Attivo", isOn: <binding>)` con `.onChange` che invoca `try? context.save()` + `store.scheduleWrite(context: context)`
    - Se la lista profili non è vuota: `Divider()` dopo il `ForEach`
    - Azioni bottom: `Button("Apri Host Flow") { NSApp.activate(ignoringOtherApps: true); openWindow(id: "main") }`, `SettingsLink { Text("Impostazioni…") }`, `Divider()`, `Button("Esci") { NSApp.terminate(nil) }.keyboardShortcut("q", modifiers: .command)`
-3. [ ] Rimuovere `MenuItemButtonStyle`, `MenuItemButtonBody`, `MenuBarProfileRow` (non più utilizzati)
-4. [ ] Rimuovere `@Environment(AppSettings.self)` da `MenuBarView` se non più usato (al momento serviva solo per il container custom)
+3. [x] Rimuovere `MenuItemButtonStyle`, `MenuItemButtonBody`, `MenuBarProfileRow` (non più utilizzati)
+4. [x] Rimuovere `@Environment(AppSettings.self)` da `MenuBarView` se non più usato (al momento serviva solo per il container custom)
 
 ### 3. Verifica binding profilo nel submenu
-5. [ ] Estrarre se necessario una piccola view privata `MenuBarProfileMenu(profile: Profile)` con `@Bindable` per il `Toggle`, in modo che `isOn: $profile.isActive` funzioni dentro al `Menu`. Il `Toggle` deve invocare context save + `scheduleWrite` su cambio
+5. [x] Estrarre se necessario una piccola view privata `MenuBarProfileMenu(profile: Profile)` con `@Bindable` per il `Toggle`, in modo che `isOn: $profile.isActive` funzioni dentro al `Menu`. Il `Toggle` deve invocare context save + `scheduleWrite` su cambio
 
 ### 4. Verifica build e UX in Xcode
-6. [ ] Build da Xcode (target macOS 13+) e validare:
+6. [x] Build da Xcode (target macOS 13+) e validare:
    - Menu nativo si apre sull'icona menubar (niente più popover-window)
    - Profili non read-only mostrano submenu al hover; click sulla voce padre non chiude il menu e non triggera azioni
    - `Toggle("Attivo")` nel submenu mostra checkmark in base allo stato e cambia stato al click
