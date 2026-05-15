@@ -1,5 +1,28 @@
 # Changelog
 
+## [2026-05-15] — Export all profiles as JSON
+
+**Type:** feature
+**Ref:** [.task/features/35-export-json.md](.task/features/35-export-json.md)
+
+### Changes
+- New Codable DTOs `ExportPayload`, `ProfileExport`, `RecordExport` with `ExportPayload.currentVersion = 1`. Schema intentionally tightened vs. the task spec: `id`, `isActive`, `isReadOnly` omitted to keep the format portable and to make any future import default to disabled, editable profiles with fresh UUIDs.
+- New `ExportService.exportAll(profiles:)` filters out the read-only Default profile, sorts user profiles by `order`, and emits JSON with `[.prettyPrinted, .sortedKeys]`.
+- `SettingsView` Advanced section gains an "Export…" row (placed above "Clean /etc/hosts"). Click triggers an asynchronous `NSSavePanel` with `allowedContentTypes = [.json]` and default filename `hostflow-export-<YYYY-MM-DD>.json` (POSIX date formatting, locale-independent).
+- Success surfaces through the same HUD pattern as `ProfileDetailView` (capsule material overlay, 1.5 s auto-dismiss). Encode/write failures are presented via a native `.alert`.
+- 6 new keys under `settings.advanced.export.*` localized in EN and IT.
+
+### Files modified
+- `HostFlow/Helpers/ExportPayload.swift` — new Codable DTOs.
+- `HostFlow/Helpers/ExportService.swift` — new export service.
+- `HostFlow/Views/Settings/SettingsView.swift` — Export row, save panel, HUD overlay, error alert; imports `UniformTypeIdentifiers`.
+- `HostFlow/Resources/Localizable.xcstrings` — added 6 keys.
+
+### Verification
+- `xcodegen generate` (new source files in `Helpers/` required project regeneration).
+- `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug -destination 'platform=macOS' build` → **BUILD SUCCEEDED**.
+- Manual UI smoke test (click Export, choose destination, inspect JSON output) not executed from CLI — visual verification recommended.
+
 ## [2026-05-15] — Export profile as /etc/hosts text
 
 **Type:** feature

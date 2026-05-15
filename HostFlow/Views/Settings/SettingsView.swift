@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import AppKit
+import UniformTypeIdentifiers
 
 private let loginItemsSettingsURL = URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension")!
 
@@ -12,6 +13,8 @@ struct SettingsView: View {
 
     @State private var hasManagedBlock = false
     @State private var showResetConfirm = false
+    @State private var hudMessage: LocalizedStringKey?
+    @State private var exportError: String?
 
     var body: some View {
         @Bindable var settings = settings
@@ -39,6 +42,18 @@ struct SettingsView: View {
             HelperSettingsSection()
 
             Section("settings.section.advanced") {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("settings.advanced.export.title")
+                        Text("settings.advanced.export.description")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button("settings.advanced.export.button") { exportAll() }
+                        .buttonStyle(.borderedProminent)
+                }
+
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("settings.advanced.reset.title")
@@ -111,6 +126,70 @@ struct SettingsView: View {
             case .requiresApproval:
                 Text("settings.launch_alert.approval.message")
             }
+        }
+        .alert(
+            "settings.advanced.export.error.title",
+            isPresented: Binding(
+                get: { exportError != nil },
+                set: { if !$0 { exportError = nil } }
+            ),
+            presenting: exportError
+        ) { _ in
+            Button("common.button.ok", role: .cancel) {}
+        } message: { message in
+            Text(message)
+        }
+        .overlay(alignment: .top) {
+            if let hudMessage {
+                Label(hudMessage, systemImage: "checkmark.circle.fill")
+                    .font(.callout)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(.regularMaterial, in: Capsule())
+                    .padding(.top, 12)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: hudMessage != nil)
+    }
+
+    private func exportAll() {
+        let descriptor = FetchDescriptor<Profile>(sortBy: [SortDescriptor(\.order)])
+        let profiles = (try? modelContext.fetch(descriptor)) ?? []
+        let data: Data
+        do {
+            data = try ExportService.exportAll(profiles: profiles)
+        } catch {
+            exportError = error.localizedDescription
+            return
+        }
+        let panel = NSSavePanel()
+        panel.title = String(localized: "settings.advanced.export.panel.title")
+        panel.allowedContentTypes = [.json]
+        panel.nameFieldStringValue = defaultExportFilename
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            do {
+                try data.write(to: url, options: .atomic)
+                showHUD("settings.advanced.export.done")
+            } catch {
+                exportError = error.localizedDescription
+            }
+        }
+    }
+
+    private var defaultExportFilename: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return "hostflow-export-\(formatter.string(from: Date())).json"
+    }
+
+    private func showHUD(_ key: LocalizedStringKey) {
+        hudMessage = key
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(1500))
+            hudMessage = nil
         }
     }
 
