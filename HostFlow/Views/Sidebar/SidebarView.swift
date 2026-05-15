@@ -25,24 +25,24 @@ struct SidebarView: View {
                 .tag(profile)
                 .moveDisabled(profile.isReadOnly)
                 .contextMenu {
-                    Button("Rinomina") {
+                    Button("common.button.rename") {
                         editingProfileID = profile.id
                     }
                     .disabled(profile.isReadOnly)
 
-                    Button("Duplica") {
+                    Button("common.button.duplicate") {
                         let copy = store.duplicate(profile, context: context)
                         selectedProfile = copy
                     }
 
-                    Button("Elimina", role: .destructive) {
+                    Button("common.button.delete", role: .destructive) {
                         profileToDelete = profile
                     }
                     .disabled(profile.isReadOnly)
 
                     Divider()
 
-                    Button(profile.isActive ? "Disattiva" : "Attiva") {
+                    Button(profile.isActive ? "common.button.deactivate" : "common.button.activate") {
                         profile.isActive.toggle()
                         store.scheduleWrite(context: context)
                     }
@@ -67,7 +67,7 @@ struct SidebarView: View {
                 Button {
                     isAddingProfile = true
                 } label: {
-                    Label("Nuovo profilo", systemImage: "plus")
+                    Label("sidebar.button.new_profile", systemImage: "plus")
                         .font(.callout)
                 }
                 .buttonStyle(.plain)
@@ -75,7 +75,7 @@ struct SidebarView: View {
                 if store.isWritingHosts {
                     ProgressView()
                         .controlSize(.small)
-                        .help("Scrittura /etc/hosts in corso…")
+                        .help("sidebar.write_in_progress.help")
                 }
 
                 Spacer()
@@ -97,19 +97,19 @@ struct SidebarView: View {
             }
         }
         .confirmationDialog(
-            profileToDelete.map { "Eliminare profilo \"\($0.name)\"?" } ?? "",
+            profileToDelete.map { String(format: String(localized: "sidebar.delete.title"), $0.name) } ?? "",
             isPresented: Binding(
                 get: { profileToDelete != nil },
                 set: { if !$0 { profileToDelete = nil } }
             ),
             presenting: profileToDelete
         ) { profile in
-            Button("Elimina", role: .destructive) {
+            Button("common.button.delete", role: .destructive) {
                 deleteProfile(profile)
             }
-            Button("Annulla", role: .cancel) { }
+            Button("common.button.cancel", role: .cancel) { }
         } message: { _ in
-            Text("L'azione non può essere annullata. Tutti i record associati verranno rimossi.")
+            Text("sidebar.delete.message")
         }
     }
 
@@ -181,7 +181,7 @@ private struct ProfileRowView: View {
             RoundedRectangle(cornerRadius: 4)
                 .fill(Color.accentColor.opacity(isDropTargeted ? 0.2 : 0))
         )
-        .help(profile.isReadOnly ? "Profilo di sistema — duplica per modificare" : "")
+        .help(profile.isReadOnly ? String(localized: "sidebar.profile.readonly.help") : "")
         .onChange(of: isEditing) { _, editing in
             if editing {
                 draftName = profile.name
@@ -235,4 +235,3 @@ private struct ProfileRowView: View {
         onEndEdit()
     }
 }
-

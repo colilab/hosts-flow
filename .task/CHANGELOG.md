@@ -1,5 +1,43 @@
 # Changelog
 
+## [2026-05-15] — Internationalization (English + Italian)
+
+**Type:** feature
+
+### Changes
+- Added String Catalog `Localizable.xcstrings` with hierarchical keys (e.g. `sidebar.button.new_profile`, `profile.detail.column.ip`) for the English source and Italian translations. Plural variation included for the menu-bar tooltip.
+- Added `InfoPlist.xcstrings` localizing `CFBundleDisplayName`, `CFBundleName`, `NSHumanReadableCopyright`.
+- Set development language to `en` in `project.yml` and `Info.plist`; declared `CFBundleLocalizations = [en, it]`.
+- Replaced every hardcoded user-facing string in views, alerts, confirmation dialogs, table columns, menus, toggles, content-unavailable views, helper onboarding and validation errors with `LocalizedStringKey` or `String(localized:)` lookups.
+- `AppearanceMode.label: String` became `labelKey: LocalizedStringKey`.
+- Added `PreferredLanguage` enum (`system | en | it`) on `AppSettings`, persisted via `UserDefaults`, with a `resolvedLocale` computed property.
+- `HostFlowApp` injects `.environment(\.locale, appSettings.resolvedLocale)` into the main window, menu-bar scene and Settings scene — runtime language switching without restart.
+- New language picker in `SettingsView` (`settings.section.general` → `settings.language.picker`).
+- Seed `Default` profile name and duplicate suffixes (`(copy)` / `(copia)`) localized at creation time via `String(localized:)`/`String(format:)`.
+- Helper-side `HelperError.errorDescription` left as hardcoded English: the helper daemon does not ship resources, and the message is serialized over XPC.
+
+### Files modified
+- `HostFlow/project.yml` — `developmentLanguage: en`, registered the two `.xcstrings` files in the target sources.
+- `HostFlow/Resources/Info.plist` — added `CFBundleDevelopmentRegion` and `CFBundleLocalizations`.
+- `HostFlow/Resources/Localizable.xcstrings` — new.
+- `HostFlow/Resources/InfoPlist.xcstrings` — new.
+- `HostFlow/App/HostFlowApp.swift` — locale environment override on all scenes.
+- `HostFlow/App/ContentView.swift` — localized alert and empty state.
+- `HostFlow/Stores/AppSettings.swift` — `PreferredLanguage`, `labelKey`, `resolvedLocale`.
+- `HostFlow/Stores/ProfileStore.swift` — localized seed name and duplicate suffix.
+- `HostFlow/Views/Sidebar/SidebarView.swift`, `AddProfileSheet.swift`.
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift`, `AddRecordSheet.swift`, `EditRecordSheet.swift`.
+- `HostFlow/Views/MenuBar/MenuBarView.swift` — localized tooltip with plural variation.
+- `HostFlow/Views/Settings/SettingsView.swift` — language picker, localized alerts and labels.
+- `HostFlow/Views/Settings/HelperSettingsSection.swift`.
+- `HostFlow/Views/Onboarding/HelperOnboardingSheet.swift`.
+- `HostFlow/Helpers/HostValidator.swift` — `ValidationError.errorDescription` uses localized lookups.
+- `HostFlow/Helpers/HelperInstaller.swift` — localized installer error messages and authorization prompts.
+
+### Verification
+- `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug -destination 'platform=macOS' build` → **BUILD SUCCEEDED**.
+- Produced `en.lproj` and `it.lproj` inside the built `.app`, each containing `Localizable.strings`, `Localizable.stringsdict` and `InfoPlist.strings`.
+
 ## [2026-05-15] — Style conventions cleanup
 
 **Type:** chore

@@ -6,11 +6,11 @@ import SwiftUI
 enum AppearanceMode: String, CaseIterable, Identifiable {
     case system, light, dark
     var id: String { rawValue }
-    var label: String {
+    var labelKey: LocalizedStringKey {
         switch self {
-        case .system: "System"
-        case .light:  "Light"
-        case .dark:   "Dark"
+        case .system: "settings.appearance.system"
+        case .light:  "settings.appearance.light"
+        case .dark:   "settings.appearance.dark"
         }
     }
 
@@ -19,6 +19,26 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
         case .system: nil
         case .light:  .light
         case .dark:   .dark
+        }
+    }
+}
+
+enum PreferredLanguage: String, CaseIterable, Identifiable {
+    case system, en, it
+    var id: String { rawValue }
+    var labelKey: LocalizedStringKey {
+        switch self {
+        case .system: "settings.language.system"
+        case .en:     "settings.language.en"
+        case .it:     "settings.language.it"
+        }
+    }
+
+    var locale: Locale? {
+        switch self {
+        case .system: nil
+        case .en:     Locale(identifier: "en")
+        case .it:     Locale(identifier: "it")
         }
     }
 }
@@ -44,6 +64,12 @@ final class AppSettings {
 
     var preferredColorScheme: ColorScheme? { appearanceMode.colorScheme }
 
+    var preferredLanguage: PreferredLanguage = .system {
+        didSet { UserDefaults.standard.set(preferredLanguage.rawValue, forKey: "preferredLanguage") }
+    }
+
+    var resolvedLocale: Locale { preferredLanguage.locale ?? Locale.current }
+
     var launchAtLogin: Bool = false {
         didSet {
             guard !isSyncingLaunchAtLogin else { return }
@@ -63,6 +89,10 @@ final class AppSettings {
         if let raw = UserDefaults.standard.string(forKey: "appearanceMode"),
            let mode = AppearanceMode(rawValue: raw) {
             appearanceMode = mode
+        }
+        if let raw = UserDefaults.standard.string(forKey: "preferredLanguage"),
+           let lang = PreferredLanguage(rawValue: raw) {
+            preferredLanguage = lang
         }
         syncLaunchAtLoginFromSystem()
     }

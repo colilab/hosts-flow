@@ -22,11 +22,12 @@ struct MenuBarLabel: View {
 
     private var tooltip: String {
         if store.lastWriteError != nil {
-            return "Host Flow — Errore scrittura /etc/hosts"
+            return String(localized: "menubar.tooltip.error")
         }
-        let count = activeProfiles.count
-        let suffix = count == 1 ? "profilo attivo" : "profili attivi"
-        return "Host Flow — \(count) \(suffix)"
+        return String.localizedStringWithFormat(
+            NSLocalizedString("menubar.tooltip.active", comment: ""),
+            activeProfiles.count
+        )
     }
 }
 
@@ -56,11 +57,11 @@ struct MenuBarView: View {
             NSApp.activate(ignoringOtherApps: true)
             openWindow(id: "main")
         } label: {
-            Text("Apri Host Flow")
+            Text("menubar.item.open")
         }
 
         SettingsLink {
-            Text("Impostazioni…")
+            Text("menubar.item.settings")
         }
 
         Divider()
@@ -68,7 +69,7 @@ struct MenuBarView: View {
         Button {
             NSApp.terminate(nil)
         } label: {
-            Text("Esci")
+            Text("menubar.item.quit")
         }
         .keyboardShortcut("q", modifiers: .command)
     }
@@ -82,7 +83,7 @@ private struct MenuBarProfileMenu: View {
 
     var body: some View {
         Menu {
-            Toggle("Attivo", isOn: Binding(
+            Toggle("menubar.toggle.active", isOn: Binding(
                 get: { profile.isActive },
                 set: { newValue in
                     profile.isActive = newValue

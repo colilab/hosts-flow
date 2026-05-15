@@ -8,20 +8,20 @@ struct HelperSettingsSection: View {
     @State private var showUninstallConfirm = false
 
     var body: some View {
-        Section("Componente di sistema") {
-            LabeledContent("Stato") {
+        Section("settings.section.helper") {
+            LabeledContent("helper.status.label") {
                 statusLabel
             }
 
             HStack {
                 switch settings.helperStatus {
                 case .installed:
-                    Button("Disinstalla…", role: .destructive) {
+                    Button("common.button.uninstall", role: .destructive) {
                         showUninstallConfirm = true
                     }
                     .disabled(isWorking)
                 case .notInstalled, .error:
-                    Button("Installa…") {
+                    Button("common.button.install") {
                         runInstall()
                     }
                     .disabled(isWorking)
@@ -37,14 +37,14 @@ struct HelperSettingsSection: View {
         }
         .task { settings.helperInstaller.refreshStatus() }
         .confirmationDialog(
-            "Disinstallare il componente di sistema?",
+            "helper.uninstall.confirm.title",
             isPresented: $showUninstallConfirm,
             titleVisibility: .visible
         ) {
-            Button("Disinstalla", role: .destructive) { runUninstall() }
-            Button("Annulla", role: .cancel) {}
+            Button("common.button.uninstall", role: .destructive) { runUninstall() }
+            Button("common.button.cancel", role: .cancel) {}
         } message: {
-            Text("Verrà richiesta la password di amministratore. Senza l'helper, Host Flow non potrà più aggiornare /etc/hosts.")
+            Text("helper.uninstall.confirm.message")
         }
     }
 
@@ -52,11 +52,11 @@ struct HelperSettingsSection: View {
     private var statusLabel: some View {
         switch settings.helperStatus {
         case .installed:
-            Text("Installato").foregroundStyle(.secondary)
+            Text("helper.status.installed").foregroundStyle(.secondary)
         case .notInstalled:
-            Text("Non installato").foregroundStyle(.red)
+            Text("helper.status.not_installed").foregroundStyle(.red)
         case .error:
-            Text("Errore").foregroundStyle(.red)
+            Text("helper.status.error").foregroundStyle(.red)
         }
     }
 

@@ -47,9 +47,9 @@ struct ProfileDetailView: View {
 
             if profile.records.isEmpty {
                 ContentUnavailableView(
-                    "Nessun record",
+                    "profile.detail.empty.title",
                     systemImage: "server.rack",
-                    description: Text("Aggiungi un record host per questo profilo.")
+                    description: Text("profile.detail.empty.description")
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if !searchText.isEmpty && filteredRecords.isEmpty {
@@ -60,7 +60,7 @@ struct ProfileDetailView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .searchable(text: $searchText, prompt: "Cerca IP o hostname")
+        .searchable(text: $searchText, prompt: Text("profile.detail.search.prompt"))
         .sheet(isPresented: $isAddingRecord) {
             AddRecordSheet(profile: profile)
         }
@@ -69,7 +69,7 @@ struct ProfileDetailView: View {
     private var toolbar: some View {
         HStack {
             Toggle(isOn: $profile.isActive) {
-                Text("Profilo attivo")
+                Text("profile.detail.toggle.active")
                     .font(.callout)
             }
             .toggleStyle(.switch)
@@ -83,12 +83,12 @@ struct ProfileDetailView: View {
             Button {
                 isAddingRecord = true
             } label: {
-                Label("Aggiungi record", systemImage: "plus")
+                Label("profile.detail.button.add_record", systemImage: "plus")
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
             .disabled(profile.isReadOnly)
-            .help(profile.isReadOnly ? "Profilo di sistema — duplica per modificare" : "")
+            .help(profile.isReadOnly ? String(localized: "profile.detail.readonly.help") : "")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
@@ -114,14 +114,14 @@ struct ProfileDetailView: View {
             }
             .width(40)
 
-            TableColumn("IP") { record in
+            TableColumn("profile.detail.column.ip") { record in
                 Text(record.ip)
                     .font(.system(.body, design: .monospaced))
                     .foregroundStyle(record.isEnabled ? .primary : .secondary)
             }
             .width(min: 100, ideal: 140)
 
-            TableColumn("Hostname") { record in
+            TableColumn("profile.detail.column.hostname") { record in
                 HStack(spacing: 4) {
                     Text(record.hostname)
                         .font(.system(.body, design: .monospaced))
@@ -131,7 +131,7 @@ struct ProfileDetailView: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.caption)
                             .foregroundStyle(.orange)
-                            .help("Record duplicato — stessa coppia IP/hostname presente più volte")
+                            .help("profile.detail.duplicate.help")
                     }
                 }
             }
@@ -149,13 +149,13 @@ struct ProfileDetailView: View {
             if items.count == 1,
                let id = items.first,
                let record = profile.records.first(where: { $0.id == id }) {
-                Button("Modifica") {
+                Button("common.button.edit") {
                     editingRecord = record
                 }
                 .disabled(profile.isReadOnly)
             }
             if !items.isEmpty && !profile.isReadOnly {
-                Menu("Sposta in") {
+                Menu("profile.detail.menu.move_to") {
                     ForEach(moveTargets, id: \.id) { target in
                         Button(target.name) {
                             moveRecords(ids: items, to: target)
@@ -165,7 +165,7 @@ struct ProfileDetailView: View {
                 .disabled(moveTargets.isEmpty)
             }
             if !items.isEmpty {
-                Button("Elimina", role: .destructive) {
+                Button("common.button.delete", role: .destructive) {
                     deleteRecords(ids: items)
                 }
                 .disabled(profile.isReadOnly)

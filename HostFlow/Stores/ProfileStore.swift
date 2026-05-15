@@ -63,11 +63,11 @@ final class ProfileStore {
 
     private func uniqueDuplicateName(base: String, among existing: [String]) -> String {
         let lowered = Set(existing.map { $0.lowercased() })
-        var candidate = "\(base) (copia)"
+        var candidate = String(format: String(localized: "profile.duplicate.suffix"), base)
         if !lowered.contains(candidate.lowercased()) { return candidate }
         var i = 2
         while true {
-            candidate = "\(base) (copia \(i))"
+            candidate = String(format: String(localized: "profile.duplicate.suffix_numbered"), base, i)
             if !lowered.contains(candidate.lowercased()) { return candidate }
             i += 1
         }
@@ -95,7 +95,7 @@ final class ProfileStore {
         let count = (try? context.fetchCount(FetchDescriptor<Profile>())) ?? 0
         guard count == 0 else { return }
 
-        let profile = Profile(name: "Default", order: 0, isReadOnly: true)
+        let profile = Profile(name: String(localized: "profile.seed.default.name"), order: 0, isReadOnly: true)
         profile.isActive = true
         context.insert(profile)
 

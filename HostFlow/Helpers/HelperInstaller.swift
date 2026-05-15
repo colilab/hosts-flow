@@ -9,12 +9,13 @@ enum HelperInstallerError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .bundleResourceMissing(let path):
-            return "Helper resource not found in app bundle: \(path)"
+            return String(format: String(localized: "error.installer.bundle_missing"), path)
         case .authorizationFailed(let status):
-            return "Authorization failed (OSStatus \(status))"
+            return String(format: String(localized: "error.installer.authorization_failed"), Int(status))
         case .scriptFailed(let code, let stderr):
             let trimmed = stderr.trimmingCharacters(in: .whitespacesAndNewlines)
-            return "Privileged script failed (exit \(code))" + (trimmed.isEmpty ? "" : ": \(trimmed)")
+            let suffix = trimmed.isEmpty ? "" : ": \(trimmed)"
+            return String(format: String(localized: "error.installer.script_failed"), Int(code), suffix)
         }
     }
 }
@@ -78,7 +79,7 @@ final class HelperInstaller {
         """
 
         do {
-            try runPrivileged(script: script, prompt: "Host Flow needs administrator privileges to install the helper.")
+            try runPrivileged(script: script, prompt: String(localized: "helper.install.prompt"))
             status = .installed
         } catch {
             status = .error(error)
@@ -93,7 +94,7 @@ final class HelperInstaller {
         rm -f "\(installedPlistPath)"
         """
         do {
-            try runPrivileged(script: script, prompt: "Host Flow needs administrator privileges to remove the helper.")
+            try runPrivileged(script: script, prompt: String(localized: "helper.uninstall.prompt"))
             status = .notInstalled
         } catch {
             status = .error(error)

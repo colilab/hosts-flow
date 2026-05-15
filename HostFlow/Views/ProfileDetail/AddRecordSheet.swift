@@ -22,14 +22,14 @@ struct AddRecordSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Nuovo record")
+            Text("record.add.title")
                 .font(.headline)
 
             Form {
-                TextField("Indirizzo IP", text: $ip, prompt: Text("127.0.0.1"))
+                TextField("record.field.ip.label", text: $ip, prompt: Text("127.0.0.1"))
                     .fontDesign(.monospaced)
                     .focused($focusedField, equals: .ip)
-                TextField("Hostname", text: $hostname, prompt: Text("example.local"))
+                TextField("record.field.hostname.label", text: $hostname, prompt: Text("example.local"))
                     .fontDesign(.monospaced)
                     .focused($focusedField, equals: .hostname)
             }
@@ -43,8 +43,8 @@ struct AddRecordSheet: View {
 
             HStack {
                 Spacer()
-                Button("Annulla", role: .cancel) { dismiss() }
-                Button("Aggiungi") {
+                Button("common.button.cancel", role: .cancel) { dismiss() }
+                Button("common.button.add") {
                     let trimmedIP = ip.trimmingCharacters(in: .whitespaces)
                     let trimmedHost = hostname.trimmingCharacters(in: .whitespaces)
                     let record = HostRecord(ip: trimmedIP, hostname: trimmedHost, profile: profile)

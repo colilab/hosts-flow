@@ -23,18 +23,18 @@ struct ContentView: View {
                 }
             }
             .alert(
-                "Errore di scrittura /etc/hosts",
+                "hosts.write_alert.title",
                 isPresented: Binding(
                     get: { store.lastWriteError != nil },
                     set: { if !$0 { store.lastWriteError = nil } }
                 ),
                 presenting: store.lastWriteError
             ) { _ in
-                Button("Riprova") {
+                Button("common.button.retry") {
                     store.lastWriteError = nil
                     store.writeHosts(context: context)
                 }
-                Button("Annulla", role: .cancel) {
+                Button("common.button.cancel", role: .cancel) {
                     store.lastWriteError = nil
                 }
             } message: { message in
@@ -52,9 +52,9 @@ struct ContentView: View {
                     ProfileDetailView(profile: profile)
                 } else {
                     ContentUnavailableView(
-                        "Seleziona un profilo",
+                        "sidebar.empty.select_profile.title",
                         systemImage: "list.bullet.rectangle",
-                        description: Text("Scegli un profilo dalla sidebar o creane uno nuovo.")
+                        description: Text("sidebar.empty.select_profile.description")
                     )
                 }
             }

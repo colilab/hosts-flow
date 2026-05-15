@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		011531F94A0E8FF1C43452FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C29C2D40583440968D3491 /* ContentView.swift */; };
+		013CE30CDDD84F0FA4E661C7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7E69BEC5997E8A136852773D /* Localizable.xcstrings */; };
 		025DD7DE5AF0996A4186CDFF /* HostFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962A106CD4B2C27A4DF88FFF /* HostFlowApp.swift */; };
 		04DAB0853BE631F88B6A08CC /* AddProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9675089FCC91E088F7656CDB /* AddProfileSheet.swift */; };
 		071B6CCABAD23D7B0C5F4802 /* HostFlowHelper in Embed Dependencies */ = {isa = PBXBuildFile; fileRef = 72A6998664817F913D404C96 /* HostFlowHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -16,6 +17,7 @@
 		0EB3B62D3714187F1D928D4B /* HelperSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EE2EE0973F022A8CD736744 /* HelperSettingsSection.swift */; };
 		0F3594407CF3B410F8E0CA79 /* AuthorizedKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202C6C906DF5B00744A2A738 /* AuthorizedKeys.swift */; };
 		1D8AF3D0558E988B45A2635D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E50A5A7E8A93617BC1226 /* main.swift */; };
+		234458D191F3178EEA418E2C /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 64E215CA01FB13663F060686 /* InfoPlist.xcstrings */; };
 		2537EB46E582B496AD7B725A /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C66693F262DF5ADCA6DCF5 /* MenuBarView.swift */; };
 		290FA9AD22BD0F4F0FBA2533 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3ED2A29F9505BA26272BDE5 /* Assets.xcassets */; };
 		2B42D735F4CC5DF4F09D3E44 /* HelperListenerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF3775EAEABE058613E103A /* HelperListenerDelegate.swift */; };
@@ -83,8 +85,10 @@
 		582467A695F148839CA607DC /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		5D9182BD4A56DA00D9A72D4B /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		5FD252067315F25E616C42BE /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		64E215CA01FB13663F060686 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		72A6998664817F913D404C96 /* HostFlowHelper */ = {isa = PBXFileReference; includeInIndex = 0; path = HostFlowHelper; sourceTree = BUILT_PRODUCTS_DIR; };
 		7940BCB031EB188B3CEC1F84 /* HelperOnboardingSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperOnboardingSheet.swift; sourceTree = "<group>"; };
+		7E69BEC5997E8A136852773D /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		7EE2EE0973F022A8CD736744 /* HelperSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperSettingsSection.swift; sourceTree = "<group>"; };
 		8767DE637961AB296C4C0EF6 /* EditRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecordSheet.swift; sourceTree = "<group>"; };
 		962A106CD4B2C27A4DF88FFF /* HostFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostFlowApp.swift; sourceTree = "<group>"; };
@@ -208,6 +212,8 @@
 			children = (
 				582467A695F148839CA607DC /* AppIcon.icon */,
 				E3ED2A29F9505BA26272BDE5 /* Assets.xcassets */,
+				64E215CA01FB13663F060686 /* InfoPlist.xcstrings */,
+				7E69BEC5997E8A136852773D /* Localizable.xcstrings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -344,6 +350,8 @@
 			files = (
 				92607FE0D42B6FA11EA38F6A /* AppIcon.icon in Resources */,
 				290FA9AD22BD0F4F0FBA2533 /* Assets.xcassets in Resources */,
+				234458D191F3178EEA418E2C /* InfoPlist.xcstrings in Resources */,
+				013CE30CDDD84F0FA4E661C7 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

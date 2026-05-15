@@ -9,10 +9,10 @@ enum ValidationError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .emptyIP: "L'indirizzo IP non può essere vuoto."
-        case .invalidIP: "Indirizzo IP non valido (IPv4 o IPv6 attesi)."
-        case .emptyHostname: "L'hostname non può essere vuoto."
-        case .invalidHostname: "Hostname non valido."
+        case .emptyIP: String(localized: "error.validation.ip_empty")
+        case .invalidIP: String(localized: "error.validation.ip_invalid")
+        case .emptyHostname: String(localized: "error.validation.hostname_empty")
+        case .invalidHostname: String(localized: "error.validation.hostname_invalid")
         }
     }
 }

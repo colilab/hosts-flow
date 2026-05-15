@@ -17,7 +17,7 @@ struct AddProfileSheet: View {
         if trimmed.isEmpty { return nil }
         let normalized = existingNames.map { $0.lowercased() }
         if normalized.contains(trimmed.lowercased()) {
-            return "Esiste già un profilo con questo nome."
+            return String(localized: "profile.add.error.duplicate")
         }
         return nil
     }
@@ -28,11 +28,11 @@ struct AddProfileSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Nuovo profilo")
+            Text("profile.add.title")
                 .font(.headline)
 
             VStack(alignment: .leading, spacing: 8) {
-                TextField("Nome profilo", text: $name)
+                TextField("profile.add.field.name.placeholder", text: $name)
                     .textFieldStyle(.roundedBorder)
                     .focused($nameFocused)
                     .onSubmit { if canCreate { create() } }
@@ -46,8 +46,8 @@ struct AddProfileSheet: View {
 
             HStack {
                 Spacer()
-                Button("Annulla", role: .cancel) { dismiss() }
-                Button("Crea") { create() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
+                Button("common.button.create") { create() }
                     .buttonStyle(.borderedProminent)
                     .disabled(!canCreate)
             }

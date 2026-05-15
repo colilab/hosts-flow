@@ -5,6 +5,7 @@ options:
     macOS: "14.0"
   xcodeVersion: "15"
   createIntermediateGroups: true
+  developmentLanguage: en
 
 settings:
   base:
@@ -30,6 +31,8 @@ targets:
       - path: Shared
       - path: Resources/Assets.xcassets
       - path: Resources/AppIcon.icon
+      - path: Resources/Localizable.xcstrings
+      - path: Resources/InfoPlist.xcstrings
     postBuildScripts:
       - name: Embed helper plist
         script: |

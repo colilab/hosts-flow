@@ -13,12 +13,12 @@ struct HelperOnboardingSheet: View {
                 Image(systemName: "lock.shield")
                     .font(.largeTitle)
                     .foregroundStyle(.tint)
-                Text("Installa il componente di sistema")
+                Text("onboarding.helper.title")
                     .font(.title3)
                     .fontWeight(.semibold)
             }
 
-            Text("Host Flow ha bisogno di un piccolo componente di sistema per scrivere `/etc/hosts`. L'installazione richiede la password di amministratore una sola volta. Da quel momento, le modifiche saranno applicate automaticamente.")
+            Text("onboarding.helper.description")
                 .foregroundStyle(.secondary)
 
             if let errorMessage {
@@ -31,13 +31,13 @@ struct HelperOnboardingSheet: View {
 
             HStack {
                 Spacer()
-                Button("Annulla") {
+                Button("common.button.cancel") {
                     onDismiss(false)
                 }
                 .keyboardShortcut(.cancelAction)
                 .disabled(isInstalling)
 
-                Button("Installa…") {
+                Button("common.button.install") {
                     runInstall()
                 }
                 .keyboardShortcut(.defaultAction)

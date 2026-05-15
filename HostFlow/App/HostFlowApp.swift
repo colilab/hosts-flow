@@ -18,11 +18,12 @@ struct HostFlowApp: App {
     @State private var appSettings = AppSettings()
 
     var body: some Scene {
-        Window("Host Flow", id: "main") {
+        Window("window.main.title", id: "main") {
             ContentView()
                 .modelContainer(container)
                 .environment(profileStore)
                 .environment(appSettings)
+                .environment(\.locale, appSettings.resolvedLocale)
                 .preferredColorScheme(appSettings.preferredColorScheme)
         }
         .windowResizability(.contentMinSize)
@@ -33,11 +34,13 @@ struct HostFlowApp: App {
                 .modelContainer(container)
                 .environment(profileStore)
                 .environment(appSettings)
+                .environment(\.locale, appSettings.resolvedLocale)
                 .preferredColorScheme(appSettings.preferredColorScheme)
         } label: {
             MenuBarLabel()
                 .modelContainer(container)
                 .environment(profileStore)
+                .environment(\.locale, appSettings.resolvedLocale)
         }
         .menuBarExtraStyle(.menu)
 
@@ -46,6 +49,7 @@ struct HostFlowApp: App {
                 .modelContainer(container)
                 .environment(profileStore)
                 .environment(appSettings)
+                .environment(\.locale, appSettings.resolvedLocale)
                 .preferredColorScheme(appSettings.preferredColorScheme)
         }
     }

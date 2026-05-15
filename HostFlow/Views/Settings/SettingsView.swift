@@ -17,14 +17,20 @@ struct SettingsView: View {
         @Bindable var settings = settings
 
         Form {
-            Section("Generale") {
-                Toggle("Avvia al login", isOn: $settings.launchAtLogin)
+            Section("settings.section.general") {
+                Toggle("settings.launch_at_login", isOn: $settings.launchAtLogin)
+
+                Picker("settings.language.picker", selection: $settings.preferredLanguage) {
+                    ForEach(PreferredLanguage.allCases) { lang in
+                        Text(lang.labelKey).tag(lang)
+                    }
+                }
             }
 
-            Section("Aspetto") {
-                Picker("Tema", selection: $settings.appearanceMode) {
+            Section("settings.section.appearance") {
+                Picker("settings.appearance.picker", selection: $settings.appearanceMode) {
                     ForEach(AppearanceMode.allCases) { mode in
-                        Text(mode.label).tag(mode)
+                        Text(mode.labelKey).tag(mode)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -32,16 +38,16 @@ struct SettingsView: View {
 
             HelperSettingsSection()
 
-            Section("Avanzate") {
+            Section("settings.section.advanced") {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Pulisci /etc/hosts")
-                        Text("Rimuove il blocco gestito da Host Flow. I profili non saranno cancellati.")
+                        Text("settings.advanced.reset.title")
+                        Text("settings.advanced.reset.description")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Button("Pulisci") {
+                    Button("settings.advanced.reset.button") {
                         showResetConfirm = true
                     }
                     .buttonStyle(.borderedProminent)
@@ -51,11 +57,11 @@ struct SettingsView: View {
             }
 
             Section {
-                LabeledContent("Versione", value: Bundle.main.appVersion)
+                LabeledContent("settings.about.version", value: Bundle.main.appVersion)
             } header: {
-                Text("Info")
+                Text("settings.section.about")
             } footer: {
-                Text("© 2026 Colilab")
+                Text("settings.about.copyright")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -71,15 +77,15 @@ struct SettingsView: View {
             refreshManagedBlockState()
         }
         .alert(
-            "Pulisci /etc/hosts",
+            "settings.advanced.reset.title",
             isPresented: $showResetConfirm
         ) {
-            Button("Annulla", role: .cancel) {}
-            Button("Rimuovi", role: .destructive) {
+            Button("common.button.cancel", role: .cancel) {}
+            Button("common.button.remove", role: .destructive) {
                 store.resetManagedBlock(context: modelContext)
             }
         } message: {
-            Text("Verranno rimossi tutti i profili Host Flow e i loro record. Il blocco verrà rimosso da /etc/hosts. L'operazione è irreversibile.")
+            Text("settings.advanced.reset.alert.message")
         }
         .alert(
             alertTitle(for: settings.launchAtLoginAlert),
@@ -91,19 +97,19 @@ struct SettingsView: View {
         ) { alert in
             switch alert {
             case .registrationFailed:
-                Button("OK", role: .cancel) {}
+                Button("common.button.ok", role: .cancel) {}
             case .requiresApproval:
-                Button("Apri System Settings") {
+                Button("settings.launch_alert.open_settings") {
                     NSWorkspace.shared.open(loginItemsSettingsURL)
                 }
-                Button("Annulla", role: .cancel) {}
+                Button("common.button.cancel", role: .cancel) {}
             }
         } message: { alert in
             switch alert {
             case .registrationFailed(let message):
-                Text("Impossibile attivare avvio automatico: \(message)")
+                Text(String(format: String(localized: "settings.launch_alert.failed.message"), message))
             case .requiresApproval:
-                Text("Approvazione richiesta in System Settings → General → Login Items.")
+                Text("settings.launch_alert.approval.message")
             }
         }
     }
@@ -114,8 +120,8 @@ struct SettingsView: View {
 
     private func alertTitle(for alert: LaunchAtLoginAlert?) -> String {
         switch alert {
-        case .registrationFailed: "Errore"
-        case .requiresApproval:   "Approvazione richiesta"
+        case .registrationFailed: String(localized: "settings.launch_alert.failed.title")
+        case .requiresApproval:   String(localized: "settings.launch_alert.approval.title")
         case .none:               ""
         }
     }
