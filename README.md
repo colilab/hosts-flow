@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="HostFlow/Resources/Assets.xcassets/AppIcon.appiconset/icon_128x128%402x.png" width="128" height="128" alt="Host Flow app icon" />
+  <img src="HostFlow/Resources/AppIcon.icon/Assets/hostflow.svg" width="128" height="128" alt="Host Flow app icon" />
 </p>
 
 <h1 align="center">Host Flow</h1>
@@ -30,14 +30,14 @@
 
 ## 🛠 Tech Stack
 
-| Layer | Technology |
-| ------------------ | --------------------------------- |
-| Language | ![Swift](https://img.shields.io/badge/Swift-5.9-F54A2A?logo=swift&logoColor=white) |
-| UI | ![SwiftUI](https://img.shields.io/badge/SwiftUI-Native_macOS-blue?logo=apple&logoColor=white) |
-| Persistence | ![SwiftData](https://img.shields.io/badge/SwiftData-purple?logo=apple&logoColor=white) |
-| Architecture | MVVM with `@Observable` |
+| Layer              | Technology                                                                                          |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| Language           | ![Swift](https://img.shields.io/badge/Swift-5.9-F54A2A?logo=swift&logoColor=white)                  |
+| UI                 | ![SwiftUI](https://img.shields.io/badge/SwiftUI-Native_macOS-blue?logo=apple&logoColor=white)       |
+| Persistence        | ![SwiftData](https://img.shields.io/badge/SwiftData-purple?logo=apple&logoColor=white)              |
+| Architecture       | MVVM with `@Observable`                                                                             |
 | Project generation | ![XcodeGen](https://img.shields.io/badge/XcodeGen-project.yml-blueviolet?logo=yaml&logoColor=white) |
-| Minimum target | ![macOS](https://img.shields.io/badge/macOS-14.0%2B-000000?logo=apple&logoColor=white) |
+| Minimum target     | ![macOS](https://img.shields.io/badge/macOS-14.0%2B-000000?logo=apple&logoColor=white)              |
 
 The app writes to `/etc/hosts` using a sandboxed temporary exception entitlement. Only the block delimited by `# --- Host Flow Start ---` / `# --- Host Flow End ---` is modified; everything else in the file is left untouched.
 
