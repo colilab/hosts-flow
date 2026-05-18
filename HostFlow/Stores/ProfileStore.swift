@@ -275,6 +275,24 @@ final class ProfileStore {
         }
     }
 
+    func applyOnLaunch(context: ModelContext) {
+        HelperInstaller.shared.refreshStatus()
+        guard HelperInstaller.shared.isInstalled else { return }
+        let descriptor = FetchDescriptor<Profile>()
+        guard let profiles = try? context.fetch(descriptor) else { return }
+        isWritingHosts = true
+        lastWriteError = nil
+        Task { @MainActor [weak self] in
+            defer { self?.isWritingHosts = false }
+            do {
+                try await HostsFileManager.shared.write(profiles: profiles)
+                self?.lastWriteAt = Date()
+            } catch {
+                self?.lastWriteError = error.localizedDescription
+            }
+        }
+    }
+
     private func writeHostsImmediate(context: ModelContext) {
         HelperInstaller.shared.refreshStatus()
         if !HelperInstaller.shared.isInstalled {

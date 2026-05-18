@@ -63,6 +63,7 @@ struct ContentView: View {
         .navigationSplitViewStyle(.balanced)
         .task {
             store.seedIfNeeded(context: context)
+            store.applyOnLaunch(context: context)
             watcher.start(profileStore: store, context: context)
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in

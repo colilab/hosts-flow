@@ -1,5 +1,18 @@
 # Changelog
 
+## [2026-05-18] — Apply managed hosts block on app launch
+
+**Type:** bugfix
+
+### Changes
+- After a Mac reboot, profiles flagged as active in the database were not being applied to `/etc/hosts` until the user manually toggled something, because launch-time code only seeded data and started the file watcher without ever calling `writeHosts`.
+- New `ProfileStore.applyOnLaunch(context:)` performs the same write as `writeHostsImmediate` but returns silently when the privileged helper is not installed — no `helperMissing` flag, no onboarding sheet at launch.
+- `ContentView.task` now calls `applyOnLaunch` between `seedIfNeeded` and `watcher.start`, so the file is reconciled before the watcher attaches and cannot misinterpret the launch write as an external change.
+
+### Files modified
+- `HostFlow/Stores/ProfileStore.swift` — added `applyOnLaunch(context:)`.
+- `HostFlow/App/ContentView.swift` — invoke `applyOnLaunch` during the initial `.task`.
+
 ## [2026-05-15] — Import JSON archive with merge/replace modes
 
 **Type:** feature
