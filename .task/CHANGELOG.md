@@ -1,5 +1,21 @@
 # Changelog
 
+## [2026-05-18] — Sortable host records by Hostname and IP
+
+**Type:** feature
+**Ref:** [.task/sortable-records/plan.md](.task/sortable-records/plan.md)
+
+### Changes
+- Le colonne `Hostname` e `IP` nella tabella dei record di un profilo sono ora ordinabili cliccando sull'header (alterna asc/desc). Il sort è di sessione e non viene persistito; nessuna modifica al modello `HostRecord` né alla scrittura di `/etc/hosts`.
+- `ProfileDetailView` introduce `@State sortOrder: [KeyPathComparator<HostRecord>]` passato a `Table(of:selection:sortOrder:)`; `filteredRecords` applica il sort sopra il filtro di search quando `sortOrder` non è vuoto.
+
+### Files modified
+- `HostFlow/Views/ProfileDetail/ProfileDetailView.swift` — stato `sortOrder`, `sortUsing:` su colonne IP/Hostname, sort nel computed `filteredRecords`.
+
+### Verification
+- `xcodebuild -scheme HostFlow -destination 'platform=macOS' -configuration Debug build` → **BUILD SUCCEEDED**.
+- Smoke test UI manuale non eseguito dalla CLI — verifica visiva consigliata.
+
 ## [2026-05-18] — Apply managed hosts block on app launch
 
 **Type:** bugfix

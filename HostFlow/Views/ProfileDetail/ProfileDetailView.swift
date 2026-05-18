@@ -16,13 +16,19 @@ struct ProfileDetailView: View {
     @State private var selectedRecordIDs: Set<UUID> = []
     @State private var hudMessage: LocalizedStringKey?
     @State private var saveError: String?
+    @State private var sortOrder: [KeyPathComparator<HostRecord>] = []
 
     private var filteredRecords: [HostRecord] {
-        guard !searchText.isEmpty else { return profile.records }
-        return profile.records.filter {
-            $0.hostname.localizedCaseInsensitiveContains(searchText) ||
-            $0.ip.localizedCaseInsensitiveContains(searchText)
+        let base: [HostRecord]
+        if searchText.isEmpty {
+            base = profile.records
+        } else {
+            base = profile.records.filter {
+                $0.hostname.localizedCaseInsensitiveContains(searchText) ||
+                $0.ip.localizedCaseInsensitiveContains(searchText)
+            }
         }
+        return sortOrder.isEmpty ? base : base.sorted(using: sortOrder)
     }
 
     private struct RecordPair: Hashable {
@@ -179,7 +185,7 @@ struct ProfileDetailView: View {
     }
 
     private var recordsList: some View {
-        Table(of: HostRecord.self, selection: $selectedRecordIDs) {
+        Table(of: HostRecord.self, selection: $selectedRecordIDs, sortOrder: $sortOrder) {
             TableColumn("") { record in
                 Toggle("", isOn: Binding(
                     get: { record.isEnabled },
@@ -192,14 +198,14 @@ struct ProfileDetailView: View {
             }
             .width(40)
 
-            TableColumn("profile.detail.column.ip") { record in
+            TableColumn("profile.detail.column.ip", sortUsing: KeyPathComparator(\HostRecord.ip)) { record in
                 Text(record.ip)
                     .font(.system(.body, design: .monospaced))
                     .foregroundStyle(record.isEnabled ? .primary : .secondary)
             }
             .width(min: 100, ideal: 140)
 
-            TableColumn("profile.detail.column.hostname") { record in
+            TableColumn("profile.detail.column.hostname", sortUsing: KeyPathComparator(\HostRecord.hostname)) { record in
                 HStack(spacing: 4) {
                     Text(record.hostname)
                         .font(.system(.body, design: .monospaced))
