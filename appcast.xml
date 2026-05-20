@@ -20,5 +20,22 @@
         length="3548196"
         type="application/octet-stream" />
     </item>
+    <item>
+      <title>1.0.2</title>
+      <pubDate>Wed, 20 May 2026 15:50:06 +0000</pubDate>
+      <sparkle:version>3</sparkle:version>
+      <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h2 id="host-flow-102">Host Flow 1.0.2</h2>
+<ul>
+<li>Versione di test per verificare il flusso di aggiornamento
+Sparkle.</li>
+</ul>]]></description>
+      <enclosure
+        url="https://github.com/colilab/hosts-flow/releases/download/1.0.2/HostFlow-1.0.2.dmg"
+        sparkle:edSignature="z5e5Cs2ahOJ7exB80BgYk3trz8eKe3rMYmWEwfC4YeibrtEf5nmxfe5XeLiQPWP5yG3SWXpNp3b94zfBGWUzAA=="
+        length="3548156"
+        type="application/octet-stream" />
+    </item>
   </channel>
 </rss>
