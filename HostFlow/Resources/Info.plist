@@ -37,11 +37,8 @@
 	<string>NSApplication</string>
 	<key>SUFeedURL</key>
 	<string>https://colilab.github.io/hosts-flow/appcast.xml</string>
-	<!-- PLACEHOLDER: replace with the public key printed by Scripts/make-sparkle-keys.sh
-	     before producing any release. An invalid value here makes Sparkle reject
-	     every update (safe fail), but no real update can install until it is set. -->
 	<key>SUPublicEDKey</key>
-	<string>REPLACE_WITH_SUPublicEDKey_FROM_make-sparkle-keys</string>
+	<string>QnmcZ0e8izmkXVF2NTyw7WrnHlADrO4FZPO8WXEI6gQ=</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUScheduledCheckInterval</key>
