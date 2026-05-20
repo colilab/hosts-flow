@@ -378,9 +378,11 @@ https://colilab.github.io/hosts-flow/appcast.xml
 Bootstrap it **once** (orphan branch + GitHub Pages enablement):
 
 ```bash
+# Stash the template outside the tree — `git rm -rf .` would delete it.
+cp Scripts/appcast-template.xml /tmp/appcast.xml
 git checkout --orphan gh-pages
 git rm -rf .
-cp Scripts/appcast-template.xml appcast.xml
+cp /tmp/appcast.xml appcast.xml
 git add appcast.xml
 git commit -m "chore: bootstrap Sparkle appcast feed"
 git push -u origin gh-pages
