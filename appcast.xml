@@ -1,0 +1,8 @@
+<?xml version="1.0" standalone="yes"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Host Flow Updates</title>
+    <link>https://colilab.github.io/hosts-flow/appcast.xml</link>
+    <description>Stable update feed for Host Flow.</description>
+  </channel>
+</rss>
