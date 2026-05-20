@@ -4,5 +4,21 @@
     <title>Host Flow Updates</title>
     <link>https://colilab.github.io/hosts-flow/appcast.xml</link>
     <description>Stable update feed for Host Flow.</description>
+    <item>
+      <title>1.0.1</title>
+      <pubDate>Wed, 20 May 2026 13:49:08 +0000</pubDate>
+      <sparkle:version>2</sparkle:version>
+      <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h2 id="host-flow-101">Host Flow 1.0.1</h2>
+<ul>
+<li>Controllo aggiornamenti manuale e automatico (Sparkle).</li>
+</ul>]]></description>
+      <enclosure
+        url="https://github.com/colilab/hosts-flow/releases/download/1.0.1/HostFlow-1.0.1.dmg"
+        sparkle:edSignature="+U9SvA6+L1obW1yhGghzDC4/rMzst8bUyt5syiiCEDE/TFPf2HO7VNW+xfinBdCje/o0DMsWMtG6RzWfbnSfDg=="
+        length="3548196"
+        type="application/octet-stream" />
+    </item>
   </channel>
 </rss>
