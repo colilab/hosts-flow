@@ -28,6 +28,18 @@
 
 ---
 
+## 🔄 Updates
+
+Host Flow keeps itself up to date with [Sparkle](https://sparkle-project.org).
+
+- **Manual check** — *Settings → Info → Check for Updates…*, or the same item in the menu-bar menu, asks the update server immediately.
+- **Automatic check** — on by default, a background check runs about once a week. Toggle it off in *Settings → Info → Automatically check for updates*.
+- **You stay in control** — Host Flow never downloads or installs anything silently. When a new version is found it shows a prompt with the release notes; the update is applied only if you accept.
+- **Where updates come from** — released builds are published as signed DMGs on the project's [GitHub Releases](https://github.com/colilab/hosts-flow/releases) and verified with a dedicated EdDSA key before installation.
+- **Stable only** — only stable `MAJOR.MINOR.PATCH` releases are offered. Pre-release builds (`develop` / `quality` channels) are never proposed as updates.
+
+---
+
 ## 🛠 Tech Stack
 
 | Layer              | Technology                                                                                          |

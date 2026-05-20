@@ -957,6 +957,22 @@
         }
       }
     },
+    "menubar.item.check_updates" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check for Updates…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica aggiornamenti…"
+          }
+        }
+      }
+    },
     "menubar.item.open" : {
       "localizations" : {
         "en" : {
@@ -1598,6 +1614,38 @@
         }
       }
     },
+    "settings.about.auto_check" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically check for updates"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controlla automaticamente gli aggiornamenti"
+          }
+        }
+      }
+    },
+    "settings.about.check_updates" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check for Updates…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica aggiornamenti…"
+          }
+        }
+      }
+    },
     "settings.about.copyright" : {
       "localizations" : {
         "en" : {
@@ -1610,6 +1658,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "© 2026 Colilab"
+          }
+        }
+      }
+    },
+    "settings.about.last_checked" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last checked: %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimo controllo: %@"
           }
         }
       }

@@ -16,6 +16,7 @@ struct HostFlowApp: App {
 
     @State private var profileStore = ProfileStore()
     @State private var appSettings = AppSettings()
+    @State private var updaterStore = UpdaterStore()
 
     var body: some Scene {
         Window("window.main.title", id: "main") {
@@ -23,6 +24,7 @@ struct HostFlowApp: App {
                 .modelContainer(container)
                 .environment(profileStore)
                 .environment(appSettings)
+                .environment(updaterStore)
                 .environment(\.locale, appSettings.resolvedLocale)
                 .preferredColorScheme(appSettings.preferredColorScheme)
         }
@@ -34,6 +36,7 @@ struct HostFlowApp: App {
                 .modelContainer(container)
                 .environment(profileStore)
                 .environment(appSettings)
+                .environment(updaterStore)
                 .environment(\.locale, appSettings.resolvedLocale)
                 .preferredColorScheme(appSettings.preferredColorScheme)
         } label: {
@@ -49,6 +52,7 @@ struct HostFlowApp: App {
                 .modelContainer(container)
                 .environment(profileStore)
                 .environment(appSettings)
+                .environment(updaterStore)
                 .environment(\.locale, appSettings.resolvedLocale)
                 .preferredColorScheme(appSettings.preferredColorScheme)
         }

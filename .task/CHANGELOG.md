@@ -1,5 +1,45 @@
 # Changelog
 
+## [2026-05-20] — Manual & automatic update check (Sparkle)
+
+**Type:** feature
+**Ref:** [.task/version-download-update/plan.md](.task/version-download-update/plan.md)
+
+### Changes
+- Integrated **Sparkle 2** (SwiftPM, resolved at 2.9.2) so Host Flow can check for and install its own updates. New `packages:` entry in `project.yml` and a `Sparkle` product dependency on the `HostFlow` target.
+- New `UpdaterStore` (`@Observable`) wraps `SPUStandardUpdaterController(startingUpdater: true, …)`: exposes `checkForUpdates()`, a two-way `automaticallyChecksForUpdates` bound to Sparkle's own persisted setting, `lastUpdateCheckDate`, and a KVO-mirrored `canCheckForUpdates` used to disable the button while a check is in flight. Injected via `.environment` into the main window, the menu-bar scene and the Settings scene.
+- **Settings → Info** gains an "Automatically check for updates" toggle, a "Check for Updates…" button (disabled mid-check), and a caption showing the last check as a locale-aware relative date.
+- **Menu bar menu** gains a "Check for Updates…" item between "Settings…" and "Quit".
+- `Info.plist` Sparkle config: `SUFeedURL` → `https://colilab.github.io/hosts-flow/appcast.xml`, weekly `SUScheduledCheckInterval` (604800), `SUEnableAutomaticChecks = YES`, `SUAutomaticallyUpdate = NO` (always prompt), `SUEnableInstallerLauncherService = NO` (app is not sandboxed). `SUPublicEDKey` ships as an explicit **placeholder** — Sparkle safely rejects every update until the real key is pasted in.
+- `Scripts/make-sparkle-keys.sh` (new) generates the dedicated Sparkle EdDSA keypair — kept separate from the helper CDHash-manifest key — and exports the private key to `~/Documents/keys-vault/`.
+- `Scripts/build-release.sh` extended: requires `HOSTFLOW_SPARKLE_PRIVATE_KEY`, packages `dist/HostFlow-<version>.dmg` with `hdiutil` **after** manifest signing (no re-codesign — the daemon hash invariant holds), signs the DMG with Sparkle's `sign_update`, and emits `dist/appcast-entry.json`.
+- Release automation: `Scripts/publish.sh` (new) creates the draft GitHub Release with the DMG + entry attached; `.github/workflows/release.yml` (new) triggers on stable `MAJOR.MINOR.PATCH` tags, publishes the draft, and appends an `<item>` to the `gh-pages` `appcast.xml` via `.github/scripts/append_appcast.py` (release notes rendered with `pandoc`). `Scripts/appcast-template.xml` is the starting feed.
+- 4 localized keys added (EN/IT): `settings.about.check_updates`, `settings.about.auto_check`, `settings.about.last_checked`, `menubar.item.check_updates`. The menu-bar key uses the `menubar.item.*` prefix for consistency with the sibling keys, rather than the `menu.check_updates` name in the plan draft.
+- Docs: `docs/release.md` §3/§5 updated and a new §9 "Sparkle update channel" (two-key trust model, key setup, appcast bootstrap, per-release dev flow, the DMG-does-not-re-sign invariant, key rotation). `README.md` gains an "Updates" section.
+
+### Files modified
+- `HostFlow/project.yml` — Sparkle SwiftPM package + target dependency.
+- `HostFlow/Resources/Info.plist` — Sparkle keys (`SUPublicEDKey` placeholder).
+- `HostFlow/Stores/UpdaterStore.swift` — new `@Observable` Sparkle wrapper.
+- `HostFlow/App/HostFlowApp.swift` — `UpdaterStore` injected into all three scenes.
+- `HostFlow/Views/Settings/SettingsView.swift` — update toggle, button, last-checked caption.
+- `HostFlow/Views/MenuBar/MenuBarView.swift` — "Check for Updates…" menu item.
+- `HostFlow/Resources/Localizable.xcstrings` — 4 new keys (EN/IT).
+- `Scripts/make-sparkle-keys.sh`, `Scripts/build-release.sh`, `Scripts/publish.sh`, `Scripts/appcast-template.xml`.
+- `.github/workflows/release.yml`, `.github/scripts/append_appcast.py`.
+- `docs/release.md`, `README.md`, `.gitignore` (`dist/`).
+
+### Verification
+- `xcodegen generate` (new `UpdaterStore.swift` + Sparkle package).
+- `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug -destination 'platform=macOS' build` → **BUILD SUCCEEDED** (Sparkle 2.9.2 resolved, `Sparkle.framework` embedded in the built `.app`).
+- `append_appcast.py` exercised against `appcast-template.xml` with a fake entry: produces well-formed XML and is idempotent on re-run.
+- All shell scripts pass `bash -n`; `append_appcast.py` passes `py_compile`.
+
+### Remaining manual steps (cannot be automated from the CLI)
+- Run `Scripts/make-sparkle-keys.sh` and paste the printed public key into `Info.plist` `SUPublicEDKey`.
+- Bootstrap the orphan `gh-pages` branch and enable GitHub Pages (commands in `docs/release.md` §9.3).
+- Local end-to-end smoke test of the update flow.
+
 ## [2026-05-18] — Sortable host records by Hostname and IP
 
 **Type:** feature

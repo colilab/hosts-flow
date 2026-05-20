@@ -9,6 +9,7 @@ struct SettingsView: View {
 
     @Environment(AppSettings.self) private var settings
     @Environment(ProfileStore.self) private var store
+    @Environment(UpdaterStore.self) private var updater
     @Environment(\.modelContext) private var modelContext
 
     @State private var hasManagedBlock = false
@@ -22,6 +23,7 @@ struct SettingsView: View {
 
     var body: some View {
         @Bindable var settings = settings
+        @Bindable var updater = updater
 
         Form {
             Section("settings.section.general") {
@@ -95,6 +97,23 @@ struct SettingsView: View {
 
             Section {
                 LabeledContent("settings.about.version", value: Bundle.main.appVersion)
+
+                Toggle("settings.about.auto_check", isOn: $updater.automaticallyChecksForUpdates)
+
+                HStack {
+                    Button("settings.about.check_updates") {
+                        updater.checkForUpdates()
+                    }
+                    .disabled(!updater.canCheckForUpdates)
+
+                    Spacer()
+
+                    if let lastCheck = updater.lastUpdateCheckDate {
+                        Text(lastCheckedText(lastCheck))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             } header: {
                 Text("settings.section.about")
             } footer: {
@@ -307,6 +326,13 @@ struct SettingsView: View {
 
     private func refreshManagedBlockState() {
         hasManagedBlock = HostsFileManager.shared.hasManagedBlock()
+    }
+
+    private func lastCheckedText(_ date: Date) -> String {
+        let relative = date.formatted(
+            .relative(presentation: .named).locale(settings.resolvedLocale)
+        )
+        return String(format: String(localized: "settings.about.last_checked"), relative)
     }
 
     private func alertTitle(for alert: LaunchAtLoginAlert?) -> String {

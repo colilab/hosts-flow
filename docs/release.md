@@ -98,13 +98,15 @@ Every release is produced by the wrapper script
 
 ```bash
 export HOSTFLOW_PRIVATE_KEY=~/Documents/keys-vault/hostflow-private.pem
+export HOSTFLOW_SPARKLE_PRIVATE_KEY=~/Documents/keys-vault/hostflow-sparkle-private.key
 ./Scripts/build-release.sh
 ```
 
 The script enforces a fail-fast contract:
 
-1. Aborts if `HOSTFLOW_PRIVATE_KEY` is unset or the file is missing — an
-   unsigned manifest cannot ship by accident.
+1. Aborts if `HOSTFLOW_PRIVATE_KEY` **or** `HOSTFLOW_SPARKLE_PRIVATE_KEY` is
+   unset or its file is missing — neither an unsigned manifest nor an unsigned
+   update can ship by accident. The two keys are distinct (see §9).
 2. Runs `xcodegen generate` so `project.yml` is the single source of truth for
    the Xcode project.
 3. Runs `xcodebuild -configuration Release clean build` with
@@ -117,8 +119,15 @@ The script enforces a fail-fast contract:
    * computes `SHA-256` of `Contents/MacOS/<CFBundleExecutable>`,
    * writes `Contents/Resources/binary-hash-manifest.json`,
    * signs it with Ed25519 → `Contents/Resources/binary-hash-manifest.json.sig`.
+7. Packages the `.app` into `dist/HostFlow-<version>.dmg` with `hdiutil`
+   (`UDZO`). `hdiutil` only copies the bundle — it never re-signs it — so the
+   manifest stays valid.
+8. Signs the DMG with Sparkle's `sign_update` and writes
+   `dist/appcast-entry.json` (version, DMG filename, EdDSA signature, length,
+   minimum OS) for the release workflow to consume.
 
-On success the script prints the absolute path of the produced `.app`.
+On success the script prints the paths of the produced `.app`, the
+`dist/HostFlow-<version>.dmg`, and `dist/appcast-entry.json`.
 
 > **Critical invariant.** Do **not** run `codesign --force` (or any other
 > resign step) on the produced `.app` afterwards. Re-signing rewrites the
@@ -216,12 +225,9 @@ internet"* warning the first time. Right-click → **Open** bypasses it.
 
 ### 5.2 DMG
 
-Recommended for hand-off to other users:
-
-```bash
-hdiutil create -volname "Host Flow" -srcfolder "$APP" -ov -format UDZO \
-  ./HostFlow-<version>.dmg
-```
+`Scripts/build-release.sh` already produces `dist/HostFlow-<version>.dmg` (step 7
+of the §3 contract) — no manual `hdiutil` invocation is needed. That DMG is the
+artifact distributed both as a direct download and through the Sparkle channel.
 
 The DMG is **not** notarized; downloaders will need to either right-click →
 **Open**, or remove the quarantine attribute manually:
@@ -234,6 +240,13 @@ xattr -dr com.apple.quarantine /Applications/HostFlow.app
 > staples a ticket inside the executable's signature blob), invalidating the
 > manifest hash. If a notarized distribution is ever required, the helper
 > verification scheme has to be redesigned.
+
+### 5.3 Sparkle update channel
+
+From `1.0.x` onward Host Flow ships an in-app updater. The DMG produced above is
+also signed for Sparkle and published to an appcast feed so existing installs
+can update themselves. The full mechanism — keys, dev flow, workflow — is
+documented in **§9**.
 
 ---
 
@@ -310,3 +323,112 @@ log stream --predicate 'subsystem == "com.colilab.hostflow.helper"' --info
 - [ ] §4.5 — smoke test on a clean machine writes `/etc/hosts` successfully
 - [ ] No `codesign --force` was run on the bundle after `build-release.sh`
 - [ ] DMG (if produced) has not been notarized
+- [ ] `HOSTFLOW_SPARKLE_PRIVATE_KEY` exported and pointing at a readable file
+- [ ] `Info.plist` `SUPublicEDKey` matches the Sparkle private key in use
+- [ ] `dist/HostFlow-<version>.dmg` + `dist/appcast-entry.json` were produced
+- [ ] `Scripts/publish.sh` created the draft release before the tag was pushed
+
+---
+
+## 9. Sparkle update channel
+
+Host Flow updates itself with [Sparkle 2](https://sparkle-project.org). Users get
+a **Check for Updates…** action (Settings → Info, and the menu-bar menu) plus a
+weekly background check; new versions are downloaded and installed only after an
+explicit user prompt (`SUAutomaticallyUpdate = NO`).
+
+### 9.1 Trust model — two independent keys
+
+Host Flow now has **two** Ed25519 trust chains. Do not conflate them:
+
+| Key | Made by | Signs | Verified by |
+| --- | ------- | ----- | ----------- |
+| Helper manifest key | `Scripts/make-keys.sh` | `binary-hash-manifest.json` | the privileged daemon (`AuthorizedKeys.swift`) |
+| Sparkle update key  | `Scripts/make-sparkle-keys.sh` | the release DMG | the installed app (`SUPublicEDKey` in `Info.plist`) |
+
+Sharing one key across both would let an update-signing compromise also forge
+helper authorization. They are deliberately separate.
+
+### 9.2 One-time Sparkle key setup
+
+```bash
+# Resolve the Sparkle package so its CLI tools exist under DerivedData.
+cd HostFlow && xcodegen generate
+xcodebuild -project HostFlow.xcodeproj -resolvePackageDependencies
+cd ..
+
+./Scripts/make-sparkle-keys.sh
+```
+
+The script generates the keypair (private key in the login Keychain **and**
+exported to `~/Documents/keys-vault/hostflow-sparkle-private.key`, `chmod 600`)
+and prints the public key. Paste that public key into
+`HostFlow/Resources/Info.plist` as the `SUPublicEDKey` string — it ships
+unmodified as a placeholder until you do, and Sparkle rejects every update while
+the placeholder is present (safe fail).
+
+### 9.3 Appcast feed
+
+The update feed lives on the `gh-pages` branch and is served at:
+
+```
+https://colilab.github.io/hosts-flow/appcast.xml
+```
+
+Bootstrap it **once** (orphan branch + GitHub Pages enablement):
+
+```bash
+git checkout --orphan gh-pages
+git rm -rf .
+cp Scripts/appcast-template.xml appcast.xml
+git add appcast.xml
+git commit -m "chore: bootstrap Sparkle appcast feed"
+git push -u origin gh-pages
+git checkout main
+```
+
+Then in the GitHub UI: **Settings → Pages → Source: `gh-pages` / root**.
+
+### 9.4 Per-release dev flow
+
+1. `export HOSTFLOW_PRIVATE_KEY=… HOSTFLOW_SPARKLE_PRIVATE_KEY=…`
+2. `./Scripts/build-release.sh` — builds, signs the manifest, packages
+   `dist/HostFlow-<version>.dmg`, signs it with Sparkle, writes
+   `dist/appcast-entry.json`.
+3. `./Scripts/publish.sh` — creates a **draft** GitHub Release for the version,
+   with the DMG and `appcast-entry.json` attached. (Optionally drop a
+   `dist/release-notes.md` first; otherwise a stub note is used.)
+4. `./Scripts/release.sh -v patch` (on `main`) — bumps the version, commits and
+   pushes the annotated tag.
+5. The tag push triggers [`.github/workflows/release.yml`](../.github/workflows/release.yml):
+   * `publish-release` flips the draft to a published release;
+   * `update-appcast` checks out `gh-pages`, appends an `<item>` to
+     `appcast.xml` (release body rendered to HTML via `pandoc`), and pushes.
+
+Only `MAJOR.MINOR.PATCH` tags trigger the workflow — `-develop`, `-rc`, `-fix`
+pre-release tags are ignored, so non-stable builds are never offered as updates.
+
+> **CFBundleVersion must increase.** Sparkle compares the appcast's
+> `sparkle:version` (= `CURRENT_PROJECT_VERSION`) to decide what is "newer".
+> `project.yml` currently pins `CURRENT_PROJECT_VERSION: "1"`; bump it for every
+> public release or Sparkle will not recognise the new build.
+
+### 9.5 The DMG-does-not-re-sign invariant
+
+`build-release.sh` packages the DMG **after** `sign-manifest.sh`. `hdiutil`
+copies the `.app` byte-for-byte into the image; it does not touch the Mach-O
+signature, so `binary-hash-manifest.json` stays valid inside the distributed
+bundle. Sparkle likewise installs the bundle as-is. Never add a re-`codesign`
+step between the manifest signing and the DMG packaging — that is the same
+invariant as §3, extended to the update channel.
+
+### 9.6 Sparkle key rotation
+
+Rotate on the same triggers as the helper key (§6). Re-run
+`Scripts/make-sparkle-keys.sh` (delete the old vault file first), update
+`SUPublicEDKey` in `Info.plist`, and ship a release signed with the new key.
+
+Unlike the helper key, a Sparkle rotation is **breaking**: an installed app only
+trusts the `SUPublicEDKey` it shipped with, so the release that introduces a new
+key cannot itself be delivered as an automatic update — it must be installed
+manually (direct DMG download). Plan rotations accordingly.

@@ -35,6 +35,7 @@ struct MenuBarView: View {
 
     @Query(sort: \Profile.order) private var profiles: [Profile]
     @Environment(\.openWindow) private var openWindow
+    @Environment(UpdaterStore.self) private var updater
 
     var body: some View {
         ForEach(profiles) { profile in
@@ -63,6 +64,13 @@ struct MenuBarView: View {
         SettingsLink {
             Text("menubar.item.settings")
         }
+
+        Button {
+            updater.checkForUpdates()
+        } label: {
+            Text("menubar.item.check_updates")
+        }
+        .disabled(!updater.canCheckForUpdates)
 
         Divider()
 

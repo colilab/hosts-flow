@@ -1,0 +1,80 @@
+name: Release
+
+# Stable releases only. Pre-release tags (1.0.0-develop.0, -rc.1, -fix.0) never
+# match this pattern, so develop/quality builds are never surfaced as updates.
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+
+jobs:
+  # The dev creates the release as a DRAFT with Scripts/publish.sh (DMG +
+  # appcast-entry.json attached) before pushing the tag. This job just flips
+  # the draft to a published release.
+  publish-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish the draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --draft=false \
+            --latest
+
+  # Append the new version to the Sparkle appcast served from gh-pages.
+  update-appcast:
+    needs: publish-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout appcast sources (main)
+        uses: actions/checkout@v4
+
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: pages
+
+      - name: Install pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+
+      - name: Fetch release assets and notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/rel
+          gh release download "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --pattern appcast-entry.json \
+            --dir /tmp/rel
+          gh release view "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --json body --jq .body > /tmp/rel/notes.md
+          pandoc /tmp/rel/notes.md -f gfm -t html -o /tmp/rel/notes.html || : > /tmp/rel/notes.html
+
+      - name: Append appcast item
+        run: |
+          python3 .github/scripts/append_appcast.py \
+            /tmp/rel/appcast-entry.json \
+            pages/appcast.xml \
+            "${{ github.ref_name }}" \
+            "${{ github.repository }}" \
+            /tmp/rel/notes.html
+
+      - name: Commit & push gh-pages
+        working-directory: pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add appcast.xml
+          if git diff --cached --quiet; then
+            echo "appcast unchanged — nothing to commit"
+            exit 0
+          fi
+          git commit -m "appcast: Host Flow ${{ github.ref_name }}"
+          git push
