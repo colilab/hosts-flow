@@ -962,13 +962,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Check for Updates…"
+            "value" : "Check for Updates"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verifica aggiornamenti…"
+            "value" : "Verifica aggiornamenti"
           }
         }
       }
@@ -1010,13 +1010,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Settings…"
+            "value" : "Settings"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Impostazioni…"
+            "value" : "Impostazioni"
           }
         }
       }
@@ -1635,13 +1635,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Check for Updates…"
+            "value" : "Check for Updates"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verifica aggiornamenti…"
+            "value" : "Verifica aggiornamenti"
           }
         }
       }
