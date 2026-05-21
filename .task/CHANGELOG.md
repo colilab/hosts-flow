@@ -15,11 +15,13 @@ Sparkle rejected every downloaded update with "improperly signed and could not b
 - `Scripts/build-release.sh` — removed its own ad-hoc-signing block; `sign-manifest.sh` now owns code-signing end to end.
 - `HostFlow/Helper/CallerVerification.swift` — `sha256OfMainExecutable` replaced by a Mach-O parser (`signedRegionHashes`) that mirrors `macho-region-hash.py`: it computes the signed-region hash of every slice of the caller's executable and requires each to be present in the signed manifest. The two implementations are kept in lock-step by comment contract.
 - `docs/release.md` §3/§4 updated; new §9.5 explains why the manifest and Sparkle now coexist. `docs/helper.md` manifest section flagged with the `version: 2` region-hash change.
+- `.gitignore` — added `__pycache__/` and `*.pyc` (the build tooling now uses Python) and removed a `.pyc` that had been committed by accident in an earlier commit.
 
 ### Verification
 - `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug -destination 'platform=macOS' build` → **BUILD SUCCEEDED** (new `CallerVerification.swift` compiles in the helper target).
 - Sanity test on the built `HostFlow.app`: ran `sign-manifest.sh` with a throwaway Ed25519 key → `codesign --verify --deep --strict` reported `valid on disk` / `satisfies its Designated Requirement` (previously failed with "a sealed resource is missing or invalid"); the region hash computed **after** pass 2 equals the hash written to the manifest **before** pass 2 — confirming the signed region is stable across re-signing.
-- End-to-end Sparkle update test (1.0.3 → 1.0.4) to be run by the developer per the plan.
+- **End-to-end Sparkle update confirmed working.** A real release built with the region-hash manifest is detected, downloaded and installed in-app by Sparkle from an already-installed copy — no "improperly signed" error — and the privileged daemon still authorises the updated app (`/etc/hosts` writes succeed after the update).
+- Process note found during the end-to-end test: Sparkle compares `CFBundleVersion` (`CURRENT_PROJECT_VERSION`), so it **must be incremented for every release**. A build that reused the previous `CURRENT_PROJECT_VERSION` was correctly seen by Sparkle as "no update available"; bumping the build number resolved it. Documented in `docs/release.md` §9.4.
 
 ## [2026-05-20] — Manual & automatic update check (Sparkle)
 
