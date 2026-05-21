@@ -53,5 +53,21 @@ Sparkle.</li>
         length="3553098"
         type="application/octet-stream" />
     </item>
+    <item>
+      <title>1.0.5</title>
+      <pubDate>Thu, 21 May 2026 08:50:05 +0000</pubDate>
+      <sparkle:version>5</sparkle:version>
+      <sparkle:shortVersionString>1.0.5</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h2 id="host-flow-105">Host Flow 1.0.5</h2>
+<ul>
+<li>Test del flusso di aggiornamento Sparkle.</li>
+</ul>]]></description>
+      <enclosure
+        url="https://github.com/colilab/hosts-flow/releases/download/1.0.5/HostFlow-1.0.5.dmg"
+        sparkle:edSignature="OlJ35TNT2H2LhENPgP7+FinbyDKS1tN074X/8RO8RkoFO7GowC5AqT+ALUFK/ZMfphbM6Kjx8KBXMt9J3RfNBg=="
+        length="3553045"
+        type="application/octet-stream" />
+    </item>
   </channel>
 </rss>
