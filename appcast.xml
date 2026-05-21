@@ -69,5 +69,22 @@ Sparkle.</li>
         length="3553045"
         type="application/octet-stream" />
     </item>
+    <item>
+      <title>1.0.6</title>
+      <pubDate>Thu, 21 May 2026 13:34:41 +0000</pubDate>
+      <sparkle:version>6</sparkle:version>
+      <sparkle:shortVersionString>1.0.6</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h2 id="changes">Changes</h2>
+<ul>
+<li>DMG now opens with the classic drag-to-Applications installer
+window.</li>
+</ul>]]></description>
+      <enclosure
+        url="https://github.com/colilab/hosts-flow/releases/download/1.0.6/HostFlow-1.0.6.dmg"
+        sparkle:edSignature="dwpVAn/SWk2Ii/shwkwQQzczCkjqujozmUa4LdcdlJqcqT+9FtZAegYujRpZjTMjLpsNjMFQBsRwooaXigVtDg=="
+        length="3200805"
+        type="application/octet-stream" />
+    </item>
   </channel>
 </rss>
