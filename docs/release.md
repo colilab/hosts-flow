@@ -17,11 +17,12 @@ cover *what to run, in what order, and how to verify*.
 | ---------------------------- | ----------------------------------------------------- |
 | Xcode 15+ (Command Line Tools) | `xcodebuild`, `codesign`                            |
 | [XcodeGen](https://github.com/yonaskolb/XcodeGen) | regenerates `HostFlow.xcodeproj` from `project.yml` |
+| [create-dmg](https://github.com/create-dmg/create-dmg) | builds the drag-to-Applications DMG          |
 | OpenSSL 3.x (LibreSSL works) | Ed25519 keypair + manifest signature                  |
 | `shasum`, `xxd`, `PlistBuddy` | bundled with macOS                                   |
 
 ```bash
-brew install xcodegen
+brew install xcodegen create-dmg
 xcodebuild -version    # sanity check
 openssl version        # must support Ed25519 (OpenSSL ≥ 1.1.1, LibreSSL ≥ 3.7)
 ```
@@ -125,9 +126,12 @@ The script enforces a fail-fast contract:
      sealed inside the code signature. The signed region is unchanged by pass 2,
      so the manifest stays valid, and `codesign --verify` now succeeds — which
      is what lets Sparkle accept the bundle as a valid update.
-6. Packages the `.app` into `dist/HostFlow-<version>.dmg` with `hdiutil`
-   (`UDZO`). `hdiutil` only copies the bundle — it never re-signs it — so both
-   the code signature and the manifest stay valid.
+6. Packages the `.app` into `dist/HostFlow-<version>.dmg` with `create-dmg`
+   (`UDZO`), laying out the app icon next to an `/Applications` drop-link so the
+   DMG opens with the classic drag-to-Applications window. `create-dmg` is
+   invoked without `--codesign`, so it only copies the bundle and never
+   re-signs it — both the code signature and the manifest stay valid.
+   Requires `brew install create-dmg` on the build machine.
 7. Signs the DMG with Sparkle's `sign_update` and writes
    `dist/appcast-entry.json` (version, DMG filename, EdDSA signature, length,
    minimum OS) for the release workflow to consume.
@@ -450,8 +454,9 @@ accept. The daemon-side computation lives in
 and must stay in lock-step with
 [`Scripts/macho-region-hash.py`](../Scripts/macho-region-hash.py).
 
-DMG packaging happens **after** `sign-manifest.sh`; `hdiutil` only copies the
-bundle byte-for-byte, so both the code signature and the manifest stay valid.
+DMG packaging happens **after** `sign-manifest.sh`; `create-dmg` only copies
+the bundle byte-for-byte (no `--codesign` flag is passed), so both the code
+signature and the manifest stay valid.
 
 ### 9.6 Sparkle key rotation
 

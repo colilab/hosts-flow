@@ -27,6 +27,10 @@ if [[ ! -f "$HOSTFLOW_SPARKLE_PRIVATE_KEY" ]]; then
   echo "ERROR: Sparkle private key not found at $HOSTFLOW_SPARKLE_PRIVATE_KEY" >&2
   exit 1
 fi
+if ! command -v create-dmg >/dev/null 2>&1; then
+  echo "ERROR: create-dmg not found. Run: brew install create-dmg" >&2
+  exit 1
+fi
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
@@ -56,8 +60,8 @@ fi
 
 # --- Sparkle distribution: DMG + EdDSA signature -----------------------------
 # IMPORTANT: everything below runs AFTER sign-manifest.sh and must NOT re-sign
-# the .app. hdiutil only copies the bundle into a disk image — it never touches
-# the Mach-O signature — so the binary-hash manifest stays valid.
+# the .app. create-dmg only copies the bundle into a disk image (no --codesign
+# flag passed) so the Mach-O signature and binary-hash manifest stay valid.
 
 INFO_PLIST="$APP_PATH/Contents/Info.plist"
 SHORT_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$INFO_PLIST")
@@ -71,11 +75,19 @@ DMG_NAME="HostFlow-${SHORT_VERSION}.dmg"
 DMG_PATH="$DIST/$DMG_NAME"
 rm -f "$DMG_PATH"
 
-hdiutil create \
-  -volname "Host Flow" \
-  -srcfolder "$APP_PATH" \
-  -ov -format UDZO \
-  "$DMG_PATH"
+DMG_STAGE=$(mktemp -d)
+trap 'rm -rf "$DMG_STAGE"' EXIT
+cp -R "$APP_PATH" "$DMG_STAGE/"
+
+create-dmg \
+  --volname "Host Flow" \
+  --window-size 540 380 \
+  --icon-size 100 \
+  --icon "HostFlow.app" 140 190 \
+  --app-drop-link 400 190 \
+  --format UDZO \
+  "$DMG_PATH" \
+  "$DMG_STAGE"
 
 # Locate Sparkle's sign_update tool (vendored copy wins, else SwiftPM artifact).
 SIGN_UPDATE=""
