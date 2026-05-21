@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026-05-21] — DMG drag-to-Applications installer
+
+**Type:** chore
+
+### Changes
+- Release DMG now opens with the classic drag-to-Applications window (app icon on the left, `/Applications` drop-link on the right) instead of a plain folder.
+- `Scripts/build-release.sh` swaps `hdiutil create` for `create-dmg`, staging the `.app` into a temp directory so only the bundle ends up in the volume. No `--codesign` flag is passed, preserving the binary-hash manifest sealed by `sign-manifest.sh`. Sparkle EdDSA signing is unchanged and runs after.
+- Added a preflight check that fails with an explicit error if `create-dmg` is missing (no auto-install via brew).
+- `docs/release.md` prerequisites now list `create-dmg`; §3 step 6 and §9 packaging note updated.
+
+### Files modified
+- `Scripts/build-release.sh` — preflight check for `create-dmg`; DMG creation rewritten with staging dir + `create-dmg` layout flags.
+- `docs/release.md` — prerequisites table + brew install line; release-script contract step 6; closing packaging note.
+
 ## [2026-05-21] — Make the binary-hash manifest Sparkle-compatible
 
 **Type:** bugfix
