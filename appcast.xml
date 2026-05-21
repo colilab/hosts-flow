@@ -37,5 +37,21 @@ Sparkle.</li>
         length="3548156"
         type="application/octet-stream" />
     </item>
+    <item>
+      <title>1.0.4</title>
+      <pubDate>Thu, 21 May 2026 08:31:55 +0000</pubDate>
+      <sparkle:version>4</sparkle:version>
+      <sparkle:shortVersionString>1.0.4</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h2 id="host-flow-104">Host Flow 1.0.4</h2>
+<ul>
+<li>Test del flusso di aggiornamento Sparkle (post-fix firma).</li>
+</ul>]]></description>
+      <enclosure
+        url="https://github.com/colilab/hosts-flow/releases/download/1.0.4/HostFlow-1.0.4.dmg"
+        sparkle:edSignature="AeRL9xJ09O4dQO61AH9C71rKUE3pAZVcUX818W276f8DeOZsqVE2XTXT2Ap3Wp3i8nsFcGMExTR3FYa94wuSAQ=="
+        length="3553098"
+        type="application/octet-stream" />
+    </item>
   </channel>
 </rss>
