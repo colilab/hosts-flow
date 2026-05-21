@@ -276,9 +276,21 @@ The cost is a smaller integrity surface — see §5.4 for what this does
 2. **Binary-hash manifest** — JSON document listing the SHA-256 hashes of
    the main executable that the daemon should accept as callers:
    ```json
-   {"version": 1, "binaryHashes": ["<sha256-hex>"]}
+   {"version": 2, "binaryHashes": ["<sha256-hex>", ...]}
    ```
-   Computed via `shasum -a 256 <App>/Contents/MacOS/<CFBundleExecutable>`.
+
+   > **Updated for Sparkle (manifest `version: 2`).** The hash is no longer
+   > taken over the *whole* executable file. It now covers each Mach-O slice's
+   > **signed content region** — the bytes `[0, LC_CODE_SIGNATURE.dataoff)` —
+   > computed by [`Scripts/macho-region-hash.py`](../Scripts/macho-region-hash.py).
+   > That region is byte-identical before and after `codesign` re-signs, which
+   > lets the manifest itself be sealed inside the bundle's code signature
+   > (`codesign --verify` passes), so the in-app Sparkle updater accepts the
+   > bundle. A universal binary contributes one hash per slice. The whole
+   > rationale is in [`release.md` §9.5](./release.md). The sections below that
+   > still say "SHA-256 of the executable" should be read as "of its signed
+   > region"; the daemon logic in `CallerVerification.swift` and the build-time
+   > `sign-manifest.sh` were updated together.
 
 3. **Detached signature** — `Scripts/sign-manifest.sh` runs
    `openssl pkeyutl -sign -rawin` on the manifest bytes, producing

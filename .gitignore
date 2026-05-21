@@ -55,6 +55,10 @@ Carthage/Checkouts/
 *.pem
 Scripts/keys/
 
+# Python (build tooling: macho-region-hash.py, append_appcast.py)
+__pycache__/
+*.pyc
+
 # Logs & temp
 *.log
 *.tmp

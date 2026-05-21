@@ -1,5 +1,26 @@
 # Changelog
 
+## [2026-05-21] — Make the binary-hash manifest Sparkle-compatible
+
+**Type:** bugfix
+**Ref:** [.task/version-download-update/plan.md](.task/version-download-update/plan.md)
+
+### Context
+Sparkle rejected every downloaded update with "improperly signed and could not be validated". Root cause: `sign-manifest.sh` wrote `binary-hash-manifest.json` + `.sig` into `Contents/Resources/` **after** `codesign`, leaving them outside the sealed `CodeResources`. `codesign --verify` therefore failed ("a sealed resource is missing or invalid"), and Sparkle validates the code signature of any update it installs. The helper's whole-file-hash scheme and Sparkle's code-signature validation were mutually exclusive: re-signing to seal the manifest changes the executable, which changes the whole-file hash, which invalidates the manifest (circular dependency).
+
+### Changes
+- The manifest now pins each Mach-O slice's **signed content region** — the bytes `[0, LC_CODE_SIGNATURE.dataoff)` — instead of the whole executable file. That region is byte-identical before and after `codesign` re-signs (only the trailing signature blob changes), which breaks the circular dependency: the manifest can be written between two codesign passes and then sealed.
+- New `Scripts/macho-region-hash.py` — parses thin and universal (fat) Mach-O files and prints the per-slice signed-region SHA-256 as a JSON array.
+- `Scripts/sign-manifest.sh` rewritten as a **two-pass** flow: codesign (pass 1, establishes `LC_CODE_SIGNATURE`) → hash the signed region → write `binary-hash-manifest.json` (`version: 2`) + Ed25519 `.sig` → codesign (pass 2, seals the manifest). After pass 2 `codesign --verify --deep --strict` succeeds, so Sparkle accepts the bundle.
+- `Scripts/build-release.sh` — removed its own ad-hoc-signing block; `sign-manifest.sh` now owns code-signing end to end.
+- `HostFlow/Helper/CallerVerification.swift` — `sha256OfMainExecutable` replaced by a Mach-O parser (`signedRegionHashes`) that mirrors `macho-region-hash.py`: it computes the signed-region hash of every slice of the caller's executable and requires each to be present in the signed manifest. The two implementations are kept in lock-step by comment contract.
+- `docs/release.md` §3/§4 updated; new §9.5 explains why the manifest and Sparkle now coexist. `docs/helper.md` manifest section flagged with the `version: 2` region-hash change.
+
+### Verification
+- `xcodebuild -project HostFlow.xcodeproj -scheme HostFlow -configuration Debug -destination 'platform=macOS' build` → **BUILD SUCCEEDED** (new `CallerVerification.swift` compiles in the helper target).
+- Sanity test on the built `HostFlow.app`: ran `sign-manifest.sh` with a throwaway Ed25519 key → `codesign --verify --deep --strict` reported `valid on disk` / `satisfies its Designated Requirement` (previously failed with "a sealed resource is missing or invalid"); the region hash computed **after** pass 2 equals the hash written to the manifest **before** pass 2 — confirming the signed region is stable across re-signing.
+- End-to-end Sparkle update test (1.0.3 → 1.0.4) to be run by the developer per the plan.
+
 ## [2026-05-20] — Manual & automatic update check (Sparkle)
 
 **Type:** feature

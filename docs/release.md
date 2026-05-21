@@ -112,28 +112,36 @@ The script enforces a fail-fast contract:
 3. Runs `xcodebuild -configuration Release clean build` with
    `CODE_SIGN_IDENTITY=-` (ad-hoc signing — no Team ID).
 4. Locates the produced `HostFlow.app` under `~/Library/Developer/Xcode/DerivedData`.
-5. If `codesign -dvvv` does not show a `CDHash`, applies an ad-hoc signature
-   itself (`codesign --force --deep --sign -`). This handles the case where
-   Xcode skips signing in Release without a team.
-6. Invokes [`Scripts/sign-manifest.sh`](../Scripts/sign-manifest.sh):
-   * computes `SHA-256` of `Contents/MacOS/<CFBundleExecutable>`,
-   * writes `Contents/Resources/binary-hash-manifest.json`,
-   * signs it with Ed25519 → `Contents/Resources/binary-hash-manifest.json.sig`.
-7. Packages the `.app` into `dist/HostFlow-<version>.dmg` with `hdiutil`
-   (`UDZO`). `hdiutil` only copies the bundle — it never re-signs it — so the
-   manifest stays valid.
-8. Signs the DMG with Sparkle's `sign_update` and writes
+5. Invokes [`Scripts/sign-manifest.sh`](../Scripts/sign-manifest.sh), which owns
+   code-signing end to end and runs **two codesign passes**:
+   * **pass 1** — `codesign --force --deep --sign -` so the executable gains an
+     `LC_CODE_SIGNATURE` (handles Xcode skipping signing in a teamless Release);
+   * computes the SHA-256 of each Mach-O slice's **signed content region** —
+     the bytes `[0, LC_CODE_SIGNATURE.dataoff)`, via
+     [`macho-region-hash.py`](../Scripts/macho-region-hash.py);
+   * writes `Contents/Resources/binary-hash-manifest.json` (`version: 2`) and
+     signs it with Ed25519 → `…json.sig`;
+   * **pass 2** — `codesign --force --deep --sign -` again, so the manifest is
+     sealed inside the code signature. The signed region is unchanged by pass 2,
+     so the manifest stays valid, and `codesign --verify` now succeeds — which
+     is what lets Sparkle accept the bundle as a valid update.
+6. Packages the `.app` into `dist/HostFlow-<version>.dmg` with `hdiutil`
+   (`UDZO`). `hdiutil` only copies the bundle — it never re-signs it — so both
+   the code signature and the manifest stay valid.
+7. Signs the DMG with Sparkle's `sign_update` and writes
    `dist/appcast-entry.json` (version, DMG filename, EdDSA signature, length,
    minimum OS) for the release workflow to consume.
 
 On success the script prints the paths of the produced `.app`, the
 `dist/HostFlow-<version>.dmg`, and `dist/appcast-entry.json`.
 
-> **Critical invariant.** Do **not** run `codesign --force` (or any other
-> resign step) on the produced `.app` afterwards. Re-signing rewrites the
-> Mach-O signature blob, the binary SHA-256 changes, and the manifest goes
-> stale. The daemon will then reject the very app you just built. If you need
-> to fix anything, re-run `Scripts/build-release.sh` end to end.
+> **Note on re-signing.** The manifest covers only the executable's *signed
+> content region* (`[0, dataoff)`), which `codesign` leaves byte-identical when
+> it re-signs. So, unlike the original whole-file scheme, re-running
+> `codesign --force` on the produced `.app` no longer invalidates the manifest —
+> the manifest is itself a sealed resource and survives re-signing. Notarization
+> (which re-signs) is therefore also compatible with this scheme. Still: when in
+> doubt, re-run `Scripts/build-release.sh` end to end rather than hand-patching.
 
 ---
 
@@ -153,18 +161,23 @@ codesign -dvvv "$APP" 2>&1 | grep -E 'Identifier|CDHash|Signature'
 codesign --verify --deep --strict --verbose=2 "$APP"
 ```
 
-Expected: `Signature=adhoc`, a non-empty `CDHash=`, no errors.
+Expected: `Signature=adhoc`, a non-empty `CDHash=`, no errors. `--verify` **must
+pass** — the manifest is a sealed resource, so a failure here means the bundle
+was tampered with after `build-release.sh` (and Sparkle would reject it).
 
 ### 4.2 The manifest exists and matches the binary
 
+The manifest pins the SHA-256 of each Mach-O slice's *signed content region*,
+not the whole file. Recompute it with the same tool the build uses:
+
 ```bash
 EXEC=$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "$APP/Contents/Info.plist")
-HASH=$(shasum -a 256 "$APP/Contents/MacOS/$EXEC" | cut -d' ' -f1)
-echo "binary  : $HASH"
+python3 Scripts/macho-region-hash.py "$APP/Contents/MacOS/$EXEC"
 cat "$APP/Contents/Resources/binary-hash-manifest.json"
 ```
 
-The `binary` line must appear inside the JSON's `"binaryHashes"` array.
+Every hash printed by `macho-region-hash.py` must appear inside the manifest's
+`"binaryHashes"` array (the daemon checks exactly this at runtime).
 
 ### 4.3 The signature verifies against the embedded public key
 
@@ -317,7 +330,7 @@ log stream --predicate 'subsystem == "com.colilab.hostflow.helper"' --info
 - [ ] `AuthorizedKeys.publicKeyHex` matches the private key in use
 - [ ] `./Scripts/build-release.sh` completes without errors
 - [ ] §4.1 — `codesign --verify --deep --strict` passes
-- [ ] §4.2 — binary SHA-256 appears in `binary-hash-manifest.json`
+- [ ] §4.2 — `macho-region-hash.py` output appears in `binary-hash-manifest.json`
 - [ ] §4.3 — `openssl pkeyutl -verify` returns *Signature Verified Successfully*
 - [ ] §4.4 — `Contents/Library/LaunchDaemons/` contains both helper binary and plist
 - [ ] §4.5 — smoke test on a clean machine writes `/etc/hosts` successfully
@@ -415,14 +428,30 @@ pre-release tags are ignored, so non-stable builds are never offered as updates.
 > `project.yml` currently pins `CURRENT_PROJECT_VERSION: "1"`; bump it for every
 > public release or Sparkle will not recognise the new build.
 
-### 9.5 The DMG-does-not-re-sign invariant
+### 9.5 Why the manifest and Sparkle coexist
 
-`build-release.sh` packages the DMG **after** `sign-manifest.sh`. `hdiutil`
-copies the `.app` byte-for-byte into the image; it does not touch the Mach-O
-signature, so `binary-hash-manifest.json` stays valid inside the distributed
-bundle. Sparkle likewise installs the bundle as-is. Never add a re-`codesign`
-step between the manifest signing and the DMG packaging — that is the same
-invariant as §3, extended to the update channel.
+Host Flow's privileged daemon authorises a caller by hashing its executable and
+checking that hash against an Ed25519-signed `binary-hash-manifest.json` shipped
+inside the app bundle. Sparkle, in turn, validates the *code signature* of any
+update it installs.
+
+These used to conflict: the manifest was written into `Contents/Resources/`
+**after** `codesign`, which left it outside the sealed `CodeResources` and made
+`codesign --verify` fail — so Sparkle rejected every update as "improperly
+signed".
+
+`sign-manifest.sh` resolves it by hashing only the executable's **signed content
+region** (`[0, LC_CODE_SIGNATURE.dataoff)` of each Mach-O slice). That region is
+byte-identical before and after re-signing, so the manifest can be written
+*between* two codesign passes (pass 1 establishes the signature layout, pass 2
+seals the manifest). The result is a bundle that both the daemon and Sparkle
+accept. The daemon-side computation lives in
+[`HostFlow/Helper/CallerVerification.swift`](../HostFlow/Helper/CallerVerification.swift)
+and must stay in lock-step with
+[`Scripts/macho-region-hash.py`](../Scripts/macho-region-hash.py).
+
+DMG packaging happens **after** `sign-manifest.sh`; `hdiutil` only copies the
+bundle byte-for-byte, so both the code signature and the manifest stay valid.
 
 ### 9.6 Sparkle key rotation
 

@@ -48,13 +48,10 @@ if [[ -z "$APP_PATH" ]]; then
   exit 1
 fi
 
-# If Xcode didn't sign (Automatic signing without team can skip in Release),
-# apply an ad-hoc signature ourselves so the binary has a stable CodeDirectory.
-if ! codesign -dvvv "$APP_PATH" 2>&1 | grep -q "^CDHash="; then
-  echo "App not signed by Xcode — applying ad-hoc signature..."
-  codesign --force --deep --sign - "$APP_PATH"
-fi
-
+# sign-manifest.sh owns code-signing end to end: it ad-hoc signs the app, writes
+# the binary-hash manifest over the executable's signed region, then re-seals the
+# bundle so the manifest is inside the code signature — so `codesign --verify`
+# passes and Sparkle accepts the bundle as a valid update.
 "$ROOT/Scripts/sign-manifest.sh" "$APP_PATH" "$HOSTFLOW_PRIVATE_KEY"
 
 # --- Sparkle distribution: DMG + EdDSA signature -----------------------------
