@@ -86,5 +86,38 @@ window.</li>
         length="3200805"
         type="application/octet-stream" />
     </item>
+    <item>
+      <title>1.0.7</title>
+      <pubDate>Mon, 25 May 2026 14:54:59 +0000</pubDate>
+      <sparkle:version>7</sparkle:version>
+      <sparkle:shortVersionString>1.0.7</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h2 id="whats-new">What's new</h2>
+<ul>
+<li><strong>First-run onboarding flow</strong>: a guided welcome +
+preview sheet now greets new users on first launch, importing existing
+entries from <code>/etc/hosts</code> into a starter profile so nothing
+is lost when the app takes over the managed block.</li>
+<li><strong>JSON import help</strong>: in-app help button on the
+Settings JSON importer describes the expected schema and points to a
+working example.</li>
+</ul>
+<h2 id="improvements">Improvements</h2>
+<ul>
+<li><code>HostsFileManager</code> / <code>HostsFileParser</code> /
+<code>SystemHostEntries</code> now share a single parser for the system
+file, used both by the onboarding preview and the live managed-block
+writer.</li>
+<li>New <code>Scripts/full-release.sh</code> orchestrates the whole
+release flow (preflight → bump → build → publish draft → tag + push) in
+one command; <code>docs/release.md</code> updated accordingly.</li>
+<li>README refreshed.</li>
+</ul>]]></description>
+      <enclosure
+        url="https://github.com/colilab/hosts-flow/releases/download/1.0.7/HostFlow-1.0.7.dmg"
+        sparkle:edSignature="ped/E0G0YrI3gnnq15/mgjNh3piCN5ajixRrVm8HEsUMM0QNFDH6EEbQUGCqjvzcC7DJQjszL82MQsM5W52QDw=="
+        length="3246753"
+        type="application/octet-stream" />
+    </item>
   </channel>
 </rss>
