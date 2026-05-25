@@ -18,7 +18,7 @@ Integrate Sparkle 2 to give Host Flow a "Check for Updates…" button (Settings 
 
 ### 2 — Sparkle EdDSA key
 3. [x] Add `Scripts/make-sparkle-keys.sh` — wraps Sparkle's `generate_keys` tool (vendored via SwiftPM build product `Sparkle/bin/generate_keys`), printing the `SUPublicEDKey` value and asking the developer to move the private key to `~/Documents/keys-vault/hostflow-sparkle-private.key` (chmod 600). Mirrors the contract of `Scripts/make-keys.sh` — `Scripts/make-sparkle-keys.sh`.
-4. [ ] **MANUAL** — Run the script once, capture the public key string, and embed it as `SUPublicEDKey` in `Info.plist` (next step). Private key never touches the repo; `.gitignore` already covers it.
+4. [x] **MANUAL** — Run the script once, capture the public key string, and embed it as `SUPublicEDKey` in `Info.plist` (next step). Private key never touches the repo; `.gitignore` already covers it.
 
 ### 3 — Info.plist Sparkle configuration
 5. [x] Add Sparkle keys to `HostFlow/Resources/Info.plist`:
@@ -84,7 +84,7 @@ Integrate Sparkle 2 to give Host Flow a "Check for Updates…" button (Settings 
 14. [x] Add `Scripts/publish.sh` — thin wrapper that takes `dist/HostFlow-<version>.dmg` + `dist/appcast-entry.json` and runs `gh release create <version> --draft --title … --notes-file … HostFlow-<version>.dmg appcast-entry.json`. Reads version from `project.yml` to avoid argument mistakes.
 
 ### 10 — GitHub Pages bootstrap
-15. [ ] **MANUAL** — Create the initial `gh-pages` branch (orphan) with a placeholder `appcast.xml`:
+15. [x] **MANUAL** — Create the initial `gh-pages` branch (orphan) with a placeholder `appcast.xml`:
     ```xml
     <?xml version="1.0" standalone="yes"?>
     <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
@@ -102,8 +102,8 @@ Integrate Sparkle 2 to give Host Flow a "Check for Updates…" button (Settings 
 17. [x] In `docs/release.md`, add §9 "Sparkle update channel" documenting: key generation/rotation flow, appcast URL, workflow architecture, and the invariant that DMG packaging must not re-sign the bundle.
 
 ### 12 — Validation
-18. [ ] **MANUAL** — Local smoke test: bump version locally to a fake `0.0.1-test`, run `build-release.sh` + `publish.sh` against a private throwaway repo (or a `--prerelease`-flagged release), confirm Sparkle in the previous build detects and installs the new one, and confirm the post-update app still passes the daemon manifest verification (`/etc/hosts` write works after auto-update).
-19. [ ] **MANUAL** — If validation succeeds, revert the throwaway version bump.
+18. [x] **MANUAL** — Local smoke test: bump version locally to a fake `0.0.1-test`, run `build-release.sh` + `publish.sh` against a private throwaway repo (or a `--prerelease`-flagged release), confirm Sparkle in the previous build detects and installs the new one, and confirm the post-update app still passes the daemon manifest verification (`/etc/hosts` write works after auto-update).
+19. [x] **MANUAL** — If validation succeeds, revert the throwaway version bump.
 
 ## Out of scope
 - Pre-release/rc channels in Sparkle (stable only — `develop`/`quality` builds never surface as updates).
@@ -116,21 +116,20 @@ Integrate Sparkle 2 to give Host Flow a "Check for Updates…" button (Settings 
 ## Open questions
 - None — all decisions made during grilling (see /task transcript).
 
-## Completion status (2026-05-20)
+## Completion status (2026-05-25)
 
-All code/automation steps executed and verified — Debug build **BUILD SUCCEEDED**
-with Sparkle 2.9.2 resolved and `Sparkle.framework` embedded.
+All steps executed and validated in production.
+
+- Code/automation steps verified — Debug build **BUILD SUCCEEDED** with
+  Sparkle 2.9.2 resolved and `Sparkle.framework` embedded.
+- **Step 4** — `SUPublicEDKey` set in `HostFlow/Resources/Info.plist`
+  (commit `6bce880 chore: set Sparkle SUPublicEDKey`).
+- **Step 15** — `gh-pages` branch bootstrapped locally and pushed to
+  `origin/gh-pages`; GitHub Pages serves `appcast.xml`.
+- **Steps 18–19** — End-to-end update flow validated across releases
+  1.0.1 → 1.0.6, including the Sparkle-compatible signed-region hash fix
+  (commit `725911e fix: make binary-hash manifest Sparkle-compatible`).
 
 Naming note: the menu-bar string key is `menubar.item.check_updates` (not
 `menu.check_updates` as drafted) to stay consistent with the existing
 `menubar.item.open/settings/quit` keys.
-
-### Remaining MANUAL steps (cannot be automated from the CLI)
-
-- **Step 4** — Run `Scripts/make-sparkle-keys.sh`, then paste the printed public
-  key into `HostFlow/Resources/Info.plist` as `SUPublicEDKey` (currently a
-  placeholder; Sparkle rejects every update until it is set).
-- **Step 15** — Bootstrap the `gh-pages` branch and enable GitHub Pages. Exact
-  commands are in `docs/release.md` §9.3 (`Scripts/appcast-template.xml` is the
-  starting `appcast.xml`).
-- **Steps 18–19** — Local end-to-end smoke test of the update flow.

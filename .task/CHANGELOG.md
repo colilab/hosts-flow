@@ -46,7 +46,7 @@ On a fresh install, all `/etc/hosts` entries (system + custom) landed in a singl
 ## [2026-05-21] — Make the binary-hash manifest Sparkle-compatible
 
 **Type:** bugfix
-**Ref:** [.task/version-download-update/plan.md](.task/version-download-update/plan.md)
+**Ref:** [.task/completed/version-download-update/plan.md](.task/completed/version-download-update/plan.md)
 
 ### Context
 Sparkle rejected every downloaded update with "improperly signed and could not be validated". Root cause: `sign-manifest.sh` wrote `binary-hash-manifest.json` + `.sig` into `Contents/Resources/` **after** `codesign`, leaving them outside the sealed `CodeResources`. `codesign --verify` therefore failed ("a sealed resource is missing or invalid"), and Sparkle validates the code signature of any update it installs. The helper's whole-file-hash scheme and Sparkle's code-signature validation were mutually exclusive: re-signing to seal the manifest changes the executable, which changes the whole-file hash, which invalidates the manifest (circular dependency).
@@ -69,7 +69,7 @@ Sparkle rejected every downloaded update with "improperly signed and could not b
 ## [2026-05-20] — Manual & automatic update check (Sparkle)
 
 **Type:** feature
-**Ref:** [.task/version-download-update/plan.md](.task/version-download-update/plan.md)
+**Ref:** [.task/completed/version-download-update/plan.md](.task/completed/version-download-update/plan.md)
 
 ### Changes
 - Integrated **Sparkle 2** (SwiftPM, resolved at 2.9.2) so Host Flow can check for and install its own updates. New `packages:` entry in `project.yml` and a `Sparkle` product dependency on the `HostFlow` target.
