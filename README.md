@@ -13,7 +13,7 @@
 ![macOS](https://img.shields.io/badge/macOS-14.0%2B-000000?logo=apple&logoColor=white)
 ![Xcode](https://img.shields.io/badge/Xcode-15%2B-147EFB?logo=xcode&logoColor=white)
 ![XcodeGen](https://img.shields.io/badge/XcodeGen-project.yml-blueviolet?logo=yaml&logoColor=white)
-![License](https://img.shields.io/badge/license-Proprietary-lightgrey)
+![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 
 ---
 
@@ -25,6 +25,12 @@
 - ⚙️ **Settings** — launch at login, appearance (System / Light / Dark), and `/etc/hosts` write permission management.
 
 > ℹ️ **Menu bar app behavior** — Host Flow runs as a status bar accessory (`LSUIElement = true`). This is intentional: it keeps the app lightweight and discreet, with no Dock icon and no system menu bar (Apple menu / app name menu / File / Edit / Window / Help) shown when the main window is in focus. All actions are reachable from the status bar popover and from the in-app UI; standard shortcuts like `⌘Q` (quit) and `⌘,` (settings) still work while the window is focused.
+
+---
+
+## 🐧 Linux version
+
+If you're on Linux, see the GTK4/libadwaita version: [colilab/host-flow-gtk](https://github.com/colilab/host-flow-gtk). The two apps share the same `/etc/hosts` block format and can coexist on a system that boots both OSes.
 
 ---
 
@@ -103,5 +109,7 @@ HostFlow/
 ---
 
 ## 📄 License
+
+Released under the **GNU Affero General Public License v3.0 or later** — see [LICENSE](LICENSE).
 
 Copyright © 2026 Colilab. All rights reserved.

@@ -2,6 +2,11 @@ import SwiftUI
 import SwiftData
 import AppKit
 
+private struct FirstRunPayload: Identifiable {
+    let id = UUID()
+    let customs: [ParsedHostRecord]
+}
+
 struct ContentView: View {
 
     @Query(sort: \Profile.order) private var profiles: [Profile]
@@ -10,10 +15,19 @@ struct ContentView: View {
     @Environment(ProfileStore.self) private var store
     @Environment(AppSettings.self) private var settings
     @State private var watcher = HostsFileWatcher()
+    @State private var firstRunCustoms: [ParsedHostRecord]?
 
     var body: some View {
         @Bindable var store = store
         return content
+            .sheet(item: Binding(
+                get: { firstRunCustoms.map(FirstRunPayload.init) },
+                set: { if $0 == nil { firstRunCustoms = nil } }
+            )) { payload in
+                FirstRunOnboardingSheet(customs: payload.customs) { _ in
+                    firstRunCustoms = nil
+                }
+            }
             .sheet(isPresented: $store.helperMissing) {
                 HelperOnboardingSheet(installer: settings.helperInstaller) { installed in
                     store.helperMissing = false
@@ -65,6 +79,9 @@ struct ContentView: View {
             store.seedIfNeeded(context: context)
             store.applyOnLaunch(context: context)
             watcher.start(profileStore: store, context: context)
+            if store.shouldShowFirstRunOnboarding(context: context) {
+                firstRunCustoms = store.discoverOnboardingCustoms()
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
             store.flushPendingWrite(context: context)

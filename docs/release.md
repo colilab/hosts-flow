@@ -410,19 +410,42 @@ Then in the GitHub UI: **Settings → Pages → Source: `gh-pages` / root**.
 
 ### 9.4 Per-release dev flow
 
+Two equivalent paths — pick one.
+
+**One-shot (recommended).** On `main`, clean tree, env vars exported:
+
+```bash
+export HOSTFLOW_PRIVATE_KEY=… HOSTFLOW_SPARKLE_PRIVATE_KEY=…
+./Scripts/full-release.sh -v patch    # or minor|major
+```
+
+[`Scripts/full-release.sh`](../Scripts/full-release.sh) runs preflight checks
+(branch, clean tree, env vars, tools, remote in sync), bumps
+`MARKETING_VERSION` + `CURRENT_PROJECT_VERSION` in `project.yml`, regenerates
+the Xcode project, then chains `build-release.sh` → `publish.sh` → commit +
+annotated tag + `git push --follow-tags`. Drop a `dist/release-notes.md`
+first if you want anything other than the stub note.
+
+**Manual (step-by-step).** Same effect, useful when something fails mid-flow:
+
 1. `export HOSTFLOW_PRIVATE_KEY=… HOSTFLOW_SPARKLE_PRIVATE_KEY=…`
-2. `./Scripts/build-release.sh` — builds, signs the manifest, packages
+2. Bump `MARKETING_VERSION` + `CURRENT_PROJECT_VERSION` in
+   `HostFlow/project.yml`, then `cd HostFlow && xcodegen generate`.
+3. `./Scripts/build-release.sh` — builds, signs the manifest, packages
    `dist/HostFlow-<version>.dmg`, signs it with Sparkle, writes
    `dist/appcast-entry.json`.
-3. `./Scripts/publish.sh` — creates a **draft** GitHub Release for the version,
+4. `./Scripts/publish.sh` — creates a **draft** GitHub Release for the version,
    with the DMG and `appcast-entry.json` attached. (Optionally drop a
    `dist/release-notes.md` first; otherwise a stub note is used.)
-4. `./Scripts/release.sh -v patch` (on `main`) — bumps the version, commits and
-   pushes the annotated tag.
-5. The tag push triggers [`.github/workflows/release.yml`](../.github/workflows/release.yml):
-   * `publish-release` flips the draft to a published release;
-   * `update-appcast` checks out `gh-pages`, appends an `<item>` to
-     `appcast.xml` (release body rendered to HTML via `pandoc`), and pushes.
+5. `git add HostFlow/project.yml HostFlow/HostFlow.xcodeproj/project.pbxproj`,
+   commit (`chore(release): 💯 release <new>`), `git tag -a <new>`,
+   `git push --follow-tags`.
+
+In both flows the tag push triggers
+[`.github/workflows/release.yml`](../.github/workflows/release.yml):
+* `publish-release` flips the draft to a published release;
+* `update-appcast` checks out `gh-pages`, appends an `<item>` to
+  `appcast.xml` (release body rendered to HTML via `pandoc`), and pushes.
 
 Only `MAJOR.MINOR.PATCH` tags trigger the workflow — `-develop`, `-rc`, `-fix`
 pre-release tags are ignored, so non-stable builds are never offered as updates.

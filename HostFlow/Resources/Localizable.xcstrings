@@ -2464,6 +2464,168 @@
           }
         }
       }
+    },
+    "common.button.back" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Indietro" } }
+      }
+    },
+    "json_format.help.tooltip" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "JSON format reference" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Riferimento formato JSON" } }
+      }
+    },
+    "json_format.help.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "JSON import format" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Formato JSON per l'importazione" } }
+      }
+    },
+    "json_format.help.description" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Host Flow imports its own JSON format, exported via Settings → Export. Other apps' formats (iHosts, …) are not supported yet." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Host Flow importa il proprio formato JSON, esportabile da Impostazioni → Esporta. Formati di altre app (iHosts, …) non sono ancora supportati." } }
+      }
+    },
+    "json_format.help.download_sample" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Download sample" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Scarica esempio" } }
+      }
+    },
+    "json_format.help.save_error.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Could not save sample file" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Impossibile salvare il file di esempio" } }
+      }
+    },
+    "json_format.help.save_panel.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save sample" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Salva esempio" } }
+      }
+    },
+    "onboarding.first_run.profile.imported.default_name" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Imported" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Importati" } }
+      }
+    },
+    "onboarding.first_run.welcome.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Welcome to Host Flow" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Benvenuto in Host Flow" } }
+      }
+    },
+    "onboarding.first_run.welcome.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Let's organize the records already in your /etc/hosts." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Organizziamo i record già presenti nel tuo /etc/hosts." } }
+      }
+    },
+    "onboarding.first_run.welcome.found.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom records detected" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Record personalizzati rilevati" } }
+      }
+    },
+    "onboarding.first_run.welcome.found.count" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d record(s) found in /etc/hosts." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "%d record trovati in /etc/hosts." } }
+      }
+    },
+    "onboarding.first_run.welcome.found.description" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue to import them into a single editable profile that you can split and organize later. Host Flow will then take ownership of /etc/hosts and keep only system entries outside the managed block." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Procedi per importarli in un singolo profilo editabile che potrai suddividere e organizzare dopo. Host Flow prenderà in carico /etc/hosts mantenendo fuori dal blocco gestito solo le entry di sistema." } }
+      }
+    },
+    "onboarding.first_run.welcome.action.continue" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Continua" } }
+      }
+    },
+    "onboarding.first_run.welcome.action.import_json" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import from JSON…" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Importa da JSON…" } }
+      }
+    },
+    "onboarding.first_run.welcome.action.start_empty" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start from scratch" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Inizia da zero" } }
+      }
+    },
+    "onboarding.first_run.start_empty.confirm.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start from scratch?" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Vuoi partire da zero?" } }
+      }
+    },
+    "onboarding.first_run.start_empty.confirm.button" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start empty" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Inizia vuoto" } }
+      }
+    },
+    "onboarding.first_run.start_empty.confirm.message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your /etc/hosts file will not be modified. Existing records will stay visible in the read-only Default profile; you can rebuild your setup from scratch." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Il tuo /etc/hosts non verrà modificato. I record esistenti resteranno visibili nel profilo Default (sola lettura); potrai ricostruire la tua configurazione da zero." } }
+      }
+    },
+    "onboarding.first_run.preview.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review the import" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rivedi l'importazione" } }
+      }
+    },
+    "onboarding.first_run.preview.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "These records will be moved into the new profile. System entries will stay outside the managed block." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Questi record verranno spostati nel nuovo profilo. Le entry di sistema resteranno fuori dal blocco gestito." } }
+      }
+    },
+    "onboarding.first_run.preview.profile_name.label" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Profile name" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nome del profilo" } }
+      }
+    },
+    "onboarding.first_run.preview.profile_name.placeholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Imported" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Importati" } }
+      }
+    },
+    "onboarding.first_run.preview.customs.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Records to import (%d)" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Record da importare (%d)" } }
+      }
+    },
+    "onboarding.first_run.preview.system.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System entries (kept outside the managed block)" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Entry di sistema (restano fuori dal blocco gestito)" } }
+      }
+    },
+    "onboarding.first_run.preview.record.disabled" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "disabled" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "disattivato" } }
+      }
+    },
+    "onboarding.first_run.preview.action.apply" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Apply" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Applica" } }
+      }
     }
   },
   "version" : "1.0"

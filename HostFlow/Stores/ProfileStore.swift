@@ -14,6 +14,7 @@ final class ProfileStore {
     private var writeDebouncer: Task<Void, Never>?
 
     private static let debounceInterval: Duration = .milliseconds(500)
+    private static let onboardingCompletedKey = "hostflow.onboarding.firstRun.completed"
 
     func toggleProfile(_ profile: Profile, context: ModelContext) {
         profile.isActive.toggle()
@@ -139,6 +140,68 @@ final class ProfileStore {
                 return next
             }
             i += 1
+        }
+    }
+
+    func shouldShowFirstRunOnboarding(context: ModelContext) -> Bool {
+        if UserDefaults.standard.bool(forKey: Self.onboardingCompletedKey) { return false }
+        if userProfileCount(context: context) > 0 { return false }
+        return !discoverOnboardingCustoms().isEmpty
+    }
+
+    func discoverOnboardingCustoms() -> [ParsedHostRecord] {
+        do {
+            let classified = try HostsFileParser.parseSystemHostsClassified()
+            return classified.custom
+        } catch {
+            return []
+        }
+    }
+
+    func completeOnboardingImporting(customs: [ParsedHostRecord], profileName: String, context: ModelContext) {
+        let trimmed = profileName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedName = trimmed.isEmpty
+            ? String(localized: "onboarding.first_run.profile.imported.default_name")
+            : trimmed
+
+        let profile = addProfile(name: resolvedName, context: context)
+        profile.isActive = true
+        for record in customs {
+            let host = HostRecord(ip: record.ip, hostname: record.hostname, profile: profile)
+            host.isEnabled = record.isEnabled
+            context.insert(host)
+        }
+        try? context.save()
+
+        markFirstRunOnboardingCompleted()
+        pruneAndWrite(context: context)
+    }
+
+    func markFirstRunOnboardingCompleted() {
+        UserDefaults.standard.set(true, forKey: Self.onboardingCompletedKey)
+    }
+
+    private func pruneAndWrite(context: ModelContext) {
+        writeDebouncer?.cancel()
+        writeDebouncer = nil
+
+        HelperInstaller.shared.refreshStatus()
+        if !HelperInstaller.shared.isInstalled {
+            helperMissing = true
+            return
+        }
+        let descriptor = FetchDescriptor<Profile>()
+        guard let profiles = try? context.fetch(descriptor) else { return }
+        isWritingHosts = true
+        lastWriteError = nil
+        Task { @MainActor [weak self] in
+            defer { self?.isWritingHosts = false }
+            do {
+                try await HostsFileManager.shared.pruneUnmanagedKeepingSystem(profiles: profiles)
+                self?.lastWriteAt = Date()
+            } catch {
+                self?.lastWriteError = error.localizedDescription
+            }
         }
     }
 

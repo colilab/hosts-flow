@@ -56,6 +56,7 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
+                    JSONFormatHelpButton()
                     Menu {
                         Button("settings.advanced.import.hosts") { startImport() }
                         Button("settings.advanced.import.json") { startImportJSON() }
