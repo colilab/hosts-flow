@@ -1,5 +1,34 @@
 # Changelog
 
+## [2026-05-25] — First-run onboarding to organize existing /etc/hosts records
+
+**Type:** feature
+**Ref:** [.task/completed/onboarding-first-setup/plan.md](.task/completed/onboarding-first-setup/plan.md)
+
+### Context
+On a fresh install, all `/etc/hosts` entries (system + custom) landed in a single read-only `Default` profile, leaving the user with no UI path to organize records, migrate from iHosts, or carve them into separate profiles. The only workaround was hand-editing `/etc/hosts` or crafting JSON by hand — neither discoverable nor UX-friendly.
+
+### Changes
+- New first-run wizard (`FirstRunOnboardingSheet`) shown only when the SwiftData store is empty AND `/etc/hosts` contains custom records (i.e. records not in a small system whitelist: `127.0.0.1 localhost`, `255.255.255.255 broadcasthost`, `::1 localhost`). Existing 1.0.x users never see it because their store is already populated. A `hostflow.onboarding.firstRun.completed` UserDefaults flag ensures it is shown at most once.
+- Welcome screen offers three actions: **Continue** (move all custom records into a new editable `Imported` profile, active by default), **Import from JSON…** (jumps straight into the existing JSON import flow, with a `?` popover documenting the proprietary format and a "Download sample" button), and **Start from scratch** (legacy 1.0.x behavior — leaves `/etc/hosts` untouched, `Default` keeps mirroring everything).
+- Preview screen lets the user rename the new profile, see the records that will be imported, and see the system entries that will stay outside the managed block. Apply triggers `ProfileStore.completeOnboardingImporting`, which creates the profile, then writes `/etc/hosts` with `HostsFileManager.pruneUnmanagedKeepingSystem` — re-emitting the unmanaged section with only system entries while rebuilding the managed block from current profiles. If the helper is missing, the existing `HelperOnboardingSheet` is triggered lazily.
+- After onboarding, the read-only `Default` profile keeps its role: the existing `HostsFileWatcher`/`syncDefaultFromFile` pair continues to mirror the (now system-only) unmanaged section, so manual edits to `/etc/hosts` outside the managed block remain visible.
+- The same JSON-format `?` popover is also wired next to the Import menu in Settings, so the format is discoverable for users importing later.
+
+### Files modified
+- `HostFlow/Helpers/SystemHostEntries.swift` — new whitelist of macOS system `(ip, hostname)` pairs with classification helpers.
+- `HostFlow/Helpers/HostsFileParser.swift` — added `ClassifiedHosts` struct and `parseSystemHostsClassified()` that splits parsed records into `system`/`custom` buckets.
+- `HostFlow/Helpers/HostsFileManager.swift` — added `pruneUnmanagedKeepingSystem(profiles:)` plus private `pruneUnmanaged` / `sanitizeUnmanagedLine` helpers that strip custom hostnames from the unmanaged section (handling mixed lines and trailing comments) while preserving system entries and blank/comment lines.
+- `HostFlow/Stores/ProfileStore.swift` — added `shouldShowFirstRunOnboarding`, `discoverOnboardingCustoms`, `completeOnboardingImporting`, `markFirstRunOnboardingCompleted`, and a private `pruneAndWrite` mirroring the existing write path but routed through `pruneUnmanagedKeepingSystem`.
+- `HostFlow/Views/Onboarding/FirstRunOnboardingSheet.swift` — new wizard root, two-step state machine (welcome → preview), JSON import branch via existing `ImportJSONSheet`, and start-empty confirm alert.
+- `HostFlow/Views/Onboarding/FirstRunWelcomeView.swift` — new welcome screen with primary/secondary/tertiary actions.
+- `HostFlow/Views/Onboarding/FirstRunPreviewView.swift` — new preview with profile name field, scrollable list of records to import, and a disclosure with the system entries.
+- `HostFlow/Views/Settings/JSONFormatHelpButton.swift` — new reusable `?` popover with inline JSON sample and `NSSavePanel`-backed sample download.
+- `HostFlow/Views/Settings/SettingsView.swift` — inlined the new help button next to the Import menu.
+- `HostFlow/App/ContentView.swift` — presents the wizard via a sheet bound to a freshly discovered list of custom records, gated by `shouldShowFirstRunOnboarding`.
+- `HostFlow/Resources/Localizable.xcstrings` — 26 new keys (en + it) covering wizard, popover, and the new `common.button.back`.
+- `HostFlow/HostFlow.xcodeproj/project.pbxproj` — registered the 5 new Swift files in the appropriate groups and the HostFlow Sources build phase.
+
 ## [2026-05-21] — DMG drag-to-Applications installer
 
 **Type:** chore

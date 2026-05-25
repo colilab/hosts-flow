@@ -6,11 +6,30 @@ struct ParsedHostRecord {
     let isEnabled: Bool
 }
 
+struct ClassifiedHosts {
+    let system: [ParsedHostRecord]
+    let custom: [ParsedHostRecord]
+}
+
 enum HostsFileParser {
 
     static func parseSystemHosts() throws -> [ParsedHostRecord] {
         let content = try HostsFileManager.shared.read()
         return parseUnmanaged(content)
+    }
+
+    static func parseSystemHostsClassified() throws -> ClassifiedHosts {
+        let records = try parseSystemHosts()
+        var system: [ParsedHostRecord] = []
+        var custom: [ParsedHostRecord] = []
+        for record in records {
+            if SystemHostEntries.isSystem(record) {
+                system.append(record)
+            } else {
+                custom.append(record)
+            }
+        }
+        return ClassifiedHosts(system: system, custom: custom)
     }
 
     static func parseUnmanaged(_ content: HostsFileContent) -> [ParsedHostRecord] {

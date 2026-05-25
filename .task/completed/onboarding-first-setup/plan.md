@@ -73,3 +73,9 @@ Al primo avvio (solo nuova installazione), se in `/etc/hosts` esistono record cu
 ## Open questions
 
 (nessuna)
+
+---
+
+**Completed:** 2026-05-25
+
+**Resolution:** Wizard di first-run implementato come da piano (opzione B + α): rileva record custom in /etc/hosts, propone import in profilo "Imported" editabile (active), prune della parte unmanaged tenendo solo le system entries, con percorsi alternativi "Importa da JSON" (con popover formato + download esempio, riusato anche in Settings) e "Inizia da zero" (no-op legacy). Flag UserDefaults garantisce singolo trigger. Build Debug verde, nessun warning.
