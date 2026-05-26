@@ -17,6 +17,36 @@
 
 ---
 
+## 📦 Install
+
+### Homebrew (recommended)
+
+```bash
+brew install --cask colilab/tap/hostflow
+```
+
+### Direct download (DMG)
+
+1. Download the latest DMG from the [Releases page](https://github.com/colilab/hosts-flow/releases/latest).
+2. Open the DMG and drag **Host Flow** into the `/Applications/` folder.
+3. The first launch will be blocked by Gatekeeper. Launch this command:
+
+   ```bash
+   xattr -dr com.apple.quarantine /Applications/HostFlow.app
+   ```
+
+   Then open the app normally from Launchpad or `/Applications/`.
+
+>
+
+---
+
+## 🐧 Linux version
+
+If you're on Linux, see the GTK4/libadwaita version: [colilab/host-flow-gtk](https://github.com/colilab/host-flow-gtk). The two apps share the same `/etc/hosts` block format and can coexist on a system that boots both OSes.
+
+---
+
 ## ✨ Features
 
 - 🗂 **Profiles** — create, rename, and delete named groups of host records (e.g. "Default", "Staging", "Production"). Multiple profiles can be active at the same time.
@@ -28,18 +58,12 @@
 
 ---
 
-## 🐧 Linux version
-
-If you're on Linux, see the GTK4/libadwaita version: [colilab/host-flow-gtk](https://github.com/colilab/host-flow-gtk). The two apps share the same `/etc/hosts` block format and can coexist on a system that boots both OSes.
-
----
-
 ## 🔄 Updates
 
 Host Flow keeps itself up to date with [Sparkle](https://sparkle-project.org).
 
-- **Manual check** — *Settings → Info → Check for Updates…*, or the same item in the menu-bar menu, asks the update server immediately.
-- **Automatic check** — on by default, a background check runs about once a week. Toggle it off in *Settings → Info → Automatically check for updates*.
+- **Manual check** — _Settings → Info → Check for Updates…_, or the same item in the menu-bar menu, asks the update server immediately.
+- **Automatic check** — on by default, a background check runs about once a week. Toggle it off in _Settings → Info → Automatically check for updates_.
 - **You stay in control** — Host Flow never downloads or installs anything silently. When a new version is found it shows a prompt with the release notes; the update is applied only if you accept.
 - **Where updates come from** — released builds are published as signed DMGs on the project's [GitHub Releases](https://github.com/colilab/hosts-flow/releases) and verified with a dedicated EdDSA key before installation.
 - **Stable only** — only stable `MAJOR.MINOR.PATCH` releases are offered. Pre-release builds (`develop` / `quality` channels) are never proposed as updates.
