@@ -1,5 +1,27 @@
 # Changelog
 
+## [2026-05-26] — Homebrew tap distribution with automated cask bump
+
+**Type:** feature
+
+### Context
+On macOS Sequoia Apple removed the right-click→Open Gatekeeper bypass, so users downloading the DMG directly hit a hard popup that hides the "Open anyway" action behind System Settings. Distributing through a Homebrew tap sidesteps the prompt entirely (the cask postflight strips the `com.apple.quarantine` xattr) and gives users a one-line install / upgrade path. Sparkle remains the canonical in-app updater after install — the cask is declared `auto_updates true`.
+
+### Changes
+- New `colilab/homebrew-tap` repository hosts `Casks/hostflow.rb`. Users install with `brew install --cask colilab/tap/hostflow` and the postflight `xattr -dr com.apple.quarantine` clears the quarantine flag so the app launches without the Gatekeeper popup.
+- New `update-cask` job in `.github/workflows/release.yml` runs after `publish-release`: checks out the tap repo with `TAP_REPO_TOKEN` (fine-grained PAT, `Contents:write` on `colilab/homebrew-tap`), downloads the just-published `HostFlow-<version>.dmg`, computes its SHA-256, rewrites the `version` and `sha256` lines in `Casks/hostflow.rb` with `sed` (failing loudly via `grep -q` if the placeholder pattern doesn't match), then commits and pushes as `github-actions[bot]`.
+- `README.md` gains an "Install" section documenting `brew tap colilab/tap && brew install --cask hostflow` as the recommended path, with the direct DMG download kept as a fallback.
+- `docs/release.md` §5.4 documents the tap layout, the release-workflow automation, the manual fallback if the bump job fails, and the rotation playbook for `TAP_REPO_TOKEN`.
+
+### Files modified
+- `.github/workflows/release.yml` — new `update-cask` job (~50 lines) appended after `publish-release`.
+- `README.md` — new Install section with `brew tap` instructions.
+- `docs/release.md` — new §5.4 covering tap layout, automation, manual fallback, and PAT rotation.
+
+### Remaining manual steps (cannot be automated from this repo)
+- Create and seed `colilab/homebrew-tap` with the initial `Casks/hostflow.rb` (one-time).
+- Generate the `TAP_REPO_TOKEN` PAT and add it to this repo's Actions secrets.
+
 ## [2026-05-25] — First-run onboarding to organize existing /etc/hosts records
 
 **Type:** feature
