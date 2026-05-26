@@ -265,6 +265,99 @@ also signed for Sparkle and published to an appcast feed so existing installs
 can update themselves. The full mechanism — keys, dev flow, workflow — is
 documented in **§9**.
 
+### 5.4 Homebrew tap (friction-free first install)
+
+Because the bundle is ad-hoc signed and not notarized (see §5.2), `spctl
+--assess` rejects it and macOS Sequoia removed the right-click → **Open**
+bypass. The Gatekeeper warning users see on a direct DMG install ("Apple
+cannot verify…") is therefore the *expected* state — the only way to silence
+it for end users without notarizing is to strip the quarantine xattr after
+install.
+
+A dedicated Homebrew tap, [colilab/homebrew-tap](https://github.com/colilab/homebrew-tap),
+does that automatically. The user-facing command is:
+
+```bash
+brew install --cask colilab/tap/hostflow
+```
+
+The cask declares `auto_updates true`, meaning Sparkle remains the canonical
+updater — Homebrew installs the bundle once and then stops tracking the
+version. `brew upgrade` will not re-fetch newer DMGs on its own.
+
+#### Cask layout
+
+The cask is a single file at `Casks/hostflow.rb` in the tap repo. The two
+fields that must change every release are `version` and `sha256`; the URL is
+templated on `version` and points at the same `HostFlow-<version>.dmg` asset
+attached to the GitHub release. A `postflight` block runs
+`xattr -dr com.apple.quarantine` on the freshly-installed bundle — that is
+what makes the install friction-free for ad-hoc-signed binaries.
+
+#### Per-release update — automated
+
+The `update-cask` job in
+[`.github/workflows/release.yml`](../.github/workflows/release.yml) runs after
+`publish-release` on every stable tag push:
+
+1. Checks out `colilab/homebrew-tap` using a fine-grained PAT stored as the
+   `TAP_REPO_TOKEN` secret on `colilab/hosts-flow` (scope: `Contents: Read and
+   write` on the tap repo only).
+2. Downloads `HostFlow-<version>.dmg` from the just-published release and
+   computes its SHA-256.
+3. Rewrites the `version` and `sha256` lines of `Casks/hostflow.rb` in place
+   and pushes a `chore: bump hostflow to <version>` commit to the tap.
+
+If `TAP_REPO_TOKEN` is missing or expired the job fails loudly — the rest of
+the release (GitHub Release + Sparkle appcast) is unaffected because
+`update-cask` runs in parallel with `update-appcast`.
+
+#### Per-release update — manual fallback
+
+If the workflow can't run (token rotated mid-release, PAT revoked, etc.), the
+update is a two-line edit and a push on the tap repo:
+
+```bash
+cd /path/to/homebrew-tap
+shasum -a 256 HostFlow-<version>.dmg     # or download from the Release
+# edit Casks/hostflow.rb: bump version and sha256
+git commit -am "chore: bump hostflow to <version>"
+git push
+```
+
+#### Validating the cask locally
+
+Before merging changes to the tap, sanity-check the cask from a working
+checkout:
+
+```bash
+brew tap --force colilab/tap /path/to/local/homebrew-tap
+brew audit --cask --no-signing colilab/tap/hostflow   # --no-signing because ad-hoc
+brew install --cask --force colilab/tap/hostflow
+xattr /Applications/HostFlow.app                       # must not include com.apple.quarantine
+```
+
+`--no-signing` is required because `brew audit` otherwise runs `spctl
+--assess`, which fails on ad-hoc signatures (this is the same reason the cask
+needs the `postflight` xattr strip in the first place).
+
+#### Token rotation
+
+The fine-grained PAT behind `TAP_REPO_TOKEN` expires per its configured TTL.
+When it does, the `update-cask` job will fail with `403` on `git push`. To
+rotate:
+
+```bash
+# 1. Generate a new fine-grained PAT at github.com/settings/personal-access-tokens
+#    Owner: colilab — Repo: only colilab/homebrew-tap — Contents: Read+Write
+# 2. Replace the secret value (does NOT prompt — pipe the token):
+gh secret set TAP_REPO_TOKEN --repo colilab/hosts-flow
+```
+
+There is no cross-system trust impact: the tap PAT only authenticates a
+GitHub push, it does **not** sign any artifact. Helper-manifest and Sparkle
+key rotations (§6 and §9.6) are unrelated.
+
 ---
 
 ## 6. Key rotation
@@ -344,6 +437,8 @@ log stream --predicate 'subsystem == "com.colilab.hostflow.helper"' --info
 - [ ] `Info.plist` `SUPublicEDKey` matches the Sparkle private key in use
 - [ ] `dist/HostFlow-<version>.dmg` + `dist/appcast-entry.json` were produced
 - [ ] `Scripts/publish.sh` created the draft release before the tag was pushed
+- [ ] `TAP_REPO_TOKEN` secret on `colilab/hosts-flow` is valid (one-time setup; rotate when the PAT expires — see §5.4)
+- [ ] After the tag push: the `update-cask` job of `release.yml` succeeded (the cask in `colilab/homebrew-tap` was bumped)
 
 ---
 

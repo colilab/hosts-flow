@@ -78,3 +78,53 @@ jobs:
           fi
           git commit -m "appcast: Host Flow ${{ github.ref_name }}"
           git push
+
+  # Bump the Homebrew cask in colilab/homebrew-tap so `brew upgrade` (and new
+  # `brew install --cask colilab/tap/hostflow` runs) pick up the just-published
+  # DMG. Needs TAP_REPO_TOKEN — a fine-grained PAT with Contents:write on
+  # colilab/homebrew-tap.
+  update-cask:
+    needs: publish-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout homebrew-tap
+        uses: actions/checkout@v4
+        with:
+          repository: colilab/homebrew-tap
+          token: ${{ secrets.TAP_REPO_TOKEN }}
+          path: tap
+
+      - name: Compute DMG sha256
+        id: dmg
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          url="https://github.com/${{ github.repository }}/releases/download/${VERSION}/HostFlow-${VERSION}.dmg"
+          curl -fsSL -o /tmp/HostFlow.dmg "$url"
+          sha=$(sha256sum /tmp/HostFlow.dmg | cut -d' ' -f1)
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Update cask version + sha256
+        working-directory: tap
+        env:
+          VERSION: ${{ github.ref_name }}
+          SHA: ${{ steps.dmg.outputs.sha }}
+        run: |
+          sed -i -E "s/^(  version )\"[^\"]+\"$/\\1\"${VERSION}\"/" Casks/hostflow.rb
+          sed -i -E "s/^(  sha256 )\"[^\"]+\"$/\\1\"${SHA}\"/" Casks/hostflow.rb
+          # Fail loudly if the placeholders were not where we expected them.
+          grep -q "version \"${VERSION}\"" Casks/hostflow.rb
+          grep -q "sha256 \"${SHA}\"" Casks/hostflow.rb
+
+      - name: Commit & push tap
+        working-directory: tap
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/hostflow.rb
+          if git diff --cached --quiet; then
+            echo "cask unchanged — nothing to commit"
+            exit 0
+          fi
+          git commit -m "chore: bump hostflow to ${{ github.ref_name }}"
+          git push
