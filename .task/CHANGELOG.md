@@ -1,5 +1,20 @@
 # Changelog
 
+## [2026-05-26] — Fix custom records duplicated across Default and Imported profiles on first run
+
+**Type:** bugfix
+
+### Context
+On a fresh install with pre-existing custom entries in `/etc/hosts`, the onboarding wizard correctly created the new `Imported` profile and populated it with the discovered customs, but the same records also remained in the read-only `Default` profile. Result: every custom record appeared in two active profiles at once, triggering the duplicate-pair warning triangle in `ProfileDetailView` and getting written twice through the managed block. Root cause: `seedIfNeeded` populated `Default` from the unclassified output of `parseSystemHosts()` (system + custom), and `completeOnboardingImporting` never pruned the customs back out. A secondary path through `syncDefaultFromFile` could re-introduce customs into `Default` whenever the unmanaged section briefly contained them.
+
+### Changes
+- `seedIfNeeded` now reads `parseSystemHostsClassified().system` and only seeds system entries into `Default`. Custom entries stay in `/etc/hosts` for the onboarding wizard to claim.
+- `syncDefaultFromFile` filters `parseUnmanaged` through `SystemHostEntries.isSystem` before reconciling, so the watcher cannot leak custom records back into `Default` regardless of the order in which the unmanaged section is rewritten.
+- `completeOnboardingImporting` deletes any non-system records from the read-only `Default` profile after creating the `Imported` profile, defending the invariant for installations seeded before this fix lands on disk.
+
+### Files modified
+- `HostFlow/Stores/ProfileStore.swift` — three localized edits to `seedIfNeeded`, `syncDefaultFromFile`, and `completeOnboardingImporting` establishing the invariant "`Default` contains only system entries" at every point where `Default` is populated or reconciled.
+
 ## [2026-05-26] — Homebrew tap distribution with automated cask bump
 
 **Type:** feature
