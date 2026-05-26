@@ -2581,14 +2581,14 @@
     },
     "onboarding.first_run.preview.title" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review the import" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rivedi l'importazione" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "First Setup" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Primo Setup" } }
       }
     },
     "onboarding.first_run.preview.subtitle" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "These records will be moved into the new profile. System entries will stay outside the managed block." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Questi record verranno spostati nel nuovo profilo. Le entry di sistema resteranno fuori dal blocco gestito." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "We found some custom records in your hosts file." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sono stati trovati alcuni record personalizzati nel tuo file hosts." } }
       }
     },
     "onboarding.first_run.preview.profile_name.label" : {
@@ -2605,14 +2605,14 @@
     },
     "onboarding.first_run.preview.customs.title" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Records to import (%d)" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Record da importare (%d)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom records (%d)" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Record personalizzati (%d)" } }
       }
     },
     "onboarding.first_run.preview.system.title" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "System entries (kept outside the managed block)" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Entry di sistema (restano fuori dal blocco gestito)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System records (Default)" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Record di sistema (Default)" } }
       }
     },
     "onboarding.first_run.preview.record.disabled" : {
@@ -2623,8 +2623,8 @@
     },
     "onboarding.first_run.preview.action.apply" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Apply" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Applica" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Continua" } }
       }
     }
   },
