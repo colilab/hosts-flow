@@ -119,5 +119,42 @@ one command; <code>docs/release.md</code> updated accordingly.</li>
         length="3246753"
         type="application/octet-stream" />
     </item>
+    <item>
+      <title>1.0.8</title>
+      <pubDate>Tue, 26 May 2026 10:37:44 +0000</pubDate>
+      <sparkle:version>8</sparkle:version>
+      <sparkle:shortVersionString>1.0.8</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h2 id="whats-new">What's new</h2>
+<ul>
+<li><strong>Homebrew tap distribution</strong>: install Host Flow with
+<code>brew install --cask colilab/tap/hostflow</code>. The cask
+postflight strips the <code>com.apple.quarantine</code> xattr so the app
+launches without the macOS Sequoia Gatekeeper popup. Sparkle remains the
+in-app updater.</li>
+</ul>
+<h2 id="fixes">Fixes</h2>
+<ul>
+<li>Custom records discovered in <code>/etc/hosts</code> on first run no
+longer appear in both the read-only <code>Default</code> profile and the
+new <code>Imported</code> profile. <code>Default</code> is now strictly
+seeded from system entries, and the watcher reconciliation filters out
+custom records before merging back.</li>
+<li>First-run onboarding labels reworded for clarity ("First Setup",
+"Custom records", "System records (Default)", "Continue").</li>
+</ul>
+<h2 id="automation">Automation</h2>
+<ul>
+<li>New <code>update-cask</code> job in
+<code>.github/workflows/release.yml</code> bumps the
+<code>colilab/homebrew-tap</code> cask automatically after each stable
+release.</li>
+</ul>]]></description>
+      <enclosure
+        url="https://github.com/colilab/hosts-flow/releases/download/1.0.8/HostFlow-1.0.8.dmg"
+        sparkle:edSignature="O1bPhtMYSMqROhAXAProZeNdBRIgD6FPKHg3eeG3o8GCoMdZ6q691POXA9JqxA5ts6aWzHbXEI8+FnzlLZNdCQ=="
+        length="3246543"
+        type="application/octet-stream" />
+    </item>
   </channel>
 </rss>
