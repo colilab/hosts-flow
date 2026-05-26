@@ -171,6 +171,14 @@ final class ProfileStore {
             host.isEnabled = record.isEnabled
             context.insert(host)
         }
+
+        let defaultDescriptor = FetchDescriptor<Profile>(predicate: #Predicate { $0.isReadOnly == true })
+        if let defaultProfile = (try? context.fetch(defaultDescriptor))?.first {
+            for record in defaultProfile.records where !SystemHostEntries.isSystem(ip: record.ip, hostname: record.hostname) {
+                context.delete(record)
+            }
+        }
+
         try? context.save()
 
         markFirstRunOnboardingCompleted()
@@ -213,15 +221,15 @@ final class ProfileStore {
         profile.isActive = true
         context.insert(profile)
 
-        let parsed: [ParsedHostRecord]
+        let systemEntries: [ParsedHostRecord]
         do {
-            parsed = try HostsFileParser.parseSystemHosts()
+            systemEntries = try HostsFileParser.parseSystemHostsClassified().system
         } catch {
             print("HostFlow: seed could not read /etc/hosts — \(error.localizedDescription). Creating empty Default.")
-            parsed = []
+            systemEntries = []
         }
 
-        for entry in parsed {
+        for entry in systemEntries {
             let record = HostRecord(ip: entry.ip, hostname: entry.hostname, profile: profile)
             record.isEnabled = entry.isEnabled
             context.insert(record)
@@ -234,7 +242,7 @@ final class ProfileStore {
         let parsed: [ParsedHostRecord]
         do {
             let content = try HostsFileManager.shared.read()
-            parsed = HostsFileParser.parseUnmanaged(content)
+            parsed = HostsFileParser.parseUnmanaged(content).filter(SystemHostEntries.isSystem)
         } catch {
             print("HostFlow: watcher could not read /etc/hosts — \(error.localizedDescription)")
             return
