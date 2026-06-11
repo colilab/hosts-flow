@@ -47,10 +47,41 @@ final class HelperInstaller {
         refreshStatus()
     }
 
+    /// Fast, side-effect-free check used on the hosts-write hot path
+    /// (`ProfileStore`): only verifies the two privileged files exist. Does not
+    /// spawn a subprocess, so it must not be relied on to detect a "ghost"
+    /// launchd registration — use `refreshStatusVerified()` for that.
     func refreshStatus() {
         let installed = FileManager.default.fileExists(atPath: installedPlistPath)
             && FileManager.default.fileExists(atPath: installedHelperPath)
         status = installed ? .installed : .notInstalled
+    }
+
+    /// Authoritative status: the files must exist *and* the daemon must be
+    /// registered with launchd. Spawns `launchctl print`, so it is only used in
+    /// non-hot paths (install/uninstall result, Settings appearance).
+    func refreshStatusVerified() {
+        let filesExist = FileManager.default.fileExists(atPath: installedPlistPath)
+            && FileManager.default.fileExists(atPath: installedHelperPath)
+        status = (filesExist && isRegistered()) ? .installed : .notInstalled
+    }
+
+    /// Whether launchd currently has the helper's service registered in the
+    /// system domain. `launchctl print system/<label>` exits 0 when the service
+    /// is bootstrapped, non-zero otherwise. Does not require privileges.
+    private func isRegistered() -> Bool {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+        process.arguments = ["print", "system/\(helperLabel)"]
+        process.standardOutput = Pipe()
+        process.standardError = Pipe()
+        do {
+            try process.run()
+        } catch {
+            return false
+        }
+        process.waitUntilExit()
+        return process.terminationStatus == 0
     }
 
     func install() throws {
@@ -66,21 +97,42 @@ final class HelperInstaller {
             throw HelperInstallerError.bundleResourceMissing(bundledPlist.path)
         }
 
+        // Idempotent against a "ghost" registration left by a previous version
+        // (brew uninstall removes the .app but never boots out the daemon nor
+        // deletes /Library/LaunchDaemons + /Library/PrivilegedHelperTools).
+        //
+        //  1. bootout by LABEL — booting out by plist path is a no-op when the
+        //     on-disk plist no longer matches what launchd has registered,
+        //     which leaves the stale service loaded and makes the later
+        //     bootstrap fail with "5: Input/output error".
+        //  2. wait (bounded) until launchctl no longer reports the service, so
+        //     the old helper process has exited before we overwrite its binary
+        //     (overwriting a running, mapped executable yields ETXTBSY/EIO).
+        //  3. copy + chown + chmod, forced so it also fixes files left with
+        //     wrong ownership/permissions by an earlier failed attempt.
+        //  4. bootstrap, then verify the service is actually registered — a
+        //     silent bootstrap failure must surface as a script error.
+        let label = helperLabel
         let script = """
         set -e
+        launchctl bootout system/\(label) 2>/dev/null || true
+        for _ in $(seq 1 15); do
+            launchctl print system/\(label) >/dev/null 2>&1 || break
+            sleep 0.2
+        done
         cp "\(bundledHelper.path)" "\(installedHelperPath)"
         chown root:wheel "\(installedHelperPath)"
         chmod 755 "\(installedHelperPath)"
         cp "\(bundledPlist.path)" "\(installedPlistPath)"
         chown root:wheel "\(installedPlistPath)"
         chmod 644 "\(installedPlistPath)"
-        launchctl bootout system "\(installedPlistPath)" 2>/dev/null || true
         launchctl bootstrap system "\(installedPlistPath)"
+        launchctl print system/\(label) >/dev/null 2>&1 || { echo "service not registered after bootstrap" >&2; exit 1; }
         """
 
         do {
             try runPrivileged(script: script, prompt: String(localized: "helper.install.prompt"))
-            status = .installed
+            refreshStatusVerified()
         } catch {
             status = .error(error)
             throw error
@@ -89,7 +141,7 @@ final class HelperInstaller {
 
     func uninstall() throws {
         let script = """
-        launchctl bootout system "\(installedPlistPath)" 2>/dev/null || true
+        launchctl bootout system/\(helperLabel) 2>/dev/null || true
         rm -f "\(installedHelperPath)"
         rm -f "\(installedPlistPath)"
         """

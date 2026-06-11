@@ -16,18 +16,18 @@ L'installazione dell'helper privilegiato fallisce con `Bootstrap failed: 5: Inpu
 - Chi non riproduce ha semplicemente uno stato launchd pulito (nessun residuo da versioni precedenti).
 
 ## Steps
-1. [ ] Riscrivere lo script di **install** in `HelperInstaller.install()` — `HostFlow/Helpers/HelperInstaller.swift`:
+1. [x] Riscrivere lo script di **install** in `HelperInstaller.install()` — `HostFlow/Helpers/HelperInstaller.swift`:
    - `launchctl bootout system/<label>` (per label) invece che per path, tollerando il fallimento (servizio non presente).
    - Loop di **attesa bounded** (~3s, step 0.2s) finché `launchctl print system/<label>` smette di trovare il servizio, così il binario non è più in uso prima della `cp`.
    - `cp` + `chown root:wheel` + `chmod` forzati su binario (755) e plist (644), validi anche se i file preesistono.
    - `launchctl bootstrap system "<plist>"`.
    - **Verifica finale**: `launchctl print system/<label>` deve avere successo; in caso contrario `exit` con messaggio chiaro così che `scriptFailed` riporti l'errore reale.
-2. [ ] Riscrivere lo script di **uninstall** in `HelperInstaller.uninstall()` — usare `launchctl bootout system/<label>` (per label) coerentemente, poi `rm -f` dei due file.
-3. [ ] Estrarre il label e i path in costanti riusabili nello script (evitare interpolazioni ripetute, ridurre rischio di escaping).
-4. [ ] Aggiungere `verifyRegistered() -> Bool` in `HelperInstaller` che esegue `launchctl print system/<label>` e ritorna l'esito (subprocess, **non** nel hot path). — `HostFlow/Helpers/HelperInstaller.swift`
-5. [ ] Aggiornare `refreshStatus()`: mantenere il file-check veloce per gli hot path; quando i file esistono, confermare con `verifyRegistered()` **solo se** chiamato dai flussi non-hot. Realizzazione concreta: `refreshStatus()` resta file-based (usato da ProfileStore); aggiungere `refreshStatusVerified()` che combina file-check + `verifyRegistered()` e usarlo in `install()`/`uninstall()` (per impostare lo stato finale reale) e nel `.task` di Settings. — `HostFlow/Helpers/HelperInstaller.swift`, `HostFlow/Views/Settings/HelperSettingsSection.swift`
-6. [ ] Verificare che i call site in `ProfileStore.swift` (righe ~196, 330, 350, 368) restino sul `refreshStatus()` veloce — nessuna modifica funzionale lì, solo conferma di non introdurre subprocess sincroni nel path di scrittura.
-7. [ ] Build di verifica (`xcodebuild`/xcodegen) — deve compilare senza errori.
+2. [x] Riscrivere lo script di **uninstall** in `HelperInstaller.uninstall()` — usare `launchctl bootout system/<label>` (per label) coerentemente, poi `rm -f` dei due file.
+3. [x] Estrarre il label e i path in costanti riusabili nello script (evitare interpolazioni ripetute, ridurre rischio di escaping).
+4. [x] Aggiungere `verifyRegistered() -> Bool` in `HelperInstaller` che esegue `launchctl print system/<label>` e ritorna l'esito (subprocess, **non** nel hot path). — `HostFlow/Helpers/HelperInstaller.swift`
+5. [x] Aggiornare `refreshStatus()`: mantenere il file-check veloce per gli hot path; quando i file esistono, confermare con `verifyRegistered()` **solo se** chiamato dai flussi non-hot. Realizzazione concreta: `refreshStatus()` resta file-based (usato da ProfileStore); aggiungere `refreshStatusVerified()` che combina file-check + `verifyRegistered()` e usarlo in `install()`/`uninstall()` (per impostare lo stato finale reale) e nel `.task` di Settings. — `HostFlow/Helpers/HelperInstaller.swift`, `HostFlow/Views/Settings/HelperSettingsSection.swift`
+6. [x] Verificare che i call site in `ProfileStore.swift` (righe ~196, 330, 350, 368) restino sul `refreshStatus()` veloce — nessuna modifica funzionale lì, solo conferma di non introdurre subprocess sincroni nel path di scrittura.
+7. [x] Build di verifica (`xcodebuild`/xcodegen) — deve compilare senza errori.
 
 ## Out of scope
 - Notarizzazione o firma dell'helper (firma/macOS sono identiche tra chi riproduce e chi no → non è la causa).
@@ -41,3 +41,9 @@ Build locale + code review. La conferma funzionale (assenza di errore 5 in prese
 
 ## Open questions
 - Nessuna.
+
+---
+
+**Completed:** 2026-06-11
+
+**Resolution:** Reso idempotente l'installer dell'helper: bootout per label, attesa bounded prima della copia del binario, permessi forzati, verifica post-bootstrap con `launchctl print`; aggiunto `refreshStatusVerified()`/`isRegistered()` per lo stato reale fuori dagli hot path, mantenendo `refreshStatus()` veloce in ProfileStore. Build verificata (BUILD SUCCEEDED); conferma funzionale delegata all'utente che riproduce il bug.
