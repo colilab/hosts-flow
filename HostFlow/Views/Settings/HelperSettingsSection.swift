@@ -35,7 +35,7 @@ struct HelperSettingsSection: View {
                     .foregroundStyle(.red)
             }
         }
-        .task { settings.helperInstaller.refreshStatus() }
+        .task { settings.helperInstaller.refreshStatusVerified() }
         .confirmationDialog(
             "helper.uninstall.confirm.title",
             isPresented: $showUninstallConfirm,

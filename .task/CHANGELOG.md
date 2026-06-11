@@ -1,5 +1,21 @@
 # Changelog
 
+## [2026-06-11] — Harden privileged helper installer against stale launchd state
+
+**Type:** bugfix
+
+### Context
+A user installing via Homebrew hit `Bootstrap failed: 5: Input/output error` when installing the helper and "Could not communicate with a helper application" on write, while other users on the same macOS (Tahoe 26.5.1) and the same brew flow could not reproduce. Root cause: `brew uninstall` removes the `.app` but never boots out the daemon nor deletes `/Library/LaunchDaemons` and `/Library/PrivilegedHelperTools`, leaving a "ghost" service registered in launchd from a previous version. The installer's `launchctl bootout system "<plist-path>"` is a no-op when the on-disk plist no longer matches what launchd has registered, so the stale service stays loaded and the subsequent `launchctl bootstrap` fails with error 5. The XPC write error followed because the `MachService` pointed at the dead/old helper. Users who did not reproduce simply had a clean launchd state.
+
+### Changes
+- Install script is now idempotent: boots out by **label** (`system/<label>`) instead of by plist path; waits (bounded, ~3s) until launchd no longer reports the service before overwriting the binary (avoids ETXTBSY/EIO from overwriting a running executable); forces `chown`/`chmod` so it also repairs files left with wrong ownership by an earlier failed attempt; and verifies with `launchctl print` after `bootstrap`, surfacing a silent bootstrap failure as a script error.
+- Uninstall script boots out by label as well, for consistency.
+- Added `refreshStatusVerified()` and a private `isRegistered()` that confirm the daemon is actually registered with launchd (`launchctl print`), used in the install/uninstall result and in the Settings appearance. The existing fast, file-only `refreshStatus()` is kept for the hosts-write hot path in `ProfileStore` to avoid spawning a subprocess on every write.
+
+### Files modified
+- `HostFlow/Helpers/HelperInstaller.swift` — rewrote the install/uninstall scripts (bootout-by-label, bounded wait, forced permissions, post-bootstrap verification); added `refreshStatusVerified()` and `isRegistered()`; documented `refreshStatus()` as the fast file-only check; install/uninstall now set status via the verified check.
+- `HostFlow/Views/Settings/HelperSettingsSection.swift` — Settings `.task` now calls `refreshStatusVerified()` so the displayed status reflects the real launchd registration, not just file presence.
+
 ## [2026-05-26] — Fix custom records duplicated across Default and Imported profiles on first run
 
 **Type:** bugfix
